@@ -362,6 +362,13 @@ pub const PREFERENCE_FIELDS: &[PreferenceField] = &[
         reason: "device_bound",
     },
     PreferenceField {
+        rust_name: "rich_text_insertion_enabled",
+        key: "richTextInsertionEnabled",
+        class: PreferenceClass::DeviceProfile,
+        shape: PreferenceShape::Boolean,
+        reason: "device_bound",
+    },
+    PreferenceField {
         rust_name: "working_languages",
         key: "workingLanguages",
         class: PreferenceClass::Portable,

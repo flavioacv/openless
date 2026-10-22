@@ -180,18 +180,23 @@ impl WhisperBatchASR {
             .iter()
             .map(|chunk| i16::from_le_bytes([chunk[0], chunk[1]]))
             .collect();
-        let wav = encode_wav_16k_mono(&samples);
+        let (audio_bytes, filename, mime_str) =
+            match crate::asr::opus::encode_ogg_opus_16k_mono(&samples) {
+                Some(opus) => (opus, "audio.ogg", "audio/ogg"),
+                None => (encode_wav_16k_mono(&samples), "audio.wav", "audio/wav"),
+            };
+        let wav = audio_bytes;
         let url = transcription_url(&self.base_url, self.endpoint_path.as_deref())?;
         let client = crate::net::http();
 
         let request = match self.request_format {
             AsrRequestFormat::Multipart => {
-                let wav_part = reqwest::multipart::Part::bytes(wav)
-                    .file_name("audio.wav")
-                    .mime_str("audio/wav")
+                let file_part = reqwest::multipart::Part::bytes(wav)
+                    .file_name(filename)
+                    .mime_str(mime_str)
                     .context("set MIME type")?;
                 let mut form = reqwest::multipart::Form::new()
-                    .part("file", wav_part)
+                    .part("file", file_part)
                     .text("model", self.model.clone());
 
                 // Only verbose_json-capable providers (OpenAI / Groq) get a

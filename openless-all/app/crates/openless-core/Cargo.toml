@@ -23,6 +23,7 @@ hex = "0.4.3"
 log = "0.4"
 jsonwebtoken = { version = "11.1", default-features = false, features = ["rust_crypto"] }
 md-5 = "0.11.0"
+opus-pure = "0.2.2"
 once_cell = "1"
 parking_lot = "0.12"
 regex = "1"

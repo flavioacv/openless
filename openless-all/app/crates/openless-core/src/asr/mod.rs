@@ -12,6 +12,7 @@ pub mod qwen_realtime;
 pub mod stepfun_realtime;
 pub mod tencent_cloud;
 pub mod volcengine;
+pub mod opus;
 pub mod wav;
 pub mod whisper;
 pub mod xfyun;

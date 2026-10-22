@@ -279,6 +279,8 @@ export function RecordingInputSection({
     savePrefs({ ...prefs, microphoneDeviceName });
   const onRestoreClipboardChange = (restoreClipboardAfterPaste: boolean) =>
     savePrefs({ ...prefs, restoreClipboardAfterPaste });
+  const onRichTextInsertionChange = (richTextInsertionEnabled: boolean) =>
+    savePrefs({ ...prefs, richTextInsertionEnabled });
   const onPasteShortcutChange = (pasteShortcut: PasteShortcut) =>
     savePrefs({ ...prefs, pasteShortcut });
   const onPlainTextInsertionChange = (on: boolean) =>
@@ -765,6 +767,12 @@ export function RecordingInputSection({
             desc={t('settings.recording.restoreClipboardDesc')}
           >
             <Toggle on={prefs.restoreClipboardAfterPaste} onToggle={onRestoreClipboardChange} />
+          </SettingRow>
+          <SettingRow
+            label={t('settings.recording.richTextInsertionLabel', 'Inserir Rich-Text (HTML)')}
+            desc={t('settings.recording.richTextInsertionDesc', 'Preserva formatação Markdown (negrito, itálico, listas, títulos) ao colar')}
+          >
+            <Toggle on={prefs.richTextInsertionEnabled ?? true} onToggle={onRichTextInsertionChange} />
           </SettingRow>
           {capability.adapter !== 'macEventTap' && (
             <SettingRow

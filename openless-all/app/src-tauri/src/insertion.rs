@@ -186,17 +186,48 @@ fn map_sendinput_type_result(
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-#[derive(Debug)]
-struct ClipboardRestorePlan {
-    inserted_text: String,
-    previous_text: Option<String>,
+#[derive(Clone, Debug)]
+enum PreviousClipboardContent {
+    Image(arboard::ImageData<'static>),
+    Html { html: String, alt_text: Option<String> },
+    Text(String),
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-#[derive(Debug, Clone)]
+impl PartialEq for PreviousClipboardContent {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Image(a), Self::Image(b)) => {
+                a.width == b.width && a.height == b.height && a.bytes == b.bytes
+            }
+            (
+                Self::Html {
+                    html: h1,
+                    alt_text: a1,
+                },
+                Self::Html {
+                    html: h2,
+                    alt_text: a2,
+                },
+            ) => h1 == h2 && a1 == a2,
+            (Self::Text(t1), Self::Text(t2)) => t1 == t2,
+            _ => false,
+        }
+    }
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+#[derive(Debug)]
+struct ClipboardRestorePlan {
+    inserted_text: String,
+    previous_content: Option<PreviousClipboardContent>,
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+#[derive(Clone, Debug)]
 struct PendingClipboardRestore {
     latest_restore_id: u64,
-    original_text: Option<String>,
+    original_content: Option<PreviousClipboardContent>,
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -205,6 +236,209 @@ static NEXT_CLIPBOARD_RESTORE_ID: AtomicU64 = AtomicU64::new(1);
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 static PENDING_CLIPBOARD_RESTORE: Lazy<Mutex<Option<PendingClipboardRestore>>> =
     Lazy::new(|| Mutex::new(None));
+
+/// Converts basic markdown formatting (bold, italic, inline code, code blocks, bullet points, headers)
+/// into HTML suitable for rich-text clipboard insertion (Slack, Notion, Google Docs, etc.).
+/// Returns None if no markdown formatting markers are present.
+pub fn markdown_to_rich_html(text: &str) -> Option<String> {
+    if !has_markdown_markers(text) {
+        return None;
+    }
+
+    let mut html = String::with_capacity(text.len() * 2);
+    let mut in_code_block = false;
+    let mut in_list = false;
+
+    for line in text.lines() {
+        let trimmed = line.trim();
+
+        // Code block toggle (```)
+        if trimmed.starts_with("```") {
+            if in_code_block {
+                html.push_str("</code></pre>\n");
+                in_code_block = false;
+            } else {
+                if in_list {
+                    html.push_str("</ul>\n");
+                    in_list = false;
+                }
+                html.push_str("<pre><code>");
+                in_code_block = true;
+            }
+            continue;
+        }
+
+        if in_code_block {
+            html.push_str(&escape_html(line));
+            html.push('\n');
+            continue;
+        }
+
+        // List item (- or *)
+        if let Some(item_text) = trimmed.strip_prefix("- ").or_else(|| trimmed.strip_prefix("* ")) {
+            if !in_list {
+                html.push_str("<ul>\n");
+                in_list = true;
+            }
+            html.push_str("  <li>");
+            html.push_str(&render_inline_markdown(item_text));
+            html.push_str("</li>\n");
+            continue;
+        } else if in_list {
+            html.push_str("</ul>\n");
+            in_list = false;
+        }
+
+        // Headers (#, ##, ###)
+        if let Some(h1) = trimmed.strip_prefix("# ") {
+            html.push_str("<h1>");
+            html.push_str(&render_inline_markdown(h1));
+            html.push_str("</h1>\n");
+            continue;
+        }
+        if let Some(h2) = trimmed.strip_prefix("## ") {
+            html.push_str("<h2>");
+            html.push_str(&render_inline_markdown(h2));
+            html.push_str("</h2>\n");
+            continue;
+        }
+        if let Some(h3) = trimmed.strip_prefix("### ") {
+            html.push_str("<h3>");
+            html.push_str(&render_inline_markdown(h3));
+            html.push_str("</h3>\n");
+            continue;
+        }
+
+        if trimmed.is_empty() {
+            html.push_str("<br/>\n");
+            continue;
+        }
+
+        // Regular line / paragraph
+        html.push_str("<p>");
+        html.push_str(&render_inline_markdown(line));
+        html.push_str("</p>\n");
+    }
+
+    if in_code_block {
+        html.push_str("</code></pre>\n");
+    }
+    if in_list {
+        html.push_str("</ul>\n");
+    }
+
+    Some(html)
+}
+
+fn has_markdown_markers(text: &str) -> bool {
+    text.contains("**")
+        || text.contains("__")
+        || text.contains("```")
+        || text.contains('`')
+        || text.lines().any(|l| {
+            let t = l.trim_start();
+            t.starts_with("# ")
+                || t.starts_with("## ")
+                || t.starts_with("### ")
+                || t.starts_with("- ")
+                || t.starts_with("* ")
+        })
+}
+
+fn escape_html(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    for c in text.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#39;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+fn render_inline_markdown(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut chars = text.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        match c {
+            '`' => {
+                // Inline code
+                let mut code = String::new();
+                let mut closed = false;
+                while let Some(nc) = chars.next() {
+                    if nc == '`' {
+                        closed = true;
+                        break;
+                    }
+                    code.push(nc);
+                }
+                if closed {
+                    out.push_str("<code>");
+                    out.push_str(&escape_html(&code));
+                    out.push_str("</code>");
+                } else {
+                    out.push('`');
+                    out.push_str(&escape_html(&code));
+                }
+            }
+            '*' => {
+                if chars.peek() == Some(&'*') {
+                    chars.next(); // consume second '*'
+                    // Bold **...**
+                    let mut bold = String::new();
+                    let mut closed = false;
+                    while let Some(nc) = chars.next() {
+                        if nc == '*' && chars.peek() == Some(&'*') {
+                            chars.next();
+                            closed = true;
+                            break;
+                        }
+                        bold.push(nc);
+                    }
+                    if closed {
+                        out.push_str("<strong>");
+                        out.push_str(&render_inline_markdown(&bold));
+                        out.push_str("</strong>");
+                    } else {
+                        out.push_str("**");
+                        out.push_str(&render_inline_markdown(&bold));
+                    }
+                } else {
+                    // Italic *...*
+                    let mut italic = String::new();
+                    let mut closed = false;
+                    while let Some(nc) = chars.next() {
+                        if nc == '*' {
+                            closed = true;
+                            break;
+                        }
+                        italic.push(nc);
+                    }
+                    if closed {
+                        out.push_str("<em>");
+                        out.push_str(&render_inline_markdown(&italic));
+                        out.push_str("</em>");
+                    } else {
+                        out.push('*');
+                        out.push_str(&render_inline_markdown(&italic));
+                    }
+                }
+            }
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#39;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 fn copy_to_clipboard(text: &str) -> bool {
@@ -215,7 +449,15 @@ fn copy_to_clipboard(text: &str) -> bool {
             return false;
         }
     };
-    if let Err(err) = clipboard.set_text(text.to_string()) {
+    if let Some(html) = markdown_to_rich_html(text) {
+        if let Err(err) = clipboard.set().html(html, Some(text.to_string())) {
+            log::warn!("[insertion] clipboard set_html fallback to plain text: {}", err);
+            if let Err(err) = clipboard.set_text(text.to_string()) {
+                log::error!("[insertion] clipboard set_text failed: {}", err);
+                return false;
+            }
+        }
+    } else if let Err(err) = clipboard.set_text(text.to_string()) {
         log::error!("[insertion] clipboard set_text failed: {}", err);
         return false;
     }
@@ -244,24 +486,41 @@ fn copy_to_clipboard(text: &str) -> bool {
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
+fn snapshot_clipboard_content(clipboard: &mut arboard::Clipboard) -> Option<PreviousClipboardContent> {
+    if let Ok(img) = clipboard.get_image() {
+        return Some(PreviousClipboardContent::Image(img));
+    }
+    if let Ok(html) = clipboard.get().html() {
+        let alt_text = clipboard.get_text().ok();
+        return Some(PreviousClipboardContent::Html { html, alt_text });
+    }
+    if let Ok(text) = clipboard.get_text() {
+        return Some(PreviousClipboardContent::Text(text));
+    }
+    None
+}
+
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 fn copy_to_clipboard_with_restore_plan(text: &str) -> Result<ClipboardRestorePlan, String> {
     let mut clipboard = arboard::Clipboard::new().map_err(|e| e.to_string())?;
-    let previous_text = match clipboard.get_text() {
-        Ok(existing) => Some(existing),
-        Err(err) => {
-            log::warn!(
-                "[insertion] clipboard get_text failed before overwrite: {}",
-                err
-            );
-            None
+    let previous_content = snapshot_clipboard_content(&mut clipboard);
+
+    if let Some(html) = markdown_to_rich_html(text) {
+        if let Err(err) = clipboard.set().html(html, Some(text.to_string())) {
+            log::warn!("[insertion] clipboard set_html fallback to plain text: {}", err);
+            clipboard
+                .set_text(text.to_string())
+                .map_err(|e| e.to_string())?;
         }
-    };
-    clipboard
-        .set_text(text.to_string())
-        .map_err(|e| e.to_string())?;
+    } else {
+        clipboard
+            .set_text(text.to_string())
+            .map_err(|e| e.to_string())?;
+    }
+
     Ok(ClipboardRestorePlan {
         inserted_text: text.to_string(),
-        previous_text,
+        previous_content,
     })
 }
 
@@ -292,35 +551,37 @@ fn insert_with_clipboard_restore(
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 fn schedule_clipboard_restore(plan: ClipboardRestorePlan) {
-    let (restore_id, original_text) =
-        remember_pending_clipboard_restore(plan.previous_text.clone());
+    let (restore_id, original_content) =
+        remember_pending_clipboard_restore(plan.previous_content.clone());
     std::thread::spawn(move || {
-        restore_clipboard_after_delay(plan, original_text, restore_id, CLIPBOARD_RESTORE_DELAY)
+        restore_clipboard_after_delay(plan, original_content, restore_id, CLIPBOARD_RESTORE_DELAY)
     });
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-fn remember_pending_clipboard_restore(previous_text: Option<String>) -> (u64, Option<String>) {
+fn remember_pending_clipboard_restore(
+    previous_content: Option<PreviousClipboardContent>,
+) -> (u64, Option<PreviousClipboardContent>) {
     let restore_id = NEXT_CLIPBOARD_RESTORE_ID.fetch_add(1, Ordering::SeqCst);
-    let original_text = {
+    let original_content = {
         let mut pending = PENDING_CLIPBOARD_RESTORE.lock();
         let original = pending
             .as_ref()
-            .map(|batch| batch.original_text.clone())
-            .unwrap_or(previous_text);
+            .map(|batch| batch.original_content.clone())
+            .unwrap_or(previous_content);
         *pending = Some(PendingClipboardRestore {
             latest_restore_id: restore_id,
-            original_text: original.clone(),
+            original_content: original.clone(),
         });
         original
     };
-    (restore_id, original_text)
+    (restore_id, original_content)
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 fn restore_clipboard_after_delay(
     plan: ClipboardRestorePlan,
-    original_text: Option<String>,
+    original_content: Option<PreviousClipboardContent>,
     restore_id: u64,
     delay: Duration,
 ) {
@@ -354,9 +615,23 @@ fn restore_clipboard_after_delay(
     };
 
     if should_restore_clipboard(current_text.as_deref(), &plan.inserted_text) {
-        if let Some(previous_text) = original_text {
-            if let Err(err) = clipboard.set_text(previous_text) {
-                log::warn!("[insertion] clipboard restore failed: {}", err);
+        if let Some(content) = original_content {
+            match content {
+                PreviousClipboardContent::Image(img) => {
+                    if let Err(err) = clipboard.set_image(img) {
+                        log::warn!("[insertion] clipboard image restore failed: {}", err);
+                    }
+                }
+                PreviousClipboardContent::Html { html, alt_text } => {
+                    if let Err(err) = clipboard.set().html(html, alt_text) {
+                        log::warn!("[insertion] clipboard html restore failed: {}", err);
+                    }
+                }
+                PreviousClipboardContent::Text(text) => {
+                    if let Err(err) = clipboard.set_text(text) {
+                        log::warn!("[insertion] clipboard text restore failed: {}", err);
+                    }
+                }
             }
         }
     } else {
@@ -656,13 +931,27 @@ mod tests {
         *PENDING_CLIPBOARD_RESTORE.lock() = None;
 
         let (first_id, first_original) =
-            remember_pending_clipboard_restore(Some("user clipboard".to_string()));
+            remember_pending_clipboard_restore(Some(PreviousClipboardContent::Text(
+                "user clipboard".to_string(),
+            )));
         let (second_id, second_original) =
-            remember_pending_clipboard_restore(Some("first dictated text".to_string()));
+            remember_pending_clipboard_restore(Some(PreviousClipboardContent::Text(
+                "first dictated text".to_string(),
+            )));
 
         assert_ne!(first_id, second_id);
-        assert_eq!(first_original.as_deref(), Some("user clipboard"));
-        assert_eq!(second_original.as_deref(), Some("user clipboard"));
+        assert_eq!(
+            first_original,
+            Some(PreviousClipboardContent::Text(
+                "user clipboard".to_string()
+            ))
+        );
+        assert_eq!(
+            second_original,
+            Some(PreviousClipboardContent::Text(
+                "user clipboard".to_string()
+            ))
+        );
         assert!(!is_latest_clipboard_restore(first_id));
         assert!(is_latest_clipboard_restore(second_id));
 
@@ -770,5 +1059,19 @@ mod tests {
             pasted.lock().unwrap().as_deref(),
             Some(inserted_text.as_str())
         );
+    }
+
+    #[test]
+    fn markdown_to_rich_html_converts_formatting() {
+        assert_eq!(markdown_to_rich_html("simple text without markers"), None);
+
+        let input = "Here is **bold text** and `code`\n- Item 1\n- Item 2";
+        let html = markdown_to_rich_html(input).expect("should produce html");
+        assert!(html.contains("<strong>bold text</strong>"));
+        assert!(html.contains("<code>code</code>"));
+        assert!(html.contains("<ul>"));
+        assert!(html.contains("<li>Item 1</li>"));
+        assert!(html.contains("<li>Item 2</li>"));
+        assert!(html.contains("</ul>"));
     }
 }

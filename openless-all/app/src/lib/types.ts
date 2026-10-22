@@ -442,6 +442,8 @@ export interface UserPreferences {
   windowsSendInputInsertionOnly: boolean;
   /** Windows: whether to show OpenLess in the system keyboard list (Win+Space) for non-TSF insertion. */
   windowsShowOpenlessInKeyboardList: boolean;
+  /** Whether to insert rich HTML alongside plain text for supported markdown formatting. */
+  richTextInsertionEnabled?: boolean;
   /** User's working languages (multi-select, native names); injected as a premise at the head of LLM polish/translate prompts. */
   workingLanguages: string[];
   /** Translation mode target language (single-select, native name); empty string = Shift translation disabled. See issue #4. */

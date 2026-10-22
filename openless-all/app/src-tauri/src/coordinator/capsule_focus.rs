@@ -63,7 +63,21 @@ pub(crate) fn capture_frontmost_app() -> Option<String> {
     // into selection: it now exposes the structured `current_front_app_parts`, which the
     // `host_document` bundle blocklist also needs. One implementation, three consumers.
     match crate::selection::current_front_app_parts() {
-        (Some(name), Some(bundle)) => Some(format!("{name} ({bundle})")),
+        (Some(name), Some(bundle)) => {
+            #[cfg(target_os = "macos")]
+            {
+                if !crate::selection::macos_ax::is_sensitive_bundle_id(&bundle) {
+                    if let Some(title) = crate::selection::macos_ax::read_focused_window_title() {
+                        let trimmed = title.trim();
+                        if !trimmed.is_empty() {
+                            let truncated: String = trimmed.chars().take(80).collect();
+                            return Some(format!("{name} - {truncated} ({bundle})"));
+                        }
+                    }
+                }
+            }
+            Some(format!("{name} ({bundle})"))
+        }
         (Some(name), None) => Some(name),
         (None, Some(bundle)) => Some(bundle),
         (None, None) => None,

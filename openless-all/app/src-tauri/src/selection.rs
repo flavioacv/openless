@@ -343,7 +343,23 @@ pub(crate) fn capture_selection_insertion_target() -> SelectionInsertionTarget {
     {
         let (front_app_name, bundle_id, front_app_pid) = current_front_app_snapshot();
         let front_app = match (front_app_name.as_deref(), bundle_id.as_deref()) {
-            (Some(name), Some(bundle)) => Some(format!("{name} ({bundle})")),
+            (Some(name), Some(bundle)) => {
+                if !macos_ax::is_sensitive_bundle_id(bundle) {
+                    if let Some(title) = macos_ax::read_focused_window_title() {
+                        let trimmed = title.trim();
+                        if !trimmed.is_empty() {
+                            let truncated: String = trimmed.chars().take(80).collect();
+                            Some(format!("{name} - {truncated} ({bundle})"))
+                        } else {
+                            Some(format!("{name} ({bundle})"))
+                        }
+                    } else {
+                        Some(format!("{name} ({bundle})"))
+                    }
+                } else {
+                    Some(format!("{name} ({bundle})"))
+                }
+            }
             (Some(name), None) => Some(name.to_string()),
             (None, Some(bundle)) => Some(bundle.to_string()),
             (None, None) => None,
@@ -794,7 +810,7 @@ fn simulate_copy_and_read_diag() -> Result<String, SelectionCaptureMissReason> {
     windows_wait_clipboard_settle_after_write();
 
     // c) Simulate Cmd+C / Ctrl+C
-    let mut post_ok = post_copy_shortcut();
+    let post_ok = post_copy_shortcut();
     log::info!(
         "[selection] post_copy: post_ok={} original_was_some={}",
         post_ok,
@@ -946,7 +962,7 @@ fn post_copy_shortcut() -> bool {
 // ─────────────────────────── macOS AX read ───────────────────────────
 
 #[cfg(target_os = "macos")]
-mod macos_ax {
+pub(crate) mod macos_ax {
     use std::ffi::{c_void, CStr};
     use std::os::raw::c_char;
 
@@ -1044,6 +1060,178 @@ mod macos_ax {
             CFRelease(selected);
             result
         }
+    }
+
+    /// Read surrounding text (before/after cursor) from the focused element when no text is selected.
+    /// Returns None if the control is a password field or if surrounding text is unavailable.
+    pub fn read_surrounding_text() -> Option<(String, String)> {
+        unsafe {
+            let system = AXUIElementCreateSystemWide();
+            if system.is_null() {
+                return None;
+            }
+            let focused_attr =
+                cfstring_from_static(b"AXFocusedUIElement\0").unwrap_or(std::ptr::null());
+            let value_attr =
+                cfstring_from_static(b"AXValue\0").unwrap_or(std::ptr::null());
+            let password_attr =
+                cfstring_from_static(b"AXIsPassword\0").unwrap_or(std::ptr::null());
+
+            if focused_attr.is_null() || value_attr.is_null() {
+                if !system.is_null() {
+                    CFRelease(system as CFTypeRef);
+                }
+                if !focused_attr.is_null() {
+                    CFRelease(focused_attr);
+                }
+                if !value_attr.is_null() {
+                    CFRelease(value_attr);
+                }
+                if !password_attr.is_null() {
+                    CFRelease(password_attr);
+                }
+                return None;
+            }
+
+            let mut focused: CFTypeRef = std::ptr::null();
+            let err = AXUIElementCopyAttributeValue(system, focused_attr, &mut focused);
+            CFRelease(system as CFTypeRef);
+            CFRelease(focused_attr);
+
+            if err != AX_ERROR_SUCCESS || focused.is_null() {
+                CFRelease(value_attr);
+                if !password_attr.is_null() {
+                    CFRelease(password_attr);
+                }
+                return None;
+            }
+
+            // Security check: if the focused element is a password field, do not read surrounding text.
+            if !password_attr.is_null() {
+                let mut is_password: CFTypeRef = std::ptr::null();
+                let pass_err = AXUIElementCopyAttributeValue(
+                    focused as AxUiElementRef,
+                    password_attr,
+                    &mut is_password,
+                );
+                CFRelease(password_attr);
+                if pass_err == AX_ERROR_SUCCESS && !is_password.is_null() {
+                    // Non-null boolean / truthy check
+                    CFRelease(is_password);
+                    CFRelease(focused);
+                    CFRelease(value_attr);
+                    return None;
+                }
+            }
+
+            let mut val_ref: CFTypeRef = std::ptr::null();
+            let val_err = AXUIElementCopyAttributeValue(
+                focused as AxUiElementRef,
+                value_attr,
+                &mut val_ref,
+            );
+            CFRelease(focused);
+            CFRelease(value_attr);
+
+            if val_err != AX_ERROR_SUCCESS || val_ref.is_null() {
+                return None;
+            }
+
+            let full_text = cfstring_to_rust(val_ref);
+            CFRelease(val_ref);
+
+            let full_text = full_text?;
+            if full_text.trim().is_empty() {
+                return None;
+            }
+
+            // Split into before and after cursor heuristically (e.g. up to 1000 chars before)
+            let char_count = full_text.chars().count();
+            let before = if char_count > 1000 {
+                full_text.chars().skip(char_count - 1000).collect::<String>()
+            } else {
+                full_text
+            };
+
+            Some((before, String::new()))
+        }
+    }
+
+    /// Read the title of the frontmost window from AXSystemWide -> AXFocusedWindow -> AXTitle.
+    pub fn read_focused_window_title() -> Option<String> {
+        unsafe {
+            let system = AXUIElementCreateSystemWide();
+            if system.is_null() {
+                return None;
+            }
+            let window_attr =
+                cfstring_from_static(b"AXFocusedWindow\0").unwrap_or(std::ptr::null());
+            let title_attr =
+                cfstring_from_static(b"AXTitle\0").unwrap_or(std::ptr::null());
+
+            if window_attr.is_null() || title_attr.is_null() {
+                if !system.is_null() {
+                    CFRelease(system as CFTypeRef);
+                }
+                if !window_attr.is_null() {
+                    CFRelease(window_attr);
+                }
+                if !title_attr.is_null() {
+                    CFRelease(title_attr);
+                }
+                return None;
+            }
+
+            let mut window: CFTypeRef = std::ptr::null();
+            let err = AXUIElementCopyAttributeValue(system, window_attr, &mut window);
+            CFRelease(system as CFTypeRef);
+            CFRelease(window_attr);
+
+            if err != AX_ERROR_SUCCESS || window.is_null() {
+                CFRelease(title_attr);
+                return None;
+            }
+
+            let mut title_ref: CFTypeRef = std::ptr::null();
+            let err2 = AXUIElementCopyAttributeValue(
+                window as AxUiElementRef,
+                title_attr,
+                &mut title_ref,
+            );
+            CFRelease(window);
+            CFRelease(title_attr);
+
+            if err2 != AX_ERROR_SUCCESS || title_ref.is_null() {
+                return None;
+            }
+
+            let title = cfstring_to_rust(title_ref);
+            CFRelease(title_ref);
+            title
+        }
+    }
+
+    /// Returns true if the bundle id belongs to a sensitive application (password manager / keychain).
+    pub fn is_sensitive_bundle_id(bundle: &str) -> bool {
+        let lower = bundle.to_lowercase();
+        lower.contains("1password")
+            || lower.contains("bitwarden")
+            || lower.contains("keepass")
+            || lower.contains("keychain")
+            || lower.contains("lastpass")
+    }
+
+    /// Returns true if the bundle id belongs to a known web browser.
+    pub fn is_browser_bundle_id(bundle: &str) -> bool {
+        matches!(
+            bundle,
+            "com.google.Chrome"
+                | "com.apple.Safari"
+                | "company.thebrowser.Arc"
+                | "com.microsoft.edgemac"
+                | "com.brave.Browser"
+                | "org.mozilla.firefox"
+        )
     }
 
     unsafe fn cfstring_from_static(bytes_with_nul: &[u8]) -> Option<CFStringRef> {
@@ -1663,5 +1851,24 @@ mod tests {
                 windows: Some(windows_target(10)),
             }
         ));
+    }
+
+    #[test]
+    #[cfg(target_os = "macos")]
+    fn sensitive_bundle_id_detection() {
+        assert!(macos_ax::is_sensitive_bundle_id("com.1password.1password"));
+        assert!(macos_ax::is_sensitive_bundle_id("com.bitwarden.desktop"));
+        assert!(macos_ax::is_sensitive_bundle_id("com.apple.keychainaccess"));
+        assert!(!macos_ax::is_sensitive_bundle_id("com.google.Chrome"));
+        assert!(!macos_ax::is_sensitive_bundle_id("com.microsoft.VSCode"));
+    }
+
+    #[test]
+    #[cfg(target_os = "macos")]
+    fn browser_bundle_id_detection() {
+        assert!(macos_ax::is_browser_bundle_id("com.google.Chrome"));
+        assert!(macos_ax::is_browser_bundle_id("com.apple.Safari"));
+        assert!(macos_ax::is_browser_bundle_id("company.thebrowser.Arc"));
+        assert!(!macos_ax::is_browser_bundle_id("com.tinyspeck.slackmacgap"));
     }
 }

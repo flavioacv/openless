@@ -546,6 +546,9 @@ pub struct UserPreferences {
     /// force-enables the profile but never rewrites this pref.
     #[serde(default = "default_true", rename = "windowsShowOpenlessInKeyboardList")]
     pub windows_show_openless_in_keyboard_list: bool,
+    /// Whether to insert rich HTML alongside plain text for supported markdown formatting.
+    #[serde(default = "default_true")]
+    pub rich_text_insertion_enabled: bool,
     /// User's working languages (multi-select, native names). Injected as
     /// context at the head of the LLM polish/translate system prompt so the
     /// model knows which languages the user works in. See issue #4.
@@ -1091,6 +1094,8 @@ struct UserPreferencesWire {
     windows_sendinput_insertion_only: bool,
     #[serde(default = "default_true", rename = "windowsShowOpenlessInKeyboardList")]
     windows_show_openless_in_keyboard_list: bool,
+    #[serde(default = "default_true")]
+    rich_text_insertion_enabled: bool,
     working_languages: Vec<String>,
     translation_target_language: String,
     chinese_script_preference: ChineseScriptPreference,
@@ -1344,6 +1349,7 @@ impl Default for UserPreferencesWire {
             macos_newline_mode: prefs.macos_newline_mode,
             windows_sendinput_insertion_only: prefs.windows_sendinput_insertion_only,
             windows_show_openless_in_keyboard_list: prefs.windows_show_openless_in_keyboard_list,
+            rich_text_insertion_enabled: prefs.rich_text_insertion_enabled,
             working_languages: prefs.working_languages,
             translation_target_language: prefs.translation_target_language,
             chinese_script_preference: prefs.chinese_script_preference,
@@ -1574,6 +1580,7 @@ impl<'de> Deserialize<'de> for UserPreferences {
                 wire.windows_sendinput_insertion_only,
             ),
             windows_show_openless_in_keyboard_list: wire.windows_show_openless_in_keyboard_list,
+            rich_text_insertion_enabled: wire.rich_text_insertion_enabled,
             working_languages: wire.working_languages,
             translation_target_language: wire.translation_target_language,
             chinese_script_preference: wire.chinese_script_preference,
@@ -1964,6 +1971,7 @@ impl Default for UserPreferences {
             macos_newline_mode: MacosNewlineMode::default(),
             windows_sendinput_insertion_only: false,
             windows_show_openless_in_keyboard_list: true,
+            rich_text_insertion_enabled: true,
             working_languages: default_working_languages(),
             translation_target_language: String::new(),
             chinese_script_preference: ChineseScriptPreference::Auto,

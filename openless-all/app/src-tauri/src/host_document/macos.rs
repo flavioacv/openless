@@ -331,9 +331,20 @@ unsafe fn read_document(focused: AxUiElementRef, budget_chars: usize) -> ReadOut
         FULL_TEXT_MAX_UTF16,
     ) {
         DocumentLength::Unknown => {
-            return ReadOutcome::Unavailable(
-                "AXNumberOfCharacters unavailable; refusing an unbounded AXValue read",
-            );
+            // Electron/Chromium often do not support AXNumberOfCharacters.
+            // Safely attempt to read AXValue directly; if present, compute length and return window.
+            if let Some(text) = copy_string_attr(focused, b"AXValue\0") {
+                let text_utf16_len = text.encode_utf16().count();
+                if text_utf16_len <= FULL_TEXT_MAX_UTF16 {
+                    let cursor = utf16_offset_to_char_offset(&text, cursor_utf16.min(text_utf16_len));
+                    return ReadOutcome::Window(window_around_cursor(&text, cursor, budget_chars));
+                }
+                text_utf16_len
+            } else {
+                return ReadOutcome::Unavailable(
+                    "AXNumberOfCharacters and AXValue unavailable",
+                );
+            }
         }
         DocumentLength::WithinLimit(total) => {
             // Small document (the common case): read the whole text and slice
@@ -1415,11 +1426,9 @@ fn grab_focused_element() -> Option<(SendableElement, String, i32)> {
             EDIT_WATCH_MAX_UTF16,
         ) {
             DocumentLength::Unknown => {
-                log::info!(
-                    "[cursor-context] edit watch skipped: AXNumberOfCharacters unavailable; refusing an unbounded AXValue read"
+                log::debug!(
+                    "[cursor-context] AXNumberOfCharacters unavailable; checking AXValue directly"
                 );
-                CFRelease(focused as CFTypeRef);
-                return None;
             }
             DocumentLength::OverLimit(total) => {
                 log::info!(
@@ -1443,6 +1452,10 @@ fn grab_focused_element() -> Option<(SendableElement, String, i32)> {
         };
         if pid_err != AX_ERROR_SUCCESS || pid <= 0 {
             log::info!("[cursor-context] edit watch skipped: AXUIElementGetPid failed");
+            return None;
+        }
+        if baseline.encode_utf16().count() > EDIT_WATCH_MAX_UTF16 {
+            log::info!("[cursor-context] edit watch skipped: document exceeds EDIT_WATCH_MAX_UTF16");
             return None;
         }
         Some((element, baseline, pid))

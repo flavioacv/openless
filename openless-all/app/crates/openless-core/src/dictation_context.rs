@@ -166,6 +166,7 @@ pub struct DictationInsertionContext {
     pub macos_newline_mode: MacosNewlineMode,
     pub allow_non_tsf_fallback: bool,
     pub android_insert_strategy: AndroidInsertStrategy,
+    pub rich_text_insertion_enabled: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -403,6 +404,7 @@ impl DictationContext {
                 ),
                 allow_non_tsf_fallback: preferences.allow_non_tsf_insertion_fallback,
                 android_insert_strategy: preferences.android_insert_strategy,
+                rich_text_insertion_enabled: preferences.rich_text_insertion_enabled,
             },
         }
     }

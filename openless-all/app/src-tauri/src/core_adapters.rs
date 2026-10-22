@@ -5327,11 +5327,38 @@ impl openless_core::HostContextAdapter for TauriHostContextAdapter {
                         started.elapsed().as_millis(),
                     ),
                 }
-                window.map(|window| {
+                let mapped = window.map(|window| {
                     let before = window.text.chars().take(window.cursor).collect::<String>();
                     let after = window.text.chars().skip(window.cursor).collect::<String>();
                     openless_core::prompts::cursor_context_input(&before, &after)
-                })
+                });
+
+                #[cfg(target_os = "macos")]
+                let mapped = if mapped.is_none() {
+                    let is_sensitive = front_app
+                        .as_deref()
+                        .map(crate::selection::macos_ax::is_sensitive_bundle_id)
+                        .unwrap_or(false);
+                    if !is_sensitive {
+                        if let Some((before, after)) = crate::selection::macos_ax::read_surrounding_text() {
+                            log::info!(
+                                "[cursor-context] status=fallback_ax chars_before={} chars_after={} elapsed_ms={}",
+                                before.chars().count(),
+                                after.chars().count(),
+                                started.elapsed().as_millis(),
+                            );
+                            Some(openless_core::prompts::cursor_context_input(&before, &after))
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                } else {
+                    mapped
+                };
+
+                mapped
             } else {
                 None
             };
