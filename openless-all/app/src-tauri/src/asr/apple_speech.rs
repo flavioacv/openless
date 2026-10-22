@@ -341,15 +341,38 @@ fn recognize_file(
     cancel_flag: &AtomicBool,
     active_task: &Mutex<Option<SendableTask>>,
 ) -> Result<String> {
-    let recognizer_owner = create_recognizer(locale)?;
-    let recognizer = Retained::as_ptr(&recognizer_owner) as *mut AnyObject;
-
-    // Engine availability wait (isAvailable race): a just-initialized
-    // SFSpeechRecognizer often reports isAvailable == false briefly while
-    // language resources load asynchronously. Previously any false bailed out
-    // — the main cause of intermittent failures. Now poll for a few seconds
-    // before deciding.
-    wait_until_available(recognizer)?;
+    let (_recognizer_owner, recognizer) = match create_recognizer(locale) {
+        Ok(owner) => {
+            let ptr = Retained::as_ptr(&owner) as *mut AnyObject;
+            if wait_until_available(ptr).is_ok() {
+                (owner, ptr)
+            } else if locale.is_some() {
+                log::warn!(
+                    "[apple-speech] requested locale {:?} not ready, falling back to system default locale",
+                    locale
+                );
+                let fallback = create_recognizer(None)?;
+                let fallback_ptr = Retained::as_ptr(&fallback) as *mut AnyObject;
+                wait_until_available(fallback_ptr)?;
+                (fallback, fallback_ptr)
+            } else {
+                wait_until_available(ptr)?;
+                (owner, ptr)
+            }
+        }
+        Err(err) if locale.is_some() => {
+            log::warn!(
+                "[apple-speech] failed to create recognizer for locale {:?}: {}, falling back to system default locale",
+                locale,
+                err
+            );
+            let fallback = create_recognizer(None)?;
+            let fallback_ptr = Retained::as_ptr(&fallback) as *mut AnyObject;
+            wait_until_available(fallback_ptr)?;
+            (fallback, fallback_ptr)
+        }
+        Err(err) => return Err(err),
+    };
 
     let url = file_url(wav_path)?;
     let request_owner = create_url_request(url)?;

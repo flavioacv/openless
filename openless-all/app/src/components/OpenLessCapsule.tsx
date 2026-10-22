@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from './Icon';
 import { VoiceOrbStage } from './VoiceOrbStage';
 import { useReducedMotion } from '../lib/motion';
+import { translateCapsuleMessage } from '../lib/capsuleMessages';
 import type { OS } from './WindowChrome';
 import type { CapsuleState, CapsuleStyle } from '../lib/types';
 import './CapsuleStyles.css';
@@ -83,13 +84,14 @@ export function OpenLessPill({
   const reduced = useReducedMotion();
   const recording = state === 'recording';
   const processing = state === 'transcribing' || state === 'polishing';
+  const localizedMessage = translateCapsuleMessage(message, t, state);
   const label = processing
-    ? message || t(operating ? 'capsule.using' : 'capsule.thinking')
+    ? localizedMessage || t(operating ? 'capsule.using' : 'capsule.thinking')
     : state === 'done'
-      ? message || t('capsule.inserted', { count: insertedChars })
+      ? localizedMessage || t('capsule.inserted', { count: insertedChars })
       : state === 'cancelled'
         ? t('capsule.cancelled')
-        : message || t('capsule.error');
+        : localizedMessage || t('capsule.error');
   const labelRef = useRef<HTMLSpanElement>(null);
   const [statusWidth, setStatusWidth] = useState(80);
   useLayoutEffect(() => {

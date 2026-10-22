@@ -174,6 +174,20 @@ impl CapsuleLabels {
                 "Kein Text ausgewählt",
                 "Überarbeitung fehlgeschlagen. Erneut versuchen",
             ]
+        } else if locale.starts_with("pt") {
+            [
+                "pensando",
+                "usando",
+                "Cancelado",
+                "Algo deu errado",
+                "{{count}} inseridos",
+                "Traduzir para",
+                "Traduzindo",
+                "Aprimorando...",
+                "Substituído",
+                "Nada selecionado",
+                "Falha ao aprimorar, tente novamente",
+            ]
         } else {
             [
                 "thinking",

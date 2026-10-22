@@ -40,6 +40,7 @@ use crate::{encode_dictation_wav, TaskSpawner};
 
 const MODEL_LIST_MAX_BYTES: usize = 2 * 1024 * 1024;
 const MODEL_LIST_TIMEOUT: Duration = Duration::from_secs(15);
+const LOCAL_ASR_TEST_PCM: &[u8] = include_bytes!("../assets/local-asr-test.pcm");
 
 /// Shared implementation of [`ProviderApi`] for every non-UI host.
 #[derive(Clone)]
@@ -50,6 +51,7 @@ pub struct ProviderService {
     /// Host-owned native engines (e.g. Apple Speech). Only consulted by the
     /// [`ValidationProbe::AsrNativeSilence`] probe; cloud probes ignore it.
     native_transcription: Option<Arc<dyn TranscriptionEngine>>,
+    working_languages: Option<Vec<String>>,
 }
 
 impl ProviderService {
@@ -76,7 +78,21 @@ impl ProviderService {
             task_spawner,
             transport,
             native_transcription: None,
+            working_languages: None,
         }
+    }
+
+    /// Set working languages for localization-aware validation.
+    pub fn with_working_languages(mut self, working_languages: Vec<String>) -> Self {
+        self.working_languages = Some(working_languages);
+        self
+    }
+
+    /// Fork a clone of the service targeting a specific user's working languages.
+    pub fn for_working_languages(&self, working_languages: Vec<String>) -> Self {
+        let mut cloned = self.clone();
+        cloned.working_languages = Some(working_languages);
+        cloned
     }
 
     /// Inject the host's native transcription engine so local providers whose
@@ -203,6 +219,7 @@ impl ProviderService {
             api_key,
             endpoint,
             extra_headers,
+            working_languages: self.working_languages.clone(),
         })
     }
 
@@ -277,11 +294,16 @@ impl ProviderService {
                         result.map_err(sanitize_validation_error)?
                     }
                 };
-                // A 500 ms 16 kHz mono silence probe exercises the same
-                // request/handshake path without storing user audio.
-                let pcm = vec![0_u8; 16_000];
-                let wav = encode_dictation_wav(&pcm)?;
-                session.consume_pcm_chunk(&wav[44..]);
+                // Native ASR probes (Apple Speech) exercise actual spoken voice audio to
+                // accurately verify speech recognition and measure real latency.
+                // Cloud silence probes continue using 500ms of silence.
+                if probe == ValidationProbe::AsrNativeSilence {
+                    session.consume_pcm_chunk(LOCAL_ASR_TEST_PCM);
+                } else {
+                    let pcm = vec![0_u8; 16_000];
+                    let wav = encode_dictation_wav(&pcm)?;
+                    session.consume_pcm_chunk(&wav[44..]);
+                }
                 let finish = tokio::select! {
                     _ = wait_for_cancellation(cancellation) => {
                         let _ = session.cancel().await;
@@ -293,7 +315,9 @@ impl ProviderService {
                     let accepted = (probe == ValidationProbe::StepfunNoSpeech
                         && stepfun_no_speech_is_valid(&error))
                         || (probe == ValidationProbe::AsrSilenceAllowsNoFinal
-                            && provider_no_final_is_valid(&error));
+                            && provider_no_final_is_valid(&error))
+                        || (probe == ValidationProbe::AsrNativeSilence
+                            && apple_speech_probe_is_valid(&error));
                     if !accepted {
                         return Err(sanitize_validation_error(error));
                     }
@@ -419,6 +443,7 @@ struct ResolvedProvider {
     api_key: Option<String>,
     endpoint: Option<String>,
     extra_headers: Option<String>,
+    working_languages: Option<Vec<String>>,
 }
 
 impl ResolvedProvider {
@@ -448,6 +473,11 @@ impl ResolvedProvider {
 
     fn context(&self) -> DictationContext {
         let mut context = DictationContext::default();
+        if let Some(languages) = &self.working_languages {
+            if !languages.is_empty() {
+                context.polish.working_languages = languages.clone();
+            }
+        }
         context.polish.llm_thinking_enabled = self.thinking_enabled;
         let invocation = ProviderInvocation {
             provider_id: self.provider_id.clone(),
@@ -686,6 +716,15 @@ fn provider_no_final_is_valid(error: &BackendError) -> bool {
             .message
             .to_ascii_lowercase()
             .contains("no final result")
+}
+
+fn apple_speech_probe_is_valid(error: &BackendError) -> bool {
+    let message = error.message.to_ascii_lowercase();
+    message.contains("no speech")
+        || message.contains("1110")
+        || message.contains("203")
+        || message.contains("kafassisterrordomain")
+        || message.contains("空结果")
 }
 
 fn sanitize_validation_error(error: BackendError) -> BackendError {
@@ -2403,6 +2442,7 @@ mod tests {
                 api_key: None,
                 endpoint: None,
                 extra_headers: None,
+                working_languages: None,
             };
             let actual = static_models(&resolved).expect("provider should have static models");
             assert_eq!(actual, expected_models);

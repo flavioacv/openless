@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next';
 import { SiriGL } from './SiriGL';
 import { getCapsulePillMetrics } from '../lib/capsuleLayout';
+import { translateCapsuleMessage } from '../lib/capsuleMessages';
 import type { CapsuleState } from '../lib/types';
 import type { OS } from './WindowChrome';
 
@@ -111,7 +112,11 @@ export function VoiceOrbStage({
           }}
         />
       )}
-      {state === 'error' && <span style={errorGlowTextStyle}>{message || t('capsule.error')}</span>}
+      {state === 'error' && (
+        <span style={errorGlowTextStyle}>
+          {translateCapsuleMessage(message, t, state) || t('capsule.error')}
+        </span>
+      )}
     </div>
   );
 }

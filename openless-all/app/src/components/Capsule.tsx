@@ -7,6 +7,7 @@ import { VoiceOrbStage } from './VoiceOrbStage';
 import { DEFAULT_CAPSULE_EXIT_MS, OpenLessPill } from './OpenLessCapsule';
 import { CapsuleTranscriptRail, CapsuleTranslationBadge } from './LiveTranscriptPill';
 import { capsuleTranscriptFontSize, visibleCapsuleTranscript } from '../lib/capsuleTranscript';
+import { translateCapsuleMessage } from '../lib/capsuleMessages';
 import { getSettings } from '../lib/ipc/settings';
 import { cancelDictation, setCapsuleTranscriptVisible, stopDictation } from '../lib/ipc/dictation';
 import {
@@ -88,8 +89,9 @@ function SelectionPolishNotice({ state, message }: SelectionPolishNoticeProps) {
   const failed = state === 'error';
   const completed = state === 'done';
   const cancelled = state === 'cancelled';
+  const localized = translateCapsuleMessage(message, t, state);
   const label =
-    message ??
+    localized ??
     (processing
       ? t('capsule.selectionPolish.polishing')
       : completed
@@ -718,7 +720,7 @@ export function Capsule({ os: forcedOs }: CapsuleProps = {}) {
       ? lastVisibleMessage
       : state === 'transcribing' && localAsrText
         ? localAsrText
-        : message;
+        : translateCapsuleMessage(message, t, state);
   const liveTranscript = visibleCapsuleTranscript(
     localAsrText,
     transcriptEnabled,

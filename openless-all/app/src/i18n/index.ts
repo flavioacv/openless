@@ -7,7 +7,17 @@ import { initReactI18next } from 'react-i18next';
 import { zhCN } from './zh-CN';
 import { setRemoteLocale } from '../lib/ipc';
 
-export const SUPPORTED_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de', 'pt'] as const;
+export const SUPPORTED_LOCALES = [
+  'zh-CN',
+  'zh-TW',
+  'en',
+  'ja',
+  'ko',
+  'es',
+  'fr',
+  'de',
+  'pt',
+] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const LOCALE_STORAGE_KEY = 'ol.locale';
