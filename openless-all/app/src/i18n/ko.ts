@@ -2268,6 +2268,7 @@ export const ko: typeof zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: '인터페이스 언어',
       desc: 'UI 표시 언어를 전환합니다. 현재 세션에 즉시 반영되며 다음 실행에도 유지됩니다.',
       label: '언어',

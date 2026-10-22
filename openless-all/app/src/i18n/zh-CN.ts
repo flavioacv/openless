@@ -2180,6 +2180,7 @@ export const zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: '界面语言',
       desc: '切换 UI 显示语言。当前会话即时生效，下次启动自动沿用。',
       label: '语言',

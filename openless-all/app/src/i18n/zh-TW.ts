@@ -2180,6 +2180,7 @@ export const zhTW: typeof zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: '介面語言',
       desc: '切換 UI 顯示語言。當前會話即時生效，下次啟動自動沿用。',
       label: '語言',

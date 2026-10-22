@@ -2359,6 +2359,7 @@ export const es: typeof zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: 'Idioma de la interfaz',
       desc: 'Cambia el idioma de la interfaz. Se aplica de inmediato y se conserva al volver a iniciar la aplicación.',
       label: 'Idioma',

@@ -774,3 +774,102 @@ export const siwcFr = {
     callback_unavailable: 'Impossible d’ouvrir le navigateur système. Réessayez.',
   },
 };
+
+export const siwcPt = {
+  description:
+    'Tarefas qualificadas de refinamento e tradução utilizam seu plano ou créditos do ChatGPT. O reconhecimento de voz mantém seu provedor atual. Se você atingir o limite de uso, o sistema nunca mudará automaticamente para uma chave de API.',
+  account: 'Conta do ChatGPT',
+  cancel: 'Cancelar login',
+  enableUsage: 'Autorizar uso do plano',
+  reauthorize: 'Entrar novamente',
+  addAccount: 'Adicionar conta ou espaço de trabalho',
+  disconnect: 'Desconectar',
+  manageUsage: 'Gerenciar uso',
+  retry: 'Tentar usar o plano novamente',
+  model: 'Modelo de refinamento',
+  selectModel: 'Selecione um modelo disponível',
+  modelUnavailable: 'O modelo {{model}} não está mais disponível. Selecione outro modelo.',
+  noModels: 'Nenhum modelo disponível para exibição nesta conta.',
+  refreshModels: 'Atualizar modelos',
+  test: 'Testar conexão',
+  testHint:
+    'Listar modelos não executa inferência. O teste utiliza uma pequena quantidade do seu plano do ChatGPT.',
+  testSuccess: 'Teste de conexão bem-sucedido',
+  remoteUnconfirmed:
+    'Sessão encerrada localmente, mas a revogação remota não foi confirmada. Desconecte este aplicativo nas configurações do ChatGPT.',
+  welcome: 'Você está usando seu plano do ChatGPT',
+  gotIt: 'Entendido',
+  failed: 'A solicitação não foi concluída. Verifique sua conexão ou faça login novamente.',
+  states: {
+    signed_out: 'Não conectado ao ChatGPT',
+    authorizing: 'Conclua a autorização no navegador do sistema',
+    connected: 'Usando o plano do ChatGPT',
+    usage_disabled: 'Conectado; o uso do plano não está ativado',
+    usage_limited: 'Limite de uso do plano ou do aplicativo atingido',
+    reauthorization_required: 'Faça login no ChatGPT novamente',
+  },
+  errors: {
+    sign_in_required: 'Faça login no ChatGPT novamente.',
+    reauthorization_required: 'Faça login no ChatGPT novamente.',
+    session_changed: 'Faça login no ChatGPT novamente.',
+    refresh_interrupted: 'Faça login no ChatGPT novamente.',
+    invalid_grant: 'Faça login no ChatGPT novamente.',
+    invalid_refresh_token: 'Faça login no ChatGPT novamente.',
+    token_expired: 'Faça login no ChatGPT novamente.',
+    refresh_token_expired: 'Faça login no ChatGPT novamente.',
+    refresh_token_invalidated: 'Faça login no ChatGPT novamente.',
+    refresh_token_reused: 'Faça login no ChatGPT novamente.',
+    unauthorized: 'Faça login no ChatGPT novamente.',
+    subscription_sharing_invalid_user: 'Faça login no ChatGPT novamente.',
+    usage_disabled: 'Permita que o OpenLess use seu plano do ChatGPT.',
+    access_denied: 'Permita que o OpenLess use seu plano do ChatGPT.',
+    chatpass_v2_scope_not_authorized: 'Permita que o OpenLess use seu plano do ChatGPT.',
+    chatpass_v2_invalid_authorization_context: 'Permita que o OpenLess use seu plano do ChatGPT.',
+    subscription_sharing_usage_limit_exceeded:
+      'Seu plano ou este aplicativo atingiu o limite. Abra "Gerenciar uso".',
+    rate_limited: 'Seu plano ou este aplicativo atingiu o limite. Abra "Gerenciar uso".',
+    subscription_sharing_user_not_eligible:
+      'Esta conta, espaço de trabalho ou região não é elegível para uso do plano.',
+    forbidden: 'Esta conta, espaço de trabalho ou região não é elegível para uso do plano.',
+    network_failed:
+      'O serviço está temporariamente indisponível. Os dados da sua conta foram preservados. Tente novamente mais tarde.',
+    unavailable:
+      'O serviço está temporariamente indisponível. Os dados da sua conta foram preservados. Tente novamente mais tarde.',
+    subscription_sharing_usage_unavailable:
+      'O serviço está temporariamente indisponível. Os dados da sua conta foram preservados. Tente novamente mais tarde.',
+    subscription_sharing_user_unavailable:
+      'O serviço está temporariamente indisponível. Os dados da sua conta foram preservados. Tente novamente mais tarde.',
+    id_token_invalid: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    id_token_missing: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    issuer_mismatch: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    client_mismatch: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    identity_mismatch: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    callback_invalid: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    state_mismatch: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    registration_incomplete: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    discovery_invalid: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    jwks_invalid: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    token_response_invalid: 'Não foi possível verificar esta autorização. Inicie uma nova sessão.',
+    storage_failed:
+      'Não foi possível ler ou salvar as credenciais com segurança. Verifique o armazenamento seguro de credenciais do sistema.',
+    storage_corrupt:
+      'Não foi possível ler ou salvar as credenciais com segurança. Verifique o armazenamento seguro de credenciais do sistema.',
+    storage_unavailable:
+      'Não foi possível ler ou salvar as credenciais com segurança. Verifique o armazenamento seguro de credenciais do sistema.',
+    storage_full:
+      'Não foi possível ler ou salvar as credenciais com segurança. Verifique o armazenamento seguro de credenciais do sistema.',
+    cancelled: 'Operação cancelada.',
+    authorization_timeout: 'A autorização expirou. Faça login novamente.',
+    subscription_sharing_unsupported_capability:
+      'Este modelo ou recurso não está disponível. Atualize os modelos e selecione outro.',
+    subscription_sharing_route_not_supported:
+      'Este modelo ou recurso não está disponível. Atualize os modelos e selecione outro.',
+    models_invalid:
+      'Este modelo ou recurso não está disponível. Atualize os modelos e selecione outro.',
+    empty_response:
+      'Este modelo ou recurso não está disponível. Atualize os modelos e selecione outro.',
+    busy: 'Outra operação de conta está em andamento. Aguarde alguns instantes e tente novamente.',
+    browser_failed: 'Não foi possível abrir o navegador do sistema. Tente novamente.',
+    callback_unavailable: 'Não foi possível abrir o navegador do sistema. Tente novamente.',
+  },
+};

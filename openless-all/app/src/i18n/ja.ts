@@ -2286,6 +2286,7 @@ export const ja: typeof zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: '表示言語',
       desc: 'UI の表示言語を切り替えます。現在のセッションに即時反映され、次回起動時も維持されます。',
       label: '言語',

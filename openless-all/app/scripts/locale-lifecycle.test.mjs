@@ -172,7 +172,8 @@ if (input) {
   };
   assert.equal(run({ system: 'de-DE' }).boot, 'de');
   assert.equal(run({ system: 'zh-HK' }).boot, 'zh-TW');
-  assert.equal(run({ system: 'pt-BR' }).boot, 'en');
+  assert.equal(run({ system: 'pt-BR' }).boot, 'pt');
+  assert.equal(run({ system: 'it-IT' }).boot, 'en');
   assert.equal(run({ system: 'ko-KR', stored: 'es' }).boot, 'es');
   assert.equal(run({ system: 'fr-CA', stored: 'not-supported' }).boot, 'fr');
   const switched = run({

@@ -2316,6 +2316,7 @@ export const en: typeof zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: 'Interface language',
       desc: 'Switch the UI language. Applies to the current session immediately and persists across launches.',
       label: 'Language',

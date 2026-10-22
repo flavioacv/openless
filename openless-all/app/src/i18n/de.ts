@@ -2379,6 +2379,7 @@ export const de: typeof zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: 'Sprache der Oberfläche',
       desc: 'Wechselt die Sprache der Oberfläche sofort und speichert die Auswahl für spätere Starts.',
       label: 'Sprache',

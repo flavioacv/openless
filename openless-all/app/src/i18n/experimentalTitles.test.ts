@@ -3,8 +3,9 @@ import { zhTW } from './zh-TW';
 import { en } from './en';
 import { ja } from './ja';
 import { ko } from './ko';
+import { pt } from './pt';
 
-const locales = { zhCN, zhTW, en, ja, ko };
+const locales = { zhCN, zhTW, en, ja, ko, pt };
 
 for (const [locale, messages] of Object.entries(locales)) {
   const marker = messages.common.experimental;

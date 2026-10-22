@@ -29,6 +29,7 @@ export function LanguageSection() {
       { value: 'es', label: t('settings.language.es') },
       { value: 'fr', label: t('settings.language.fr') },
       { value: 'de', label: t('settings.language.de') },
+      { value: 'pt', label: t('settings.language.pt') },
     ],
     [t],
   );

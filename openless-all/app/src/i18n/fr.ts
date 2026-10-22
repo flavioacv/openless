@@ -2389,6 +2389,7 @@ export const fr: typeof zhCN = {
       es: 'Español',
       fr: 'Français',
       de: 'Deutsch',
+      pt: 'Português',
       title: 'Langue de l’interface',
       desc: 'Change la langue de l’interface immédiatement et conserve ce choix au prochain lancement.',
       label: 'Langue',

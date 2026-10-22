@@ -7,7 +7,7 @@ import { initReactI18next } from 'react-i18next';
 import { zhCN } from './zh-CN';
 import { setRemoteLocale } from '../lib/ipc';
 
-export const SUPPORTED_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'] as const;
+export const SUPPORTED_LOCALES = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de', 'pt'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const LOCALE_STORAGE_KEY = 'ol.locale';
@@ -50,6 +50,7 @@ const localeLoaders: Record<Exclude<SupportedLocale, 'zh-CN'>, () => Promise<typ
   es: () => import('./es').then((module) => module.es),
   fr: () => import('./fr').then((module) => module.fr),
   de: () => import('./de').then((module) => module.de),
+  pt: () => import('./pt').then((module) => module.pt),
 };
 
 async function ensureLocaleLoaded(lng: SupportedLocale): Promise<void> {
