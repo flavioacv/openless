@@ -1,3 +1,25 @@
+> **Fork mantido por Flavio Valdez:** [flavioacv/openless](https://github.com/flavioacv/openless). Baseado no [OpenLess oficial](https://github.com/Open-Less/openless), com português e correções próprias. As atualizações deste fork são distribuídas exclusivamente pelo nosso repositório.
+
+## Versões e atualizações deste fork
+
+- [Baixar versão estável](https://github.com/flavioacv/openless/releases/latest) · [Todas as versões e Betas](https://github.com/flavioacv/openless/releases).
+- O aplicativo verifica novas versões ao iniciar e a cada hora, quando a verificação automática está habilitada. A consulta usa os manifestos assinados das nossas Releases, separados por canal Stable/Beta.
+- As melhorias oficiais são avaliadas e incorporadas seletivamente, preservando as customizações. Foram integradas correções de permissões macOS e recuperação TextStream; veja o [relatório da comparação](docs/fork-upstream-review-2026-10-30.md).
+- Instalações antigas precisam instalar manualmente a primeira versão do fork com os novos endpoints e a chave própria.
+
+### Gerar uma versão pelo GitHub
+
+Após integrar os workflows na branch padrão e configurar os secrets/variáveis descritos em [Releases do fork](RELEASING.md#releases-do-fork-pelo-github):
+
+1. Em **Actions → Fork release → Run workflow**, selecione `beta` para `X.Y.Z-Beta.N` ou `main` para `X.Y.Z` e informe a versão com `operation: prepare`.
+2. O workflow abre uma PR com as versões sincronizadas e a chave pública do fork. Revise, aguarde o CI e faça o merge pelo fluxo normal.
+3. Execute **Fork release** novamente na branch de destino, com a mesma versão e `operation: build`. O workflow exige CI aprovado no commit exato e envia a tag que inicia os builds macOS, Windows e Android.
+4. Aguarde **Release Tauri** e **Android APK**, confira os assets/manifestos assinados e publique o draft em **Releases**. Beta deve ser marcada como pré-release; Stable como latest.
+
+A versão é definida no GitHub Actions e sincronizada no código pela PR. Editar apenas o título de uma Release não muda a versão compilada. Nenhuma versão é publicada automaticamente por este fluxo. Linux e iOS seguem seus processos próprios. Não é necessário Cloudflare.
+
+---
+
 <p align="center">
   <img src="openless-all/app/src-tauri/icons/128x128@2x.png" alt="OpenLess" width="128" height="128" />
 </p>
@@ -16,7 +38,7 @@
 <p align="center">
   <a href="https://openless.top"><strong>Website</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/Open-Less/openless/releases/latest"><strong>Download</strong></a>
+  <a href="https://github.com/flavioacv/openless/releases/latest"><strong>Download</strong></a>
   &nbsp;·&nbsp;
   <a href="README.md">English</a>
   &nbsp;/&nbsp;
@@ -24,9 +46,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Open-Less/openless/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/Open-Less/openless?style=flat-square&color=2c5282" /></a>
-  <a href="https://github.com/Open-Less/openless/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Open-Less/openless?style=flat-square&color=2f855a" /></a>
-  <a href="https://github.com/Open-Less/openless/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/Open-Less/openless?style=flat-square&color=805ad5" /></a>
+  <a href="https://github.com/flavioacv/openless/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/flavioacv/openless?style=flat-square&color=2c5282" /></a>
+  <a href="https://github.com/flavioacv/openless/blob/beta/LICENSE"><img alt="License" src="https://img.shields.io/github/license/flavioacv/openless?style=flat-square&color=2f855a" /></a>
+  <a href="https://github.com/flavioacv/openless/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/flavioacv/openless?style=flat-square&color=805ad5" /></a>
   <a href="https://discord.gg/vTZHTFGFm"><img alt="Discord" src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&logo=discord&logoColor=white" /></a>
 </p>
 
@@ -215,14 +237,14 @@ Every item below is one more layer sedimented into a default — a capability yo
 - **Multilingual UI** — Settings → Language switches between 简体中文 / 繁體中文 / English / 日本語 / 한국어 (auto-detected on first launch).
 - **In-app auto-update on the Tauri hosts** — Settings → About → Check; signed updater artifacts via the Tauri updater plugin on macOS, Windows, and Android. Linux deb/rpm packages have no in-app updater or AppImage manifest.
 - **Beta channel (opt-in)** — Settings → About & updates → Join Beta channel selects the Beta updater feed; packages are also available from Releases. Beta releases never reach Stable users automatically (see [Contributing workflow](#contributing-workflow)).
-- **Distribution channels** — direct DMG/EXE from [Releases](https://github.com/Open-Less/openless/releases), Homebrew Cask (add the project tap first; see installation below), and a Windows installer. Linux deb/rpm packages require independent device acceptance and an explicit administrator upload to an existing Release.
+- **Distribution channels** — direct DMG/EXE from [Releases](https://github.com/flavioacv/openless/releases), Homebrew Cask (add the project tap first; see installation below), and a Windows installer. Linux deb/rpm packages require independent device acceptance and an explicit administrator upload to an existing Release.
 - **Single-instance lock** — prevents two OpenLess processes from racing the same hotkey edge.
 - Dictionary entries are injected as Volcengine ASR `context.hotwords` and as semantic hints during polish; hits accumulate per session.
 - Platform-native global hotkey: CGEventTap on macOS, low-level keyboard hook (`WH_KEYBOARD_LL`) on Windows.
 
 ## Download & install (end users)
 
-Go to [Releases](https://github.com/Open-Less/openless/releases) and download:
+Go to [Releases](https://github.com/flavioacv/openless/releases) and download:
 
 - **macOS**: `OpenLess_<version>_aarch64.dmg` (Apple Silicon) or `OpenLess_<version>_x64.dmg` (Intel). Open it, drag the app to `/Applications`, **then run the following once in Terminal to bypass the Gatekeeper "damaged" warning** (the build is ad-hoc signed, not Apple-notarized):
   ```bash
@@ -240,6 +262,7 @@ Go to [Releases](https://github.com/Open-Less/openless/releases) and download:
 - **Linux**: the Tauri/WebView build has been retired. The native `eframe` host uses the shared Core 2.0 services. After CI and real Ubuntu audio, input, install, upgrade and rollback acceptance, the shared release includes deb/rpm packages and `SHA256SUMS`. Linux requires glibc ≥ 2.39 (Ubuntu 24.04 or a comparable distribution); there is no AppImage or in-app updater.
 - **macOS (Homebrew)**:
   ```bash
+  # Upstream tap: installs the official distribution, not this fork.
   brew tap Open-Less/openless https://github.com/Open-Less/openless
   brew install --cask openless
   xattr -cr /Applications/OpenLess.app
@@ -328,7 +351,7 @@ Rules of thumb:
 - **Beta work must not leak to Stable.** `main` receives merges only from `beta`, performed by maintainers after a successful two-platform smoke build. No direct pushes to `main`.
 - **Stable releases are cut from `main`** by pushing a `v<version>-tauri` tag — see the maintainer release checklist below.
 
-Beta release distribution (manual-download opt-in): the in-app updater always reads the Stable manifest, so regular users never receive Beta builds via auto-update. Users who want to try Beta open **Settings → About**, enable "Join Beta channel", and download the latest Beta installer manually from the link the app fetches from GitHub. Tag convention: `v<version>-beta-tauri` produces the Beta release (marked as a GitHub pre-release; manifest written as `latest-{tgt}-{arch}-beta.json`), while `v<version>-tauri` produces the Stable release. The two manifest files never overlap, so Stable users' updater feed cannot pick up Beta releases.
+Fork update channels: Settings → About selects Stable or Beta. Stable reads the latest published release manifests; Beta discovers a published Beta tag and reads its channel-specific manifests. New Beta tags use `v<X.Y.Z>-Beta.<N>-tauri`; Stable uses `v<X.Y.Z>-tauri`. Both channels read only `flavioacv/openless`. See the fork release instructions above.
 
 ## Credentials
 

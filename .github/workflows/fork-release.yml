@@ -1,0 +1,97 @@
+name: Fork release
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Prepare version PR or build the reviewed version
+        type: choice
+        options: [prepare, build]
+        default: prepare
+      version:
+        description: 'Own version: X.Y.Z or X.Y.Z-Beta.N (without v)'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: fork-release-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'flavioacv/openless'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.FORK_RELEASE_TOKEN }}
+      VERSION: ${{ inputs.version }}
+      OPERATION: ${{ inputs.operation }}
+      OPENLESS_UPDATER_PUBLIC_KEY: ${{ vars.OPENLESS_UPDATER_PUBLIC_KEY }}
+    steps:
+      - name: Require administrator and explicit automation token
+        run: |
+          set -euo pipefail
+          [ -n "$GH_TOKEN" ] || { echo '::error::Configure FORK_RELEASE_TOKEN'; exit 1; }
+          permission=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_ACTOR/permission" --jq .permission)
+          [ "$permission" = admin ] || { echo '::error::Only an administrator may prepare or build releases'; exit 1; }
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.FORK_RELEASE_TOKEN }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test version preparation and fork update feeds
+        run: |
+          node scripts/prepare-fork-release.test.mjs
+          node openless-all/app/scripts/fork-updater.test.mjs
+      - name: Validate channel and prepare synchronized source
+        id: version
+        run: |
+          set -euo pipefail
+          if [[ "$VERSION" == *-Beta.* ]]; then channel=beta; else channel=main; fi
+          [ "$GITHUB_REF" = "refs/heads/$channel" ] || { echo "::error::Select branch $channel for this version"; exit 1; }
+          if [ "$OPERATION" = prepare ]; then
+            tag=$(node scripts/prepare-fork-release.mjs "$VERSION")
+          else
+            tag=$(node scripts/prepare-fork-release.mjs "$VERSION" --check)
+          fi
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            echo '::error::Version tag already exists; choose a new version'
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Open version pull request
+        if: inputs.operation == 'prepare'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          branch="release/fork-$VERSION"
+          git switch -c "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add openless-all/app/package.json openless-all/app/package-lock.json openless-all/app/src-tauri/tauri.conf.json openless-all/app/src-tauri/Cargo.toml openless-all/app/src-tauri/Cargo.lock openless-all/app/src-tauri/src/android/updater_logic.rs
+          git commit -m "chore(release): prepare fork $VERSION"
+          git push origin "$branch"
+          cat > "$RUNNER_TEMP/release-pr.md" <<EOF_BODY
+          Prepara a versão própria $VERSION do fork, sincronizando as cinco fontes de versão e a chave pública desktop/Android.
+
+          Após revisão, CI e merge pelo administrador, execute Fork release com operation=build na branch de destino e versão $VERSION. A tag $TAG inicia os workflows de pacotes; publique o draft somente após conferir os dois builds e as assinaturas.
+          EOF_BODY
+          gh pr create --repo "$GITHUB_REPOSITORY" --base "$GITHUB_REF_NAME" --head "$branch" --title "chore(release): fork $VERSION" --body-file "$RUNNER_TEMP/release-pr.md"
+      - name: Require green CI on this exact commit and trigger packages
+        if: inputs.operation == 'build'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          conclusion=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --commit "$GITHUB_SHA" --event push --limit 1 --json conclusion --jq '.[0].conclusion // "missing"')
+          [ "$conclusion" = success ] || { echo '::error::Wait for successful CI on this exact commit'; exit 1; }
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$TAG"
+          echo "Tag $TAG enviada. Aguarde Release Tauri e Android APK; confira e publique o draft em Releases." >> "$GITHUB_STEP_SUMMARY"

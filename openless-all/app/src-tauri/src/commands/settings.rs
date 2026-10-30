@@ -606,7 +606,7 @@ pub struct LatestBetaRelease {
 pub async fn fetch_latest_beta_release() -> Result<Option<LatestBetaRelease>, String> {
     let resp = net::send_with_retry(|| {
         net::http()
-            .get("https://github.com/Open-Less/openless/releases.atom")
+            .get("https://github.com/flavioacv/openless/releases.atom")
             .timeout(std::time::Duration::from_secs(15))
     })
     .await
@@ -644,7 +644,7 @@ pub(crate) fn parse_latest_beta_from_atom(body: &str) -> Option<LatestBetaReleas
         if !is_beta_release_tag(&tag_name) {
             continue;
         }
-        let html_url = format!("https://github.com/Open-Less/openless/releases/tag/{tag_name}");
+        let html_url = format!("https://github.com/flavioacv/openless/releases/tag/{tag_name}");
         let published_at =
             extract_between(entry_body, "<updated>", "</updated>").unwrap_or_default();
         return Some(LatestBetaRelease {
@@ -784,10 +784,10 @@ async fn resolve_beta_manifest_endpoints() -> Result<Vec<url::Url>, String> {
     // Rust raw string (r#""#) needs no escaped double braces and is cleaner than format!-ing
     // the literal.
     let mirror = format!(
-        "https://fastgit.cc/https://github.com/Open-Less/openless/releases/download/{tag}/latest-{{{{target}}}}-{{{{arch}}}}-beta-mirror.json"
+        "https://fastgit.cc/https://github.com/flavioacv/openless/releases/download/{tag}/latest-{{{{target}}}}-{{{{arch}}}}-beta-mirror.json"
     );
     let direct = format!(
-        "https://github.com/Open-Less/openless/releases/download/{tag}/latest-{{{{target}}}}-{{{{arch}}}}-beta.json"
+        "https://github.com/flavioacv/openless/releases/download/{tag}/latest-{{{{target}}}}-{{{{arch}}}}-beta.json"
     );
     let mirror_url = url::Url::parse(&mirror).map_err(|e| format!("parse beta mirror url: {e}"))?;
     let direct_url = url::Url::parse(&direct).map_err(|e| format!("parse beta direct url: {e}"))?;
@@ -825,8 +825,8 @@ pub async fn app_download_and_install_android_update(
     // Security: validate the URL before downloading to prevent SSRF (e.g. intranet metadata
     // endpoints, localhost services). Only the known GitHub direct links and the fastgit
     // mirror prefix are allowed.
-    const DIRECT_BASE: &str = "https://github.com/Open-Less/openless";
-    const MIRROR_BASE: &str = "https://fastgit.cc/https://github.com/Open-Less/openless";
+    const DIRECT_BASE: &str = "https://github.com/flavioacv/openless";
+    const MIRROR_BASE: &str = "https://fastgit.cc/https://github.com/flavioacv/openless";
     if !url.starts_with(DIRECT_BASE) && !url.starts_with(MIRROR_BASE) {
         return Err(format!("不信任的更新 URL，拒绝下载: {url}"));
     }
