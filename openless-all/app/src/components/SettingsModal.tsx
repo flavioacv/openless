@@ -54,8 +54,8 @@ interface SettingsModalProps {
 }
 
 const LINKS = [
-  { id: 'helpCenter', icon: 'help', href: 'https://github.com/Open-Less/openless#readme' },
-  { id: 'releaseNotes', icon: 'doc', href: 'https://github.com/Open-Less/openless/releases' },
+  { id: 'helpCenter', icon: 'help', href: 'https://github.com/flavioacv/openless#readme' },
+  { id: 'releaseNotes', icon: 'doc', href: 'https://github.com/flavioacv/openless/releases' },
 ];
 
 export function SettingsModal({

@@ -3,6 +3,36 @@
 This document defines who may cut releases and how. It is policy, not a how-to for
 day-to-day development.
 
+## Releases do fork pelo GitHub
+
+O workflow próprio `.github/workflows/fork-release.yml` oferece `prepare` e `build`, restritos a administradores de `flavioacv/openless`. Ele deve estar integrado na branch padrão para aparecer em Actions. Disponibilize também a implementação nas branches dos canais que pretende usar. A versão aceita é `X.Y.Z` (branch `main`) ou `X.Y.Z-Beta.N` (branch `beta`), sem `v`, zeros à esquerda ou metadados. Use uma versão maior que a última publicada no canal; o aplicativo compara SemVer, não títulos/datas de Releases.
+
+Configuração única em **Settings → Secrets and variables → Actions**:
+
+| Tipo | Nome | Finalidade |
+| --- | --- | --- |
+| Secret | `FORK_RELEASE_TOKEN` | Token próprio limitado ao fork, com Contents e Pull requests em escrita e Actions em leitura. O titular deve poder criar branches/tags e abrir PRs conforme as regras do repositório. É usado para que o push da tag dispare os workflows existentes. |
+| Variable | `OPENLESS_UPDATER_PUBLIC_KEY` | Conteúdo Base64 completo do arquivo público gerado pelo Tauri. O preparo sincroniza desktop e Android. |
+| Secret | `TAURI_SIGNING_PRIVATE_KEY` | Chave privada do mesmo par, consumida pelos builds existentes. |
+| Secret | `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | Senha desse par. |
+
+Gere o par em uma máquina de confiança com a CLI já instalada: `cd openless-all/app` e `npm run tauri -- signer generate -w /caminho/seguro/openless-fork.key`. Guarde a chave privada fora do repositório e use o conteúdo de `openless-fork.key.pub` na variável pública. A chave oficial herdada é rejeitada pelo workflow próprio. A validação estrutural da chave não comprova que o secret privado corresponde a ela; verifique a assinatura real antes de publicar.
+
+O token automático `GITHUB_TOKEN` não dispara builds por push de tags criado por outro workflow; por isso este fluxo utiliza um token dedicado. Consulte a [documentação oficial do GitHub](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow). Nunca inclua tokens, certificados ou chaves privadas no código, nas entradas do workflow ou nos logs.
+
+Os secrets Apple e Android dos workflows existentes também precisam estar configurados para os respectivos pacotes. Para Android: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. A chave de assinatura do APK deve permanecer estável entre versões para preservar atualização sobre a instalação existente. Os secrets Apple estão documentados em `release-tauri.yml`.
+
+Fluxo de operação:
+
+1. **Actions → Fork release → Run workflow**: escolha a branch do canal, `operation=prepare` e a versão desejada. O script valida todos os arquivos antes de escrever, atualiza as cinco fontes de versão e a chave pública Android. Não recalcula dependências nem modifica o lockfile do Core/Linux.
+2. Revise a PR gerada, aguarde CI e faça merge por aprovação humana. Não existe merge automático para `main` ou `beta`.
+3. Execute o mesmo workflow com `operation=build` e a mesma versão na branch de destino. Ele exige que versões/chaves já estejam sincronizadas, tag inédita e CI de push aprovado no commit exato. A tag inicia `release-tauri.yml` e `android-apk.yml` com o token dedicado.
+4. Confira os dois workflows, os manifestos e assinaturas no draft compartilhado. Publique pelo GitHub somente após aceitação. Stable deve ser latest; Beta deve ser prerelease, nunca latest. O verificador do aplicativo usa apenas as versões publicadas do fork.
+
+Se uma tag já existe, o workflow recusa recriá-la. Para falha transitória de build, reexecute o workflow original pelo GitHub; para alterações de código, prepare uma versão nova. Tags são imutáveis neste fluxo.
+
+Nada disso migra binários já instalados que consultam o upstream: instale manualmente uma primeira versão com endpoints e chave do fork. Não há dependência de CDN ou Cloudflare. As seções seguintes documentam a esteira herdada e requisitos de plataforma.
+
 ## Authority: admins only
 
 **Only repository administrators may create version tags and publish releases.**
