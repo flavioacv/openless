@@ -5,7 +5,7 @@ pub const DIRECT_BASE: &str = "https://github.com/flavioacv/openless";
 
 /// Must match `plugins.updater.pubkey` in `tauri.conf.json` (TAURI_SIGNING_PRIVATE_KEY pair).
 pub const UPDATER_PUBKEY_B64: &str =
-    "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFERUFBODAzNTY0QzMyM0YKUldRL01reFdBNmpxSGE1K0JadlpONXNWTzhJcGZCRGxjUVdIWExNNFJpeUNsSGZwazdlQThhemkK";
+    "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc4N0ExOTQ4RjI4MjE2MDEKUldRQkZvTHlTQmw2ZUlTOXZPaVlabnNTMFFDOGNUclRid3NzNHdmdC95UU5EZk5hZUlnNFp1dVoK";
 
 /// Returned when Kotlin `installApk` cannot open the system installer (e.g. missing install permission).
 pub const INSTALLER_NOT_OPENED_MSG: &str =
