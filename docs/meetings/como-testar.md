@@ -15,6 +15,15 @@ npm run tauri -- dev
 
 O comando também compila a parte nativa em modo de desenvolvimento. O frontend isolado (`npm run dev` no navegador) não permite testar gravação, importação ou chamadas nativas. Se o Cargo parar em dependências ausentes ou em um bloqueio de outra compilação, o aplicativo ainda não estará executando esta implementação.
 
+Para gerar o instalador DMG localmente em modo release:
+
+```sh
+cd "/Volumes/Externo 1/projetos/zurc/openless/openless-all/app"
+npm run build:dmg
+```
+
+O comando gera o instalador sem instalar automaticamente. No Apple Silicon, a versão 2.1.0 fica em `src-tauri/target/release/bundle/dmg/OpenLess_2.1.0_aarch64.dmg`; no Intel, o sufixo é `_x64.dmg`. Abra o DMG e instale para testar. Requer as ferramentas nativas de build e as dependências npm instaladas (`npm ci` na primeira preparação). Sem certificado Apple configurado, usa assinatura ad hoc local. O primeiro build precisa de internet para resolver dependências. Antes de abrir a nova cópia, saia completamente da versão antiga pelo ícone da barra do Mac.
+
 Em Configurações → Modelos e provedores de IA:
 
 1. Para transcrição com falantes via API, tenha um canal ElevenLabs ativo, com chave e modelo configurados. Para uso local, siga a seção abaixo; essa etapa não precisa de chave.

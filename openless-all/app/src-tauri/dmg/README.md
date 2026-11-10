@@ -6,7 +6,17 @@ O fundo mantém a fotografia costeira, o título OpenLess, a seta e os espaços 
 - `installer-background.tiff`: representações de 768 × 512 a 72 dpi e 1536 × 1024 a 144 dpi.
 - `layout.json`: tamanho dos ícones e texto. Posições e janela em `../tauri.macos.conf.json`.
 
-Empacote a partir de `app` com `INSTALL=0 ./scripts/build-mac.sh`. Em Apple Silicon, `scripts/macos-dmg-layout.py` grava o layout antes da compressão/assinatura do Tauri e verifica a imagem final. A arte não faz parte da interface em execução.
+Empacote a partir de `openless-all/app` com:
+
+```sh
+npm run build:dmg
+```
+
+O comando executa `INSTALL=0 bash scripts/build-mac.sh`, compila o aplicativo em release e gera o DMG sem instalar em `/Applications`. O arquivo fica em `src-tauri/target/release/bundle/dmg/OpenLess_<versão>_aarch64.dmg` no Apple Silicon, ou com sufixo `_x64.dmg` no Intel. Abra o DMG para instalar e testar manualmente.
+
+Requer macOS, Xcode/Swift, Rust, Node/npm e Python 3, com as dependências npm instaladas (`npm ci`). A primeira compilação precisa de internet para resolver dependências. Sem certificado Apple configurado, o script usa assinatura ad hoc para testes locais; credenciais de notarização não são obrigatórias para esse uso.
+
+Em Apple Silicon, `scripts/macos-dmg-layout.py` grava o layout antes da compressão/assinatura do Tauri e verifica a imagem final. A arte não faz parte da interface em execução.
 
 A imagem original foi gerada em 26/09/2026 e a tradução visual foi aplicada com imagegen em 08/11/2026, preservando a composição e os alvos de instalação.
 
