@@ -1,3 +1,4 @@
+import { meetingEn as meetings } from './meetings';
 import { siwcZhTW as siwc } from './siwc';
 import type { zhCN } from './zh-CN';
 
@@ -7,6 +8,7 @@ import { experimentalAsrZhTW as experimentalAsr } from './experimentalAsr';
 
 export const zhTW: typeof zhCN = {
   siwc,
+  meetings,
   experimentalAsr,
   uiRefinement,
   voiceEdit: {
@@ -264,6 +266,14 @@ export const zhTW: typeof zhCN = {
     tagline: '自然說話，完美書寫',
   },
   common: {
+    presetProgrammer: '程式設計',
+    presetChef: '烹飪',
+    presetCivilServant: '公職',
+
+    batchAddFailed: '部分詞條新增失敗（{{count}}）',
+    noTextRecognized: '未辨識到文字。',
+    invalidUpdateManifest: '更新資訊缺少 URL 或簽章。',
+
     loading: '載入中…',
     retry: '重試',
     settingsLoadFailed: '設定載入失敗',
@@ -493,6 +503,7 @@ export const zhTW: typeof zhCN = {
     denied: '已拒絕',
   },
   nav: {
+    meetings: '會議',
     overview: '概覽',
     history: '歷史',
     vocab: '詞彙表',

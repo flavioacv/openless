@@ -336,7 +336,7 @@ pub(crate) fn backend_dependencies(
     {
         let runtime = Arc::new(TauriRemoteInputRuntimeAdapter::new(Arc::clone(&app)));
         dependencies.services.remote_input = Arc::new(
-            openless_core::RemoteInputService::new(runtime, 8443, "zh-CN")
+            openless_core::RemoteInputService::new(runtime, 8443, "en")
                 .expect("built-in remote input defaults are valid"),
         );
     }

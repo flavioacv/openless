@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "OpenLess uses the microphone to transcribe your speech and record meetings.";
+"NSSpeechRecognitionUsageDescription" = "OpenLess uses Apple Speech Recognition to transcribe your speech.";
+"NSAccessibilityUsageDescription" = "OpenLess uses accessibility access for global shortcuts and to insert transcribed text at the cursor.";
+"NSAppleEventsUsageDescription" = "OpenLess sends keyboard events to paste transcribed text at the cursor.";

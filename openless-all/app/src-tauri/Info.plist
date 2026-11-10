@@ -2,13 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>OpenLess 需要麦克风权限来听写你的语音。</string>
-  <key>NSSpeechRecognitionUsageDescription</key>
-  <string>OpenLess 使用 Apple 语音识别来听写你的语音。</string>
-  <key>NSAccessibilityUsageDescription</key>
-  <string>OpenLess 需要辅助功能权限来监听全局快捷键并把识别结果粘贴到当前光标位置。</string>
-  <key>NSAppleEventsUsageDescription</key>
-  <string>OpenLess 需要发送按键事件，把识别结果粘贴到当前光标位置。</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>OpenLess uses the microphone to transcribe your speech and record meetings.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>OpenLess uses Apple Speech Recognition to transcribe your speech.</string>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>OpenLess uses accessibility access for global shortcuts and to insert transcribed text at the cursor.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>OpenLess sends keyboard events to paste transcribed text at the cursor.</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>pt</string>
+		<string>pt-BR</string>
+		<string>zh-Hans</string>
+		<string>zh-Hant</string>
+	</array>
 </dict>
 </plist>

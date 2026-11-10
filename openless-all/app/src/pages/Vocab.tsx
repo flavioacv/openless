@@ -39,6 +39,16 @@ type SourceFilter = 'all' | 'auto' | 'manual';
 
 export function Vocab() {
   const { t } = useTranslation();
+  const presetName = (preset: VocabPreset) => {
+    const builtin = DEFAULT_VOCAB_PRESETS.find((item) => item.id === preset.id);
+    if (!builtin || builtin.name !== preset.name) return preset.name;
+    const keys: Record<string, string> = {
+      programmer: 'common.presetProgrammer',
+      chef: 'common.presetChef',
+      'civil-servant': 'common.presetCivilServant',
+    };
+    return keys[preset.id] ? t(keys[preset.id]) : preset.name;
+  };
   const mobile = useMobileLayout();
   const [entries, setEntries] = useState<DictionaryEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,7 +254,7 @@ export function Vocab() {
 
   const startEditPreset = (preset: VocabPreset) => {
     setEditingPresetId(preset.id);
-    setPresetNameDraft(preset.name);
+    setPresetNameDraft(presetName(preset));
     setPresetPhrasesDraft(preset.phrases.join(', '));
   };
 
@@ -325,7 +335,7 @@ export function Vocab() {
     const failures = await applyPresets(selected);
     await refresh();
     if (failures > 0) {
-      setError(`部分词条添加失败（${failures}）`);
+      setError(t('common.batchAddFailed', { count: failures }));
     } else {
       flashSaved();
     }
@@ -338,7 +348,7 @@ export function Vocab() {
     setNewWordTemplateIds([]);
     setNewWordOpen(false);
     if (failures > 0) {
-      setError(`部分词条添加失败（${failures}）`);
+      setError(t('common.batchAddFailed', { count: failures }));
     } else {
       flashSaved();
     }
@@ -708,7 +718,7 @@ export function Vocab() {
                         : 'var(--ol-surface-2)',
                     }}
                   >
-                    {p.name}
+                    {presetName(p)}
                   </button>
                 ))}
                 <Btn size="sm" variant="ghost" onClick={createPreset}>
@@ -750,7 +760,7 @@ export function Vocab() {
                       variant="ghost"
                       onClick={() => startEditPreset(p)}
                     >
-                      {t('vocab.presets.edit', { name: p.name })}
+                      {t('vocab.presets.edit', { name: presetName(p) })}
                     </Btn>
                   ))}
                 </div>
@@ -897,7 +907,7 @@ export function Vocab() {
                         color: 'var(--ol-ink)',
                       }}
                     >
-                      {p.name}
+                      {presetName(p)}
                     </span>
                     <span
                       style={{

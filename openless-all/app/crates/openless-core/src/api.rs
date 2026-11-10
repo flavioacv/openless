@@ -3414,6 +3414,9 @@ impl OpenLessBackend {
     /// handle only after it has been stopped, so one process owns one mic.
     pub async fn configure_voice_activation(&self) -> Result<(), BackendError> {
         let _configure_gate = self.voice_activation_configure_gate.lock().await;
+        if self.voice_sessions.meeting_active() {
+            return Err(BackendError::new(BackendErrorCode::Busy, "Aguarde a operação de reunião atual."));
+        }
         let preferences = self.get_preferences();
         if self
             .voice_activation_session
@@ -4078,6 +4081,29 @@ impl OpenLessBackend {
     /// the concrete implementation.
     pub fn services(&self) -> &crate::domains::BackendServices {
         &self.deps.services
+    }
+
+    pub async fn reserve_meeting_resources(&self) -> Result<crate::MeetingResourceLease, BackendError> {
+        let _configure_gate = self.voice_activation_configure_gate.lock().await;
+        if self.voice_activation_handle.lock().expect("voice activation lock poisoned").is_some() {
+            return Err(BackendError::new(
+                BackendErrorCode::Busy,
+                "Desative a ativação por voz antes de iniciar uma reunião.",
+            ));
+        }
+        let session_id = SessionId::new();
+        self.voice_sessions.acquire(session_id, crate::voice_session::VoiceSessionKind::Meeting)?;
+        match self.voice_sessions.hold_resources(session_id) {
+            Ok(resources) => Ok(crate::MeetingResourceLease {
+                gate: Arc::clone(&self.voice_sessions),
+                session_id,
+                _resources: resources,
+            }),
+            Err(error) => {
+                self.voice_sessions.release(session_id);
+                Err(error)
+            }
+        }
     }
 
     fn cloud_sync_service(&self) -> Result<&crate::cloud_sync::CloudSyncService, BackendError> {

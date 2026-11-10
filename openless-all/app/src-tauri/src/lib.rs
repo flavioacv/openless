@@ -91,6 +91,8 @@ mod qa_hotkey;
 mod qa_hotkey;
 mod recorder;
 #[cfg(not(mobile))]
+mod meetings;
+#[cfg(not(mobile))]
 mod remote_server;
 #[cfg(not(mobile))]
 #[path = "selection.rs"]
@@ -253,6 +255,7 @@ macro_rules! app_invoke_handler_desktop {
     () => {
         tauri::generate_handler![
             commands::get_startup_snapshot,
+            meetings::meetings_command,
             desktop_resources::desktop_low_memory_active,
             native_capsule::native_capsule_set_locale,
             get_capsule_auxiliary_snapshot,
@@ -858,6 +861,7 @@ fn run_desktop() {
         .manage(desktop_resources::MainWindowLifecycle::default())
         .manage(coordinator.clone())
         .manage(core_backend.clone())
+        .manage(meetings::MeetingRuntime::default())
         .manage(foundry_local_runtime.clone())
         .manage(sherpa_onnx_runtime.clone())
         .manage(commands::MicrophoneMonitorState::new(None))
@@ -978,6 +982,11 @@ fn run_desktop() {
 
             // Menu bar icon — same semantics as Swift `MenuBarController`:
             // left click → show/focus the main window; menu has "show main window" and "quit".
+            // Initialize before building the tray, including when no WebView is opened.
+            tauri::async_runtime::block_on(core_backend.services().remote_input.set_locale(
+                native_capsule::startup_ui_locale(app.handle()),
+            ))
+            .map_err(|error| std::io::Error::other(error.message))?;
             let tray_menu = build_tray_menu(app, &coordinator)?;
             let menu = tray_menu.menu;
 
@@ -1060,6 +1069,7 @@ fn run_desktop() {
             #[cfg(target_os = "macos")]
             RunEvent::Reopen { .. } => show_main_window(app),
             RunEvent::ExitRequested { code: None, api, .. } if desktop_resources::active() => api.prevent_exit(),
+            RunEvent::ExitRequested { code, api, .. } if meetings::defer_exit(app, code) => api.prevent_exit(),
             RunEvent::WindowEvent { label, event, .. } => {
                 if label == "main" {
                     if let tauri::WindowEvent::CloseRequested { ref api, .. } = event {
@@ -1144,7 +1154,7 @@ struct TrayLabels {
 #[cfg(not(mobile))]
 impl TrayLabels {
     fn for_locale(locale: &str) -> Self {
-        match locale {
+        match crate::native_capsule::normalize_ui_locale(locale) {
             "en" => Self {
                 toggle: "Show main window",
                 style: "Output style",
@@ -1156,6 +1166,19 @@ impl TrayLabels {
                 raw: "Raw",
                 light: "Light polish",
                 structured: "Structured",
+                formal: "Formal",
+            },
+            "pt" => Self {
+                toggle: "Mostrar janela principal",
+                style: "Estilo de saída",
+                microphone: "Selecionar microfone",
+                default_microphone: "Microfone padrão do sistema",
+                no_microphones: "Nenhum microfone encontrado",
+                default_device_suffix: " (Padrão do sistema)",
+                quit: "Sair do OpenLess",
+                raw: "Texto original",
+                light: "Aprimoramento leve",
+                structured: "Estruturado",
                 formal: "Formal",
             },
             "es" => Self {
@@ -1236,7 +1259,7 @@ impl TrayLabels {
                 structured: "명확한 구조",
                 formal: "정식 표현",
             },
-            _ => Self {
+            "zh-CN" => Self {
                 toggle: "显示主窗口",
                 style: "输出风格",
                 microphone: "选择麦克风",
@@ -1249,6 +1272,7 @@ impl TrayLabels {
                 structured: "清晰结构",
                 formal: "正式表达",
             },
+            _ => Self::for_locale("en"),
         }
     }
 
@@ -1356,7 +1380,7 @@ fn build_tray_menu<M: Manager<tauri::Wry>>(
         .try_state::<Arc<openless_core::OpenLessBackend>>()
         .and_then(|backend| backend.services().remote_input.status().ok())
         .map(|status| status.locale)
-        .unwrap_or_else(|| "zh-CN".to_string());
+        .unwrap_or_else(|| "en".to_string());
     let labels = TrayLabels::for_locale(&locale);
     let toggle = MenuItemBuilder::with_id("toggle", labels.toggle).build(app)?;
     let microphone_menu = build_microphone_tray_menu(app, coordinator, labels)?;
@@ -1757,7 +1781,9 @@ fn set_windows_caption_theme(app: AppHandle, dark: bool) {
 }
 
 #[tauri::command]
-fn restart_app(app: AppHandle) {
+fn restart_app(app: AppHandle) -> Result<(), String> {
+    #[cfg(not(mobile))]
+    meetings::prepare_restart(&app)?;
     // The main-thread restart path skips the RunEvent::Exit handlers; stop the
     // disposable capsule explicitly. The child also self-closes when the
     // inherited pipe hits EOF, so an exit here can never orphan it.
@@ -1769,6 +1795,7 @@ fn restart_app(app: AppHandle) {
     #[cfg(target_os = "macos")]
     reset_tcc_for_beta_restart();
     restart_on_main_thread(app);
+    Ok(())
 }
 
 /// `AppHandle::restart` from a command thread routes through
@@ -3215,7 +3242,7 @@ fn ensure_voice_edit_window<R: tauri::Runtime>(
         "voice-edit",
         WebviewUrl::App("index.html?window=voice-edit".into()),
     )
-    .title("OpenLess 语音编辑")
+    .title("OpenLess — Voice editing")
     .inner_size(VOICE_EDIT_WINDOW_WIDTH, VOICE_EDIT_WINDOW_HEIGHT)
     .min_inner_size(380.0, 420.0)
     .decorations(false)
@@ -3332,7 +3359,7 @@ fn ensure_selection_voice_intent_prompt_window<R: tauri::Runtime>(
         "selection-voice-intent",
         WebviewUrl::App("index.html?window=selection-voice-intent".into()),
     )
-    .title("OpenLess 選區語音")
+    .title("OpenLess — Voice selection")
     .inner_size(420.0, 280.0)
     .min_inner_size(360.0, 240.0)
     .resizable(true)
@@ -3937,7 +3964,14 @@ mod tests {
             TrayLabels::for_locale("fr").style_pack_name(PolishMode::Structured),
             "Structuré"
         );
-        assert_eq!(TrayLabels::for_locale("unknown").toggle, "显示主窗口");
+        assert_eq!(TrayLabels::for_locale("unknown").toggle, "Show main window");
+        for locale in ["pt", "pt-BR", "pt_PT.UTF-8"] {
+            let portuguese = TrayLabels::for_locale(locale);
+            assert_eq!(portuguese.toggle, "Mostrar janela principal");
+            assert_eq!(portuguese.quit, "Sair do OpenLess");
+            assert_eq!(portuguese.microphone, "Selecionar microfone");
+            assert_eq!(portuguese.style_pack_name(PolishMode::Light), "Aprimoramento leve");
+        }
     }
 
     #[test]

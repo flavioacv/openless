@@ -9,7 +9,7 @@ assert.match(build, /tauri\.macos\.conf\.json/);
 assert.doesNotMatch(build, /stage-macos-mlx|check:macos-metal|KEEP_QWEN_DIR/);
 assert.doesNotMatch(build, /--bundles app|codesign --force|hdiutil create/);
 assert.match(build, /stapler validate/);
-assert.match(build, /包含已下架的 MLX 运行资源/);
+assert.match(build, /O aplicativo contém recursos de execução MLX removidos/);
 assert.equal(
   JSON.parse(read('src-tauri/tauri.conf.json')).build.beforeBuildCommand,
   'npm run build',

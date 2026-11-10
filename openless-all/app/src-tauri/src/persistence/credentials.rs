@@ -2913,6 +2913,27 @@ fn configuration_snapshot_with(
     })
 }
 
+fn meeting_channel_root(
+    mut root: CredsRoot,
+    kind: ChannelKind,
+    channel_id: Option<&str>,
+) -> Result<CredsRoot> {
+    let id = channel_id.filter(|id| !id.is_empty()).unwrap_or(match kind {
+        ChannelKind::Asr => &root.active.asr,
+        ChannelKind::Llm => &root.active.llm,
+    }).to_owned();
+    let enabled = match kind {
+        ChannelKind::Asr => root.providers.asr.get(&id).map(|entry| entry.channel.enabled),
+        ChannelKind::Llm => root.providers.llm.get(&id).map(|entry| entry.channel.enabled),
+    };
+    anyhow::ensure!(enabled == Some(true), "O canal selecionado para a reunião não existe ou está desativado.");
+    match kind {
+        ChannelKind::Asr => root.active.asr = id,
+        ChannelKind::Llm => root.active.llm = id,
+    }
+    Ok(root)
+}
+
 fn credentials_snapshot(root: &CredsRoot, include_omni: bool) -> CredentialsSnapshot {
     CredentialsSnapshot {
         volcengine_app_key: lookup_account(root, CredentialAccount::VolcengineAppKey),
@@ -4087,6 +4108,55 @@ impl CredentialsVault {
         let _guard = credentials_lock().lock();
         configuration_snapshot_with(include_omni, load_credentials_for_update)
     }
+
+    pub(crate) fn meeting_summary_snapshot(channel_id: Option<&str>) -> Result<(
+        CredentialConfigurationSnapshot,
+        openless_core::llm_protocol::LlmProtocolConfig,
+        HashMap<String, String>,
+    )> {
+        let _guard = credentials_lock().lock();
+        let root = meeting_channel_root(load_credentials_for_update()?, ChannelKind::Llm, channel_id)?;
+        let configuration = configuration_snapshot_with(false, || Ok(root.clone()))?;
+        let mut protocol = openless_core::llm_protocol::LlmProtocolConfig::default();
+        protocol.format = openless_core::llm_protocol::LlmRequestFormat::default_for(
+            &configuration.active_llm_provider,
+        );
+        if let Some(mut entry) = root.providers.llm.get(&root.active.llm).cloned() {
+            for account in openless_core::llm_protocol::CONFIG_ACCOUNTS {
+                if let Some(value) = entry.protocol_option(account)?.as_deref() {
+                    protocol.apply(account, value)?;
+                }
+            }
+        }
+        Ok((configuration, protocol, active_llm_extra_headers(&root)))
+    }
+
+    pub(crate) fn meeting_transcription_snapshot(channel_id: Option<&str>) -> Result<CredentialConfigurationSnapshot> {
+        let _guard = credentials_lock().lock();
+        let root = meeting_channel_root(load_credentials_for_update()?, ChannelKind::Asr, channel_id)?;
+        configuration_snapshot_with(false, || Ok(root))
+    }
+
+    /// Public selection metadata only; API keys, endpoints and headers stay in the vault.
+    pub(crate) fn meeting_channels() -> Result<serde_json::Value> {
+        let _guard = credentials_lock().lock();
+        let root = load_credentials_for_update()?;
+        let metadata = credential_metadata(&root);
+        let options = |kind| metadata.list_channels(kind).into_iter().filter(|channel| channel.enabled)
+            .filter(|channel| match kind {
+                ChannelKind::Asr => openless_core::provider_rules::is_elevenlabs_provider(&channel.provider_type),
+                ChannelKind::Llm => !matches!(channel.provider_type.as_str(), "codex-oauth" | "siwc"),
+            })
+            .map(|channel| {
+                let model = match kind {
+                    ChannelKind::Asr => root.providers.asr.get(&channel.id).and_then(|entry| entry.model.clone()),
+                    ChannelKind::Llm => root.providers.llm.get(&channel.id).and_then(|entry| entry.model.clone()),
+                };
+                serde_json::json!({"id":channel.id,"name":channel.name,"providerType":channel.provider_type,"model":model})
+            }).collect::<Vec<_>>();
+        Ok(serde_json::json!({"asr":options(ChannelKind::Asr),"llm":options(ChannelKind::Llm)}))
+    }
+
 }
 
 #[cfg(test)]
@@ -6515,3 +6585,42 @@ mod sync_capture_diagnostic_tests {
 }
 
 mod android_transfer;
+
+#[cfg(test)]
+mod meeting_channel_tests {
+    use super::*;
+
+    #[test]
+    fn meeting_selection_is_private_and_uses_the_selected_channels_model_and_key() {
+        let mut root = CredsRoot::default();
+        root.active.llm = "dictation-channel".into();
+        root.providers.llm.insert("dictation-channel".into(), CredsLlmEntry {
+            apiKey: Some("dictation-fixture".into()),
+            ..Default::default()
+        });
+        root.providers.llm.insert("meeting-channel".into(), CredsLlmEntry {
+            channel: ChannelMeta { providerType: Some("gemini".into()), ..Default::default() },
+            apiKey: Some("meeting-fixture".into()),
+            model: Some("gemini-selected-model".into()),
+            ..Default::default()
+        });
+        let selected = meeting_channel_root(root.clone(), ChannelKind::Llm, Some("meeting-channel")).unwrap();
+        let snapshot = configuration_snapshot_with(false, || Ok(selected)).unwrap();
+        assert_eq!(snapshot.active_llm_provider, "gemini");
+        assert_eq!(snapshot.credentials.ark_model_id.as_deref(), Some("gemini-selected-model"));
+        assert_eq!(snapshot.credentials.ark_api_key.as_deref(), Some("meeting-fixture"));
+        assert_eq!(root.active.llm, "dictation-channel");
+        assert_eq!(root.providers.llm["dictation-channel"].apiKey.as_deref(), Some("dictation-fixture"));
+    }
+
+    #[test]
+    fn meeting_cannot_select_a_missing_or_disabled_channel() {
+        let mut root = CredsRoot::default();
+        root.providers.asr.insert("disabled".into(), CredsAsrEntry {
+            channel: ChannelMeta { enabled: false, ..Default::default() },
+            ..Default::default()
+        });
+        assert!(meeting_channel_root(root.clone(), ChannelKind::Asr, Some("disabled")).is_err());
+        assert!(meeting_channel_root(root, ChannelKind::Asr, Some("unknown")).is_err());
+    }
+}

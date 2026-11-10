@@ -23,14 +23,22 @@
 
 !macro OPENLESS_IME_ABORT_IF_FAILED EXIT_CODE LABEL
   ${If} ${EXIT_CODE} != 0
-    DetailPrint "OpenLess TSF IME ${LABEL} failed with exit code ${EXIT_CODE}"
+    ${If} $LANGUAGE == 1046
+      DetailPrint "Falha na operação do método de entrada OpenLess. Código de saída: ${EXIT_CODE}"
+    ${Else}
+      DetailPrint "OpenLess TSF IME ${LABEL} failed with exit code ${EXIT_CODE}"
+    ${EndIf}
     Abort
   ${EndIf}
 !macroend
 
 !macro OPENLESS_IME_REGISTER_X64
   ${If} ${RunningX64}
-    DetailPrint "Registering OpenLess x64 TSF IME"
+    ${If} $LANGUAGE == 1046
+      DetailPrint "Registrando método de entrada OpenLess x64"
+    ${Else}
+      DetailPrint "Registering OpenLess x64 TSF IME"
+    ${EndIf}
     ExecWait '"$WINDIR\Sysnative\regsvr32.exe" /s "$INSTDIR\windows-ime\x64\${OPENLESS_IME_FILENAME}"' $0
     ${If} $0 != 0
       ${DisableX64FSRedirection}
@@ -44,7 +52,11 @@
 
 !macro OPENLESS_IME_UNREGISTER_X64
   ${If} ${RunningX64}
-    DetailPrint "Unregistering OpenLess x64 TSF IME"
+    ${If} $LANGUAGE == 1046
+      DetailPrint "Removendo registro do método de entrada OpenLess x64"
+    ${Else}
+      DetailPrint "Unregistering OpenLess x64 TSF IME"
+    ${EndIf}
     SetRegView 64
     StrCpy $R0 ""
     ReadRegStr $R0 HKLM "Software\Classes\CLSID\{6B9F3F4F-5EE7-42D6-9C61-9F80B03A5D7D}\InprocServer32" ""
@@ -57,12 +69,20 @@
       ExecWait '"$WINDIR\System32\regsvr32.exe" /s /u "$R0"' $0
       ${EnableX64FSRedirection}
     ${EndIf}
-    DetailPrint "OpenLess x64 TSF IME unregister exit code $0"
+    ${If} $LANGUAGE == 1046
+      DetailPrint "Código de saída da remoção do registro OpenLess x64: $0"
+    ${Else}
+      DetailPrint "OpenLess x64 TSF IME unregister exit code $0"
+    ${EndIf}
   ${EndIf}
 !macroend
 
 !macro OPENLESS_IME_UNREGISTER_X86
-  DetailPrint "Unregistering OpenLess x86 TSF IME"
+  ${If} $LANGUAGE == 1046
+    DetailPrint "Removendo registro do método de entrada OpenLess x86"
+  ${Else}
+    DetailPrint "Unregistering OpenLess x86 TSF IME"
+  ${EndIf}
   SetRegView 32
   StrCpy $R1 ""
   ReadRegStr $R1 HKLM "Software\Classes\CLSID\{6B9F3F4F-5EE7-42D6-9C61-9F80B03A5D7D}\InprocServer32" ""
@@ -74,11 +94,19 @@
   ${Else}
     ExecWait '"$WINDIR\System32\regsvr32.exe" /s /u "$R1"' $0
   ${EndIf}
-  DetailPrint "OpenLess x86 TSF IME unregister exit code $0"
+  ${If} $LANGUAGE == 1046
+    DetailPrint "Código de saída da remoção do registro OpenLess x86: $0"
+  ${Else}
+    DetailPrint "OpenLess x86 TSF IME unregister exit code $0"
+  ${EndIf}
 !macroend
 
 !macro OPENLESS_IME_REGISTER_X86
-  DetailPrint "Registering OpenLess x86 TSF IME"
+  ${If} $LANGUAGE == 1046
+    DetailPrint "Registrando método de entrada OpenLess x86"
+  ${Else}
+    DetailPrint "Registering OpenLess x86 TSF IME"
+  ${EndIf}
   ${If} ${RunningX64}
     ExecWait '"$WINDIR\SysWOW64\regsvr32.exe" /s "$INSTDIR\windows-ime\x86\${OPENLESS_IME_FILENAME}"' $0
   ${Else}
@@ -97,7 +125,11 @@
   Delete /REBOOTOK "$INSTDIR\windows-ime\${PLATFORM_DIR}\OpenLessIme.dll"
   ${If} ${FileExists} "$INSTDIR\windows-ime\${PLATFORM_DIR}\OpenLessIme.dll"
     !insertmacro OPENLESS_IME_DIAGNOSTIC_EVENT legacy_${PLATFORM_DIR}_pending_reboot
-    DetailPrint "OpenLess TSF IME ${PLATFORM_DIR} legacy DLL deletion deferred until reboot"
+    ${If} $LANGUAGE == 1046
+      DetailPrint "A exclusão da DLL antiga do OpenLess ${PLATFORM_DIR} será concluída após reiniciar"
+    ${Else}
+      DetailPrint "OpenLess TSF IME ${PLATFORM_DIR} legacy DLL deletion deferred until reboot"
+    ${EndIf}
     SetRebootFlag true
   ${EndIf}
 !macroend
@@ -110,7 +142,11 @@
   File /oname=${OPENLESS_IME_FILENAME} "$%${ENV_VAR}%"
   ${IfNot} ${FileExists} "$INSTDIR\windows-ime\${PLATFORM_DIR}\${OPENLESS_IME_FILENAME}"
     !insertmacro OPENLESS_IME_DIAGNOSTIC_EVENT stage_${PLATFORM_DIR}_missing
-    DetailPrint "OpenLess TSF IME ${PLATFORM_DIR} DLL staging failed"
+    ${If} $LANGUAGE == 1046
+      DetailPrint "Falha ao preparar a DLL do OpenLess ${PLATFORM_DIR}"
+    ${Else}
+      DetailPrint "OpenLess TSF IME ${PLATFORM_DIR} DLL staging failed"
+    ${EndIf}
     Abort
   ${EndIf}
 !macroend

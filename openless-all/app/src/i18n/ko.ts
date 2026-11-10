@@ -1,3 +1,4 @@
+import { meetingEn as meetings } from './meetings';
 import { siwcKo as siwc } from './siwc';
 import type { zhCN } from './zh-CN';
 import { en } from './en';
@@ -11,6 +12,7 @@ import { experimentalAsrEn as experimentalAsr } from './experimentalAsr';
 export const ko: typeof zhCN = {
   ...en,
   siwc,
+  meetings,
   experimentalAsr,
   uiRefinement,
   voiceEdit: {
@@ -276,6 +278,14 @@ export const ko: typeof zhCN = {
     tagline: '자연스럽게 말하고, 정확하게 작성하세요',
   },
   common: {
+    presetProgrammer: '프로그래밍',
+    presetChef: '요리',
+    presetCivilServant: '공공 서비스',
+
+    batchAddFailed: 'Could not add {{count}} entries. Please try again.',
+    noTextRecognized: 'No text recognized.',
+    invalidUpdateManifest: 'The update manifest is missing a URL or signature.',
+
     loading: '로딩 중…',
     retry: '다시 시도',
     settingsLoadFailed: '설정 로드 실패',
@@ -509,6 +519,7 @@ export const ko: typeof zhCN = {
     denied: '거부됨',
   },
   nav: {
+    meetings: '회의',
     overview: '개요',
     history: '기록',
     vocab: '사전',

@@ -47,6 +47,7 @@ pub mod llm_gemini;
 pub mod llm_protocol;
 pub mod local_migration_bundle;
 mod marketplace;
+pub mod meetings;
 pub mod model_store;
 pub mod net;
 pub mod omni;
@@ -82,6 +83,7 @@ pub mod vocabulary;
 pub mod voice_activation;
 pub mod voice_edit_session;
 mod voice_session;
+pub use voice_session::MeetingResourceLease;
 
 mod local_asr_catalog;
 mod local_asr_service;

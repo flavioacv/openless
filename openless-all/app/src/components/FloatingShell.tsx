@@ -22,6 +22,7 @@ const SettingsModal = lazy(() =>
 );
 import { CloudSyncSetupPrompt } from './CloudSyncSetupPrompt';
 import { Overview } from '../pages/Overview';
+const Meetings = lazy(() => import('../pages/Meetings').then((m) => ({ default: m.Meetings })));
 const History = lazy(() => import('../pages/History').then((m) => ({ default: m.History })));
 const Vocab = lazy(() => import('../pages/Vocab').then((m) => ({ default: m.Vocab })));
 const Style = lazy(() => import('../pages/Style').then((m) => ({ default: m.Style })));
@@ -72,6 +73,7 @@ const SIDEBAR_WIDTH = 226;
 const PAGE_CMP: Record<Exclude<AppTab, 'localAsr'>, ComponentType> = {
   overview: Overview,
   history: History,
+  meetings: Meetings,
   vocab: Vocab,
   style: Style,
   marketplace: Marketplace,
@@ -89,6 +91,7 @@ type NavNode =
 const NAV_TREE: NavNode[] = [
   { kind: 'item', id: 'overview', icon: 'overview' },
   { kind: 'item', id: 'history', icon: 'history' },
+  { kind: 'item', id: 'meetings', icon: 'mic' },
   { kind: 'item', id: 'vocab', icon: 'vocab' },
   {
     kind: 'group',
@@ -378,13 +381,19 @@ function FloatingShellBody({
               Active items get a static surface-2 rounded bg via the .ol-nav-btn-active
               class; group titles expand/collapse on click. */}
             <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {NAV_TREE.map((node) => {
+              {NAV_TREE.filter(
+                (node) => node.kind !== 'item' || node.id !== 'meetings' || !mobile,
+              ).map((node) => {
                 if (node.kind === 'item') {
                   const active = !settingsOpen && currentTab === node.id;
                   return (
                     <Tooltip
                       key={node.id}
-                      content={t(`shell.navHint.${node.id}`)}
+                      content={
+                        node.id === 'meetings'
+                          ? t('meetings.subtitle')
+                          : t(`shell.navHint.${node.id}`)
+                      }
                       placement="right"
                     >
                       <button

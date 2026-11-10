@@ -4,6 +4,7 @@ build/
 .swiftpm/
 *.xcodeproj
 Package.resolved
+!openless-all/app/src-tauri/Package.resolved
 xcuserdata/
 DerivedData/
 ChatGPT Image*.jpg
@@ -147,6 +148,9 @@ __pycache__/
 .artifacts/
 Artifacts/
 artifacts/
+# Pinned AEC3 inputs are required to build meetings from a fresh checkout.
+!openless-all/app/src-tauri/vendor/webrtc-aec3/Artifacts/
+!openless-all/app/src-tauri/vendor/webrtc-aec3/Artifacts/**
 .build-*/
 DerivedData*/
 coverage/

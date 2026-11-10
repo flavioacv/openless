@@ -1,7 +1,7 @@
 export const FONT_CATALOG = [
   {
     id: 'system',
-    name: 'System · 系统字体',
+    name: 'System',
     category: 'sans',
     family: 'system-ui, -apple-system, sans-serif',
   },
@@ -13,7 +13,7 @@ export const FONT_CATALOG = [
   },
   {
     id: 'cjk',
-    name: 'PingFang · 苹方 / 微软雅黑',
+    name: 'PingFang / Microsoft YaHei',
     category: 'sans',
     family: '"PingFang SC", "Microsoft YaHei", system-ui, sans-serif',
   },
@@ -25,7 +25,7 @@ export const FONT_CATALOG = [
   },
   {
     id: 'song',
-    name: 'Songti · 宋体',
+    name: 'Songti',
     category: 'serif',
     family: '"Songti SC", SimSun, ui-serif, serif',
   },

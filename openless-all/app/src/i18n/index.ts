@@ -5,6 +5,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { zhCN } from './zh-CN';
+import { en } from './en';
 import { setRemoteLocale } from '../lib/ipc';
 
 export const SUPPORTED_LOCALES = [
@@ -24,7 +25,7 @@ export const LOCALE_STORAGE_KEY = 'ol.locale';
 const FOLLOW_SYSTEM_VALUE = 'system';
 
 function detectSystemLocale(): SupportedLocale {
-  if (typeof navigator === 'undefined') return 'zh-CN';
+  if (typeof navigator === 'undefined') return 'en';
   const nav = (navigator.language || '').toLowerCase();
   if (nav.startsWith('zh')) {
     if (nav.includes('hant') || nav.includes('tw') || nav.includes('hk') || nav.includes('mo'))
@@ -68,15 +69,15 @@ async function ensureLocaleLoaded(lng: SupportedLocale): Promise<void> {
   try {
     i18n.addResourceBundle(lng, 'translation', await localeLoaders[lng]());
   } catch (e) {
-    console.warn('[i18n] load locale failed, staying on zh-CN fallback:', lng, e);
+    console.warn('[i18n] load locale failed, using English fallback:', lng, e);
   }
 }
 
 const initialReady = i18n.use(initReactI18next).init({
-  // Simplified Chinese is the canonical fallback; the selected chunk loads before rendering.
-  resources: { 'zh-CN': { translation: zhCN } },
+  // The selected chunk loads before rendering; missing translations fall back to English.
+  resources: { 'zh-CN': { translation: zhCN }, en: { translation: en } },
   lng: initialLng,
-  fallbackLng: 'zh-CN',
+  fallbackLng: 'en',
   supportedLngs: SUPPORTED_LOCALES as unknown as string[],
   partialBundledLanguages: true, // tell i18next the inline resources are complete; no backend fetch needed
   interpolation: { escapeValue: false },

@@ -1,3 +1,4 @@
+import { meetingEn as meetings } from './meetings';
 import { siwcZhCN as siwc } from './siwc';
 // Simplified Chinese resources — kept in sync with the product's current copy.
 // The eight locale files share one structure; add/remove keys in all of them together.
@@ -7,6 +8,7 @@ import { experimentalAsrZhCN as experimentalAsr } from './experimentalAsr';
 
 export const zhCN = {
   siwc,
+  meetings,
   experimentalAsr,
   uiRefinement,
   voiceEdit: {
@@ -264,6 +266,14 @@ export const zhCN = {
     tagline: '自然说话，完美书写',
   },
   common: {
+    presetProgrammer: '程序员',
+    presetChef: '厨师',
+    presetCivilServant: '公务员',
+
+    batchAddFailed: '部分词条添加失败（{{count}}）',
+    noTextRecognized: '未识别到文字。',
+    invalidUpdateManifest: '更新清单缺少 URL 或签名。',
+
     loading: '加载中…',
     retry: '重试',
     settingsLoadFailed: '设置加载失败',
@@ -493,6 +503,7 @@ export const zhCN = {
     denied: '已拒绝',
   },
   nav: {
+    meetings: '会议',
     overview: '概览',
     history: '历史',
     vocab: '词典',

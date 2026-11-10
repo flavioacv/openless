@@ -1,3 +1,4 @@
+import { NEW_STYLE_PROMPT_PT, NEW_STYLE_SELECTION_PROMPT_PT } from '../lib/styleTemplatesPt';
 import { isHarmonyHost, invokeHarmony } from '../lib/harmonyBridge';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -143,7 +144,7 @@ function modeTone(mode: PolishMode): 'default' | 'blue' | 'ok' | 'outline' | 'da
 }
 
 export function Style() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const mobile = useMobileLayout();
   const reducedMotion = useReducedMotion();
   const loadSequence = useRef(0);
@@ -561,6 +562,9 @@ export function Style() {
     try {
       const template: StylePack = {
         ...NEW_PACK_TEMPLATE_BASE,
+        ...(i18n.resolvedLanguage?.startsWith('pt')
+          ? { prompt: NEW_STYLE_PROMPT_PT, selectionPrompt: NEW_STYLE_SELECTION_PROMPT_PT }
+          : {}),
         id: '',
         name: t('style.pack.newName'),
         description: t('style.pack.newDescription'),
