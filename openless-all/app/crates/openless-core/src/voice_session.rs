@@ -8,6 +8,20 @@ pub(crate) enum VoiceSessionKind {
     LessComputer,
     SelectionVoice,
     Qa,
+    Meeting,
+}
+
+/// Exclusive meeting work keeps the existing restore and voice-session gates occupied.
+pub struct MeetingResourceLease {
+    pub(crate) gate: Arc<VoiceSessionGate>,
+    pub(crate) session_id: SessionId,
+    pub(crate) _resources: Arc<VoiceResourceHold>,
+}
+
+impl Drop for MeetingResourceLease {
+    fn drop(&mut self) {
+        self.gate.release(self.session_id);
+    }
 }
 
 #[derive(Debug)]
@@ -26,6 +40,11 @@ pub(crate) struct VoiceSessionGate {
 }
 
 impl VoiceSessionGate {
+    pub(crate) fn meeting_active(&self) -> bool {
+        self.active.lock().is_ok_and(|active| active.as_ref()
+            .is_some_and(|session| session.kind == VoiceSessionKind::Meeting))
+    }
+
     pub(crate) fn bind_restore_guard(
         &self,
         guard: crate::domains::RuntimeRestoreGuard,

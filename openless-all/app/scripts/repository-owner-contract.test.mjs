@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
-const currentRepo = 'Open-Less/openless';
+const currentRepo = 'flavioacv/openless';
 const legacyRepo = 'appergb/openless';
 
 const repositoryReferences = [

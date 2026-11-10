@@ -1,0 +1,67 @@
+---
+title: OpenLess — Reuniões e importação de mídia
+columns: [A fazer, Em andamento, Em revisão, Concluído]
+labels: {core: blue, captura: orange, ia: purple, ui: green, validacao: red, planejamento: grey}
+---
+
+## A fazer
+
+- [ ] Abrir PR e publicar a versão após liberar GitHub/CI <!-- id: meet-13 labels: planejamento, validacao -->
+      Usuário commitou e publicou feat/meeting-recording em 00136d63. Versão 2.1.0 preparada localmente em 10/11, com chave existente preservada e testes de versão/atualizador aprovados. Esta sessão segue sem autenticação GitHub e sem escrita em .git para commitar a versão. CI remoto 42815157966 bloqueado por cobrança da conta antes dos testes. Nenhum PR/tag/merge/release criado. Notas: docs/releases/2.1.0-release-preparation.md.
+
+## Em andamento
+
+- [ ] Implementar captura online e presencial <!-- id: meet-08 labels: captura -->
+      Microfone e aplicação via AVFoundation/ScreenCaptureKit em trilhas independentes, filas limitadas e blocos duráveis. AEC3 integrado no macOS 15+, com relógio atestado, trilha original preservada e fallback. Teste com reunião real/permissões pendente.
+
+- [ ] Disponibilizar exportação e regras de retenção <!-- id: meet-11 labels: ui, core -->
+      Exportação JSON/Markdown/TXT implementada. Política de exclusão e retenção ainda não definida; originais preservados.
+
+- [ ] Executar testes e validar mídia real <!-- id: meet-12 labels: validacao -->
+      32 testes core, 14 XCTest com modelos reais em português, 7 testes de mídia, 17 testes Gemini, 4 testes de localização e regressão AEC3 aprovados. Download/cancelamento/retomada validados com HTTP controlado. MOV PCM/AAC e AAC isolado aprovados. Falta aceite de captura/permissões/interface e APIs no Mac. Evidências: docs/meetings/correcoes-finais-2026-11-08.md.
+
+## Em revisão
+
+- [ ] Aceitar aplicativo completo no Mac do usuário <!-- id: meet-16 labels: ui, captura, validacao -->
+      Build Tauri completo gerou src-tauri/target/debug/bundle/macos/OpenLess.app (aprox. 234 MiB). Assinatura ad hoc local verificada; recursos de português, cápsula, Hub/Crypto, AEC e licenças conferidos. Não é instalador notarizado. Fechar a versão instalada antes de abrir. Roteiro: docs/meetings/correcoes-finais-2026-11-08.md. Faltam testes de captura/permissões/dispositivos, interface e APIs no Mac; não confundir essa homologação com ausência de código integrado.
+
+- [ ] Definir capacidades de captura, mídia e diarização <!-- id: meet-02 labels: planejamento, captura, ia -->
+      Caminho nativo macOS 14+, ElevenLabs ou Parakeet/Nemotron locais para ASR/falantes e LLM configurado para resumo. FluidAudio autorizado e integrado, com revisões e licenças; AEC3 requer macOS 15+. Paridade de hosts pendente.
+
+- [ ] Implementar domínio de reuniões no core <!-- id: meet-03 labels: core -->
+      Domínio e processamento ligados ao host/IPC. 32 testes core aprovados (13 documentos, 9 processamento, 4 seleção de trilhas, 6 regressão). Manifestações antigas continuam legíveis; trilha tratada não duplica o microfone na transcrição. Preservado contrato de ditado.
+
+- [ ] Persistir áudio e reuniões com recuperação <!-- id: meet-04 labels: core, captura -->
+      Manifestos atômicos, blocos WAV, ledger de mídia e recuperação integrados. Testes de importação aprovados; falhas reais de disco/interrupção ainda exigem validação.
+
+- [ ] Integrar ASR com tempos e diarização <!-- id: meet-06 labels: core, ia -->
+      ElevenLabs ou Parakeet v3 + Nemotron via FluidAudio real; timestamps e diarização por trilha completa. Pesos Parakeet, Nemotron e EOU baixados por HTTPS e hashes conferidos. Inferência final com falantes em amostra pública portuguesa aprovada. Download pelo aplicativo e precisão em uma reunião do usuário ainda precisam de aceite. Sem associação biométrica entre trilhas; união manual disponível.
+
+- [ ] Implementar resumo, decisões e tarefas <!-- id: meet-07 labels: ia, core -->
+      Resumo/decisões/tarefas estruturados, proveniência validada, LLM configurado e tratamento de texto longo. Seletores independentes por canal na tela e caminho nativo Gemini integrados, sem alterar ditado. Integração com API real ainda não testada.
+
+- [ ] Integrar controle de recursos e concorrência <!-- id: meet-09 labels: core, captura -->
+      Lease exclusiva, bloqueio com ativação por voz, cancelamento, proteção de reinício e finalização no encerramento integrados. Validar comportamento no app real.
+
+- [ ] Construir tela de reuniões e IPC <!-- id: meet-10 labels: ui, core -->
+      Tela/IPC com lista, captura/importação, progresso/cancelamento, player, edição/união de falantes, modelos para download, seleção local/API, legendas e estado do eco. TypeScript e build frontend aprovados; teste visual ainda pendente.
+
+- [ ] Validar legendas locais durante gravação <!-- id: meet-14 labels: captura, ia, validacao -->
+      Inglês usa EOU 160 ms; português/espanhol/francês/alemão usam Parakeet v3 com janela de 12 s, atualizações a cada 3 s, cauda provisória e controle de repetição. Apple Silicon com pelo menos 8 GB. Teste com áudio português e pesos reais passou. Rascunhos por fonte com fila limitada; gravação precede o reconhecimento. Falta aceite em captura ao vivo.
+
+- [ ] Homologar cancelamento acústico de eco <!-- id: meet-15 labels: captura, validacao -->
+      Mesmo AEC3 da referência, isolado em dylib macOS 15 para manter destino principal macOS 14. Testes nativos e teste sintético de eco/fala simultânea passaram. Falta chamada real e comparação de desempenho no mesmo equipamento. Detalhes: docs/meetings/paridade-local-live-aec-2026-11-07.md.
+
+## Concluído
+
+- [x] Conferir arquivos do fornecedor e contratos de publicação <!-- id: meet-17 labels: validacao, core -->
+      Corrigida exclusão indevida de Artifacts/AEC3 pelo Git, com três hashes verificados e teste de versionamento. Ajustados contratos de mensagem portuguesa, versão e fork. 64 arquivos TypeScript e 90 contratos JavaScript aprovados. 32 core, 14 XCTest com pesos reais em português, 7 mídia, 17 Gemini e regressão AEC3 reaprovados.
+
+- [x] Importar áudio e vídeo pelo mesmo pipeline <!-- id: meet-05 labels: core, captura -->
+      Sete testes reais aprovados: WAV, blocos longos, estéreo, 8 kHz, MOV PCM/AAC e AAC isolado; original preservado. Corrigidos buffers vazios e exceção AAC. FFmpeg já instalado é alternativa local opcional aos codecs nativos. Cancelamento encerra o processo e preserva blocos duráveis.
+
+- [x] Preparar branch e confirmar impacto no OpenLess <!-- id: meet-01 labels: planejamento, core -->
+      Branch feat/meeting-recording criada com árvore inicialmente limpa. Relatório, briefing e quadro transferidos ao projeto; quadro aberto no Orkest. Consultar base-conhecimento-dev antes de ações; ler AGENTS locais; analisar impacto antes de editar símbolos/arquivos existentes. O grafo não encontrou ports.rs/recorder.rs na investigação anterior: complementar por referências sem alegar cobertura determinística. Referência: docs/meetings/levantamento-2026-11-07.md.
+
+- [x] Comparar FluidVoice e OpenLess e mapear os quatro requisitos <!-- id: meet-00 labels: planejamento -->
+      Levantamento estático concluído em 07/11/2026. Fontes, contratos, limitações e proposta de integração constam no relatório transferido. Não significa implementação ou testes funcionais concluídos.

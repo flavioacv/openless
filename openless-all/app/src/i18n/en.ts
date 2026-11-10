@@ -1,3 +1,4 @@
+import { meetingEn as meetings } from './meetings';
 import { siwcEn as siwc } from './siwc';
 // English resources — translated from zh-CN.ts. Keep keys in sync.
 
@@ -9,6 +10,7 @@ import { experimentalAsrEn as experimentalAsr } from './experimentalAsr';
 
 export const en: typeof zhCN = {
   siwc,
+  meetings,
   experimentalAsr,
   uiRefinement,
   voiceEdit: {
@@ -291,6 +293,14 @@ export const en: typeof zhCN = {
     tagline: 'Speak naturally, write perfectly',
   },
   common: {
+    presetProgrammer: 'Programming',
+    presetChef: 'Cooking',
+    presetCivilServant: 'Public service',
+
+    batchAddFailed: 'Could not add {{count}} entries. Please try again.',
+    noTextRecognized: 'No text recognized.',
+    invalidUpdateManifest: 'The update manifest is missing a URL or signature.',
+
     loading: 'Loading…',
     retry: 'Retry',
     settingsLoadFailed: 'Settings load failed',
@@ -522,6 +532,7 @@ export const en: typeof zhCN = {
     denied: 'Denied',
   },
   nav: {
+    meetings: 'Meetings',
     overview: 'Overview',
     history: 'History',
     vocab: 'Dictionary',

@@ -100,14 +100,7 @@ impl NativeCapsule {
             Arc::clone(&action),
             Arc::clone(&on_health_change),
         );
-        let saved_locale = app
-            .path()
-            .app_config_dir()
-            .ok()
-            .and_then(|path| std::fs::read_to_string(path.join("native-capsule.locale")).ok());
-        let locale = saved_locale
-            .unwrap_or_else(|| std::env::var("LANG").unwrap_or_else(|_| "en".into()))
-            .replace('_', "-");
+        let locale = startup_ui_locale(&app);
         Ok(Self {
             executable: path,
             on_action: action,
@@ -467,7 +460,7 @@ fn localized_language_name(_code: &str, _locale: &str) -> Option<String> {
 pub(crate) fn native_capsule_set_locale(app: tauri::AppHandle, locale: String) {
     if !matches!(
         locale.as_str(),
-        "zh-CN" | "zh-TW" | "en" | "ja" | "ko" | "es" | "fr" | "de"
+        "zh-CN" | "zh-TW" | "en" | "ja" | "ko" | "es" | "fr" | "de" | "pt"
     ) {
         return;
     }
@@ -487,4 +480,45 @@ pub(crate) fn native_capsule_set_locale(app: tauri::AppHandle, locale: String) {
     if let Some(coordinator) = app.try_state::<Arc<crate::coordinator::Coordinator>>() {
         coordinator.tauri_host().set_native_capsule_locale(locale);
     }
+}
+
+/// Normalize system locale identifiers to the same bundled UI tags as the WebView.
+pub(crate) fn normalize_ui_locale(locale: &str) -> &'static str {
+    let locale = locale.trim().replace('_', "-").to_ascii_lowercase();
+    let locale = locale.split('.').next().unwrap_or("en");
+    if locale.starts_with("zh") {
+        if locale.contains("hant") || locale.contains("tw") || locale.contains("hk") || locale.contains("mo") {
+            return "zh-TW";
+        }
+        return "zh-CN";
+    }
+    match locale.split('-').next().unwrap_or("en") {
+        "pt" => "pt", "es" => "es", "fr" => "fr", "de" => "de",
+        "ja" => "ja", "ko" => "ko", _ => "en",
+    }
+}
+
+/// Use the persisted UI language before a hidden/low-memory WebView is initialized.
+pub(crate) fn startup_ui_locale(app: &tauri::AppHandle) -> String {
+    if let Some(saved) = app.path().app_config_dir().ok()
+        .and_then(|path| std::fs::read_to_string(path.join("native-capsule.locale")).ok())
+    {
+        return normalize_ui_locale(&saved).to_owned();
+    }
+    #[cfg(target_os = "macos")]
+    {
+        use objc2::{msg_send, runtime::{AnyClass, AnyObject}};
+        use objc2_foundation::NSString;
+        let preferred = objc2::rc::autoreleasepool(|_| unsafe {
+            let class = AnyClass::get("NSLocale")?;
+            let languages: *mut AnyObject = msg_send![class, preferredLanguages];
+            if languages.is_null() { return None; }
+            let count: usize = msg_send![languages, count];
+            if count == 0 { return None; }
+            let first: *mut NSString = msg_send![languages, objectAtIndex: 0usize];
+            first.as_ref().map(|value| value.to_string())
+        });
+        if let Some(locale) = preferred { return normalize_ui_locale(&locale).to_owned(); }
+    }
+    normalize_ui_locale(&std::env::var("LANG").unwrap_or_else(|_| "en".into())).to_owned()
 }

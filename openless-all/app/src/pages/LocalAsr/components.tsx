@@ -448,7 +448,7 @@ export function TestResultBlock({ result }: { result: LocalAsrTestResult | { err
           </div>
           <div>
             <span style={{ color: 'var(--ol-ink-4)' }}>{t('localAsr.testActual')}: </span>
-            <strong>{result.transcribedText || '(空)'}</strong>
+            <strong>{result.transcribedText || t('common.noTextRecognized')}</strong>
           </div>
           <div style={{ fontSize: 11, color: 'var(--ol-ink-4)' }}>
             {t('localAsr.testStats', {

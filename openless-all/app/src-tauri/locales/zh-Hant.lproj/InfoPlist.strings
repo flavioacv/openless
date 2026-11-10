@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "OpenLess 需要麥克風權限來聽寫你的語音和錄製會議。";
+"NSSpeechRecognitionUsageDescription" = "OpenLess 使用 Apple 語音辨識來聽寫你的語音。";
+"NSAccessibilityUsageDescription" = "OpenLess 需要輔助使用權限來監聽全域快捷鍵，並將辨識結果貼到游標位置。";
+"NSAppleEventsUsageDescription" = "OpenLess 需要傳送按鍵事件，將辨識結果貼到游標位置。";

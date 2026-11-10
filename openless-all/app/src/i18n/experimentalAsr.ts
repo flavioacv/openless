@@ -1,4 +1,54 @@
 // Shared experimental-package copy; other locales use explicit English fallback.
+export const experimentalAsrPt: typeof experimentalAsrEn = {
+  title: 'Modelos locais de fala experimentais',
+  retiredLabel: 'Removido',
+  recommended: 'Recomendado · Transcrição ao vivo',
+  textStreamLabel: 'TextStream (local · contínuo)',
+  textStreamDescription:
+    'Cerca de 1,9 GB de modelos e componentes de execução isolados · Apple Silicon, macOS 14+ · transcrição multilíngue ao vivo, com rascunhos e trechos finalizados. A configuração não carrega a inferência.',
+  streamHint:
+    'Durante a gravação, aplicativos locais podem acompanhar http://localhost:7890/stream. Rascunhos podem mudar; somente a transcrição concluída é salva no histórico. O processo e o endereço são encerrados com a gravação.',
+  appleSiliconMac14Required: 'Requer Apple Silicon e macOS 14 ou posterior.',
+  description:
+    'Gerencie aqui os modelos locais de fala do macOS. Ative para baixar e registrar um canal; a inferência só é carregada ao iniciar a gravação.',
+  memoryHint:
+    'Usar um modelo local aumenta o consumo de memória. Abrir as configurações ou reiniciar o OpenLess não o carrega.',
+  retiredHint: 'Este recurso foi removido. Acesse Experimentos e extensões.',
+  deleteHint:
+    'Desativar cancela a tarefa, libera a inferência e remove o canal automático. Os arquivos baixados são mantidos; exclua-os separadamente quando não precisar mais deles.',
+  senseVoiceDescription:
+    'Cerca de 240 MB · Mandarim, cantonês, inglês, japonês e coreano · inferência local na CPU.',
+  gemmaDescription:
+    'Cerca de 715 MB · Somente inglês · Apple Silicon, macOS 15+ · Core ML. Converte fala em texto; não é um modelo de linguagem nem um provedor de geração multimodal. O reconhecimento é experimental e pode conter erros.',
+  desktopRuntimeRequired:
+    'Este mecanismo de inferência local ainda não está disponível nesta plataforma.',
+  appleSiliconMac15Required: 'Requer Apple Silicon e macOS 15 ou posterior.',
+  downloadProgress: 'Progresso do download de {{name}}',
+  openChannels: 'Escolher este modelo em Modelos e provedores de IA',
+  retry: 'Tentar novamente',
+  later: 'Mais tarde',
+  confirm: 'Abrir canais de reconhecimento de fala',
+  readyTitle: 'Download concluído — escolha um canal para usar o modelo',
+  readyBody:
+    'O modelo está pronto e seu canal foi adicionado a Configurações → Modelos e provedores de IA. O download não substitui o canal atual. Ative o novo canal e arraste-o para o topo da lista de reconhecimento de fala.',
+  pipelineHint:
+    'Estes modelos usam o fluxo tradicional de reconhecimento de fala. Continuar abre esse fluxo e sua lista de canais; o canal de modelo de linguagem permanece inalterado.',
+  manageHint:
+    'Este canal é gerenciado em Experimentos e extensões → Modelos locais de fala experimentais. Não requer chave de API nem endereço de serviço.',
+  channelsHint:
+    'Para usar um modelo experimental baixado, ative seu canal e arraste-o para o topo. O primeiro canal de fala ativo é utilizado.',
+  senseVoiceLabel: 'SenseVoice Small (experimento local)',
+  gemmaLabel: 'Embedding Gemma (local · inglês)',
+  phases: {
+    disabled: 'Desativado',
+    downloading: 'Baixando',
+    preparing: 'Instalando componentes de execução e verificando os dados do canal',
+    ready: 'Download concluído · canal pronto',
+    removing: 'Parando e limpando',
+    failed: 'Não foi possível concluir — tente novamente ou desative para limpar',
+  },
+};
+
 export const experimentalAsrEn = {
   title: 'Experimental local speech models',
   retiredLabel: 'Removed',

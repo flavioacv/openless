@@ -1,3 +1,4 @@
+import { meetingEn as meetings } from './meetings';
 import { siwcJa as siwc } from './siwc';
 import type { zhCN } from './zh-CN';
 import { en } from './en';
@@ -11,6 +12,7 @@ import { experimentalAsrEn as experimentalAsr } from './experimentalAsr';
 export const ja: typeof zhCN = {
   ...en,
   siwc,
+  meetings,
   experimentalAsr,
   uiRefinement,
   voiceEdit: {
@@ -282,6 +284,14 @@ export const ja: typeof zhCN = {
     tagline: '自然に話し、きれいに書く',
   },
   common: {
+    presetProgrammer: 'プログラミング',
+    presetChef: '料理',
+    presetCivilServant: '公務',
+
+    batchAddFailed: 'Could not add {{count}} entries. Please try again.',
+    noTextRecognized: 'No text recognized.',
+    invalidUpdateManifest: 'The update manifest is missing a URL or signature.',
+
     loading: '読み込み中…',
     retry: '再試行',
     settingsLoadFailed: '設定の読み込みに失敗しました',
@@ -515,6 +525,7 @@ export const ja: typeof zhCN = {
     denied: '拒否済み',
   },
   nav: {
+    meetings: '会議',
     overview: '概要',
     history: '履歴',
     vocab: '辞書',

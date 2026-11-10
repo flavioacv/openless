@@ -76,6 +76,7 @@ type AndroidUpdatePayload = {
 };
 
 export function useAutoUpdate(): UseAutoUpdate {
+  const { t } = useTranslation();
   const updateRef = useRef<Update | null>(null);
   const androidUpdateRef = useRef<AndroidUpdatePayload | null>(null);
   const [status, setStatus] = useState<UpdateStatus>('idle');
@@ -144,7 +145,7 @@ export function useAutoUpdate(): UseAutoUpdate {
     const url = typeof raw.url === 'string' ? raw.url : '';
     const signature = typeof raw.signature === 'string' ? raw.signature : '';
     if (!url || !signature) {
-      throw new Error('更新清单缺少 url 或 signature');
+      throw new Error(t('common.invalidUpdateManifest'));
     }
     androidUpdateRef.current = { url, signature, version: metadata.version };
   };

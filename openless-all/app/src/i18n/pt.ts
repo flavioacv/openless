@@ -1,14 +1,16 @@
+import { meetingPt as meetings } from './meetings';
 import { siwcPt as siwc } from './siwc';
 // Portuguese (Brazil) resources — translated from zh-CN.ts / en.ts. Keep keys in sync.
 
 import type { zhCN } from './zh-CN';
 
 // Type-level guarantee that pt mirrors the zh-CN shape.
-import { uiRefinementEn as uiRefinement } from './uiRefinement';
-import { experimentalAsrEn as experimentalAsr } from './experimentalAsr';
+import { uiRefinementPt as uiRefinement } from './uiRefinement';
+import { experimentalAsrPt as experimentalAsr } from './experimentalAsr';
 
 export const pt: typeof zhCN = {
   siwc,
+  meetings,
   experimentalAsr,
   uiRefinement,
   voiceEdit: {
@@ -305,6 +307,14 @@ export const pt: typeof zhCN = {
     tagline: 'Fale naturalmente, escreva com perfeição',
   },
   common: {
+    presetProgrammer: 'Programação',
+    presetChef: 'Culinária',
+    presetCivilServant: 'Serviço público',
+
+    batchAddFailed: 'Não foi possível adicionar {{count}} entradas. Tente novamente.',
+    noTextRecognized: 'Nenhum texto reconhecido.',
+    invalidUpdateManifest: 'O manifesto de atualização não contém URL ou assinatura.',
+
     loading: 'Carregando…',
     retry: 'Tentar novamente',
     settingsLoadFailed: 'Falha ao carregar configurações',
@@ -538,6 +548,7 @@ export const pt: typeof zhCN = {
     denied: 'Recusado',
   },
   nav: {
+    meetings: 'Reuniões',
     overview: 'Visão geral',
     history: 'Histórico',
     vocab: 'Dicionário',
@@ -681,7 +692,7 @@ export const pt: typeof zhCN = {
     },
     footer: {
       account: 'Conta',
-      feedback: 'Feedback',
+      feedback: 'Enviar comentários',
       settings: 'Configurações',
       help: 'Ajuda',
       version: 'Versão {{version}}',
@@ -997,11 +1008,11 @@ export const pt: typeof zhCN = {
     corrections: {
       title: 'Regras de correção',
       tip: 'Corrija erros comuns de ASR. Suporta o curinga numérico {num}.',
-      patternPlaceholder: 'Texto com erro, ex.: {num}粒',
-      replacementPlaceholder: 'Texto correto, ex.: {num}例',
+      patternPlaceholder: 'Texto com erro, ex.: {num} veses',
+      replacementPlaceholder: 'Texto correto, ex.: {num} vezes',
       empty: 'Nenhuma regra de correção ainda.',
       invalid:
-        'Apenas substituições literais ou um único curinga numérico {num} são suportados, por exemplo: {num}粒 → {num}例.',
+        'Apenas substituições literais ou um único curinga numérico {num} são suportados, por exemplo: {num} veses → {num} vezes.',
       tipDisabled: 'Clique para desativar esta regra',
       tipEnabled: 'Clique para ativar esta regra',
       removeAria: 'Remover regra de correção',
@@ -1171,8 +1182,8 @@ export const pt: typeof zhCN = {
       fieldAuthor: 'Autor',
       fieldAuthorPlaceholder: 'Rótulo de origem opcional',
       fieldVersion: 'Versão',
-      fieldTags: 'Tags',
-      fieldTagsPlaceholder: 'Tags separadas por vírgula, ex.: comunidade, locução, formal',
+      fieldTags: 'Marcadores',
+      fieldTagsPlaceholder: 'Marcadores separados por vírgula, ex.: comunidade, locução, formal',
       fieldDescription: 'Descrição',
       fieldModel: 'Modelo recomendado (metadados)',
       fieldModelPlaceholder: 'Opcional, ex.: gpt-4.1 / deepseek-v3',
@@ -1597,9 +1608,9 @@ export const pt: typeof zhCN = {
       confirm: 'Ativar',
     },
     language: {
-      es: 'Español',
-      fr: 'Français',
-      de: 'Deutsch',
+      es: 'Espanhol',
+      fr: 'Francês',
+      de: 'Alemão',
       pt: 'Português',
       title: 'Idioma da interface',
       desc: 'Alterne o idioma da interface. Aplica-se à sessão atual imediatamente e persiste entre inicializações.',
@@ -1607,16 +1618,16 @@ export const pt: typeof zhCN = {
       labelDesc:
         'Escolha "Seguir o sistema" para corresponder ao idioma do sistema operacional na inicialização.',
       followSystem: 'Seguir o sistema',
-      zh: '简体中文',
-      zhTW: '繁體中文',
-      en: 'English',
-      ja: '日本語 (Beta)',
-      ko: '한국어 (Beta)',
+      zh: 'Chinês simplificado',
+      zhTW: 'Chinês tradicional',
+      en: 'Inglês',
+      ja: 'Japonês (Beta)',
+      ko: 'Coreano (Beta)',
       restartHint:
         'Alguns menus nativos (bandeja do sistema, etc.) podem exigir o reinício do aplicativo para alternar completamente.',
     },
     layout: {
-      title: 'Layout',
+      title: 'Organização visual',
     },
     theme: {
       title: 'Aparência',
@@ -1717,7 +1728,7 @@ export const pt: typeof zhCN = {
       openReleases: 'Abrir versões lançadas',
       source: 'Código-fonte',
       docs: 'Documentação',
-      feedback: 'Feedback',
+      feedback: 'Enviar comentários',
       qq: 'Grupo da comunidade QQ',
       qqDesc: 'Pesquise o número do grupo no QQ ou escaneie o código QR para entrar.',
       copyQq: 'Copiar número do grupo',
@@ -2285,11 +2296,11 @@ export const pt: typeof zhCN = {
       llmTitle: 'LLM (refinamento)',
       llmDesc: 'Protocolo compatível com OpenAI. Vários provedores suportados.',
       providerLabel: 'Provedor',
-      llmProviderDesc: 'Selecionar um preset preenche automaticamente a Base URL padrão.',
+      llmProviderDesc: 'Selecionar um preset preenche automaticamente a URL base padrão.',
       credentialStorageNotice:
         'As credenciais são armazenadas no cofre de credenciais do sistema operacional.',
       codexOAuthNotice:
-        'O Codex OAuth usa o estado de login local do Codex (~/.codex/auth.json). O OpenLess não armazena chave de API nem Base URL para este provedor.',
+        'O Codex OAuth usa o estado de login local do Codex (~/.codex/auth.json). O OpenLess não armazena chave de API nem URL base para este provedor.',
       asrProviderDesc:
         'Alternar provedores carrega automaticamente as credenciais correspondentes.',
       asrTitle: 'ASR (transcrição)',
@@ -2312,7 +2323,7 @@ export const pt: typeof zhCN = {
         openai: 'OpenAI',
         gemini: 'Google Gemini',
         codexOAuth: 'Codex OAuth',
-        chatgptSiwc: 'ChatGPT Plan',
+        chatgptSiwc: 'Plano do ChatGPT',
         mimo: 'Xiaomi MiMo',
         cometapi: 'CometAPI',
         openrouterFree: 'OpenRouter (modelos gratuitos)',
@@ -2346,7 +2357,7 @@ export const pt: typeof zhCN = {
         asrXiaomiMimo: 'Xiaomi MiMo ASR',
         asrIflytek: 'iFlytek ASR em tempo real',
         asrTencentCloud: 'Tencent Cloud Hunyuan ASR em tempo real',
-        asrGemini: 'Google Gemini Transcribe',
+        asrGemini: 'Google Gemini · transcrição',
         asrElevenLabs: 'ElevenLabs Scribe',
         asrSherpaOnnxLocal: 'sherpa-onnx local (Experimental)',
         asrFoundryLocalWhisper: 'Whisper local (Foundry Local)',
@@ -2383,28 +2394,28 @@ export const pt: typeof zhCN = {
       asrAdvancedEnableItnHint:
         'Converte automaticamente números, datas e moedas falados em suas formas escritas padrão.',
       volcengineAppKeyLabel: 'App Key',
-      volcengineAccessKeyLabel: 'Access Key',
-      volcengineApiKeyLabel: 'API Key',
-      volcengineResourceIdLabel: 'Resource ID',
+      volcengineAccessKeyLabel: 'Chave de acesso',
+      volcengineApiKeyLabel: 'Chave da API',
+      volcengineResourceIdLabel: 'ID do recurso',
       volcengineServiceLabel: 'Tipo de serviço',
       volcengineServiceStandard: 'Padrão',
       volcengineAgentPlanNote:
         'O serviço Agent Plan da Volcengine integra reconhecimento de voz e raciocínio.',
       volcengineServiceInvalid: 'O tipo de serviço da Volcengine selecionado é inválido.',
       volcengineAuthModeLabel: 'Modo de autenticação',
-      volcengineAuthModeAppIdToken: 'App ID + Token de Acesso',
-      volcengineAuthModeApiKey: 'Chave de API (API Key)',
+      volcengineAuthModeAppIdToken: 'ID da aplicação + token de acesso',
+      volcengineAuthModeApiKey: 'Chave da API',
       volcengineMappingNote:
         'O mapeamento de chaves permite associar chaves específicas a provedores e serviços secundários.',
       volcengineApiKeyConsole: 'Console da Volcengine',
       volcengineApiKeyNote: 'Obtenha sua chave de API no console da Volcengine.',
-      volcengineResourceIdNote: 'O Resource ID padrão é {{resourceId}}.',
+      volcengineResourceIdNote: 'O ID do recurso padrão é {{resourceId}}.',
       xfyunAppIdLabel: 'APPID',
       xfyunApiKeyLabel: 'APIKey',
       xfyunNote: 'Obtenha as credenciais da iFlytek no Console Aberto da iFlytek.',
       tencentCloudAppIdLabel: 'AppID',
       tencentCloudSecretIdLabel: 'SecretId',
-      tencentCloudSecretKeyLabel: 'SecretKey',
+      tencentCloudSecretKeyLabel: 'Chave secreta',
       tencentCloudNote:
         'Obtenha as credenciais da Tencent Cloud no Console de Gerenciamento da Tencent Cloud.',
       tencentTokenHubNote:
@@ -2429,7 +2440,7 @@ export const pt: typeof zhCN = {
       readFailed: 'Falha ao ler dados',
       apiKeyLabel: 'Chave de API',
       apiKeyOptionalLabel: 'Chave de API (opcional)',
-      baseUrlLabel: 'Base URL',
+      baseUrlLabel: 'URL base',
       modelLabel: 'Modelo',
       customModelLabel: 'Modelo personalizado',
       presetListLabel: 'Lista de predefinições',
@@ -2489,9 +2500,9 @@ export const pt: typeof zhCN = {
         'Modelo síncrono de arquivo: transcreve após a conclusão (máx. 5 min por gravação).',
       bailianModelAsyncFileHint:
         'Modelo assíncrono de arquivo: faz upload da gravação e aguarda a tarefa de transcrição.',
-      appIdLabel: 'App ID',
-      accessKeyLabel: 'Access Key',
-      resourceIdLabel: 'Resource ID',
+      appIdLabel: 'ID da aplicação',
+      accessKeyLabel: 'Chave de acesso',
+      resourceIdLabel: 'ID do recurso',
       toolsLabel: 'Verificação de conexão',
       toolsDesc:
         'Salve os campos acima e depois valide o modelo selecionado ou busque os modelos. A inserção manual do modelo permanece disponível se a busca falhar.',
@@ -2880,7 +2891,7 @@ export const pt: typeof zhCN = {
     downloadDialogDesc:
       'Compare os tamanhos e as descrições dos modelos e baixe sua escolha. Selecione o serviço local correspondente em Reconhecimento de fala quando estiver pronto.',
     detailRepo: 'Repositório',
-    hfDownloads: 'Downloads',
+    hfDownloads: 'Transferências',
     hfLikes: 'Curtidas',
     hfDescription: 'Sobre',
     hfNoDescription: 'Nenhuma descrição ainda',

@@ -534,6 +534,15 @@ pub struct OpenAICompatibleLLMProvider {
 }
 
 impl OpenAICompatibleLLMProvider {
+    /// A meeting-specific request reuses transport/protocol handling without dictation prompts.
+    pub async fn summarize_meeting(
+        &self,
+        instructions: &str,
+        transcript: &str,
+    ) -> Result<String, LLMError> {
+        self.chat_completion(instructions, transcript, Duration::from_secs(240)).await
+    }
+
     pub fn new(config: OpenAICompatibleConfig) -> Self {
         // Reuse a cached client (keyed by timeout + proxy-bypass) so the connection
         // pool survives across utterances instead of paying a fresh TLS handshake

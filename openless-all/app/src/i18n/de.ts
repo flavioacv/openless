@@ -1,3 +1,4 @@
+import { meetingEn as meetings } from './meetings';
 import { siwcDe as siwc } from './siwc';
 import type { zhCN } from './zh-CN';
 
@@ -6,6 +7,7 @@ import { experimentalAsrEn as experimentalAsr } from './experimentalAsr';
 
 export const de: typeof zhCN = {
   siwc,
+  meetings,
   experimentalAsr,
   uiRefinement,
   voiceEdit: {
@@ -293,6 +295,14 @@ export const de: typeof zhCN = {
     tagline: 'Natürlich sprechen, klar schreiben',
   },
   common: {
+    presetProgrammer: 'Programmierung',
+    presetChef: 'Kochen',
+    presetCivilServant: 'Öffentlicher Dienst',
+
+    batchAddFailed: 'Could not add {{count}} entries. Please try again.',
+    noTextRecognized: 'No text recognized.',
+    invalidUpdateManifest: 'The update manifest is missing a URL or signature.',
+
     loading: 'Wird geladen…',
     retry: 'Erneut versuchen',
     settingsLoadFailed: 'Einstellungen konnten nicht geladen werden',
@@ -527,6 +537,7 @@ export const de: typeof zhCN = {
     denied: 'Abgelehnt',
   },
   nav: {
+    meetings: 'Besprechungen',
     overview: 'Übersicht',
     history: 'Verlauf',
     vocab: 'Wörterbuch',

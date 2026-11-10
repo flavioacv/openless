@@ -37,6 +37,7 @@ const BODY_PREVIEW_LIMIT: usize = 200;
 #[derive(Clone, Debug)]
 pub struct GeminiConfig {
     pub api_key: String,
+    pub extra_headers: std::collections::HashMap<String, String>,
     pub model: String,
     /// e.g. `https://generativelanguage.googleapis.com/v1beta`. A trailing
     /// `/` is allowed; the backend appends `{base_url}/models/{model}:generateContent`.
@@ -57,6 +58,7 @@ impl GeminiConfig {
     ) -> Self {
         Self {
             api_key: api_key.into(),
+            extra_headers: std::collections::HashMap::new(),
             model: model.into(),
             base_url: base_url.into(),
             temperature: DEFAULT_TEMPERATURE,
@@ -77,6 +79,24 @@ pub struct GeminiProvider {
 }
 
 impl GeminiProvider {
+    /// Generate meeting notes with the native Gemini transport and a dedicated prompt.
+    pub async fn summarize_meeting(
+        &self,
+        instructions: &str,
+        transcript: &str,
+    ) -> Result<String, LLMError> {
+        let body = self.meeting_request_body(instructions, transcript);
+        let url = generate_content_url(&self.config.base_url, &self.config.model);
+        let text = self.send_unary(&url, &body).await?;
+        extract_assistant_content(&text)
+    }
+
+    fn meeting_request_body(&self, instructions: &str, transcript: &str) -> Value {
+        let mut body = self.build_generate_body(instructions, vec![user_content(transcript)]);
+        body["generationConfig"]["responseMimeType"] = json!("application/json");
+        body
+    }
+
     pub fn new(config: GeminiConfig) -> Self {
         // Reuse a cached client keyed by timeout so the connection pool survives
         // across utterances instead of re-handshaking every polish. The proxy
@@ -319,7 +339,7 @@ impl GeminiProvider {
         })
     }
 
-    async fn send_unary(&self, url: &str, body: &Value) -> Result<String, LLMError> {
+    fn unary_request(&self, url: &str, body: &Value) -> reqwest::RequestBuilder {
         let mut request = self
             .client
             .post(url)
@@ -327,9 +347,14 @@ impl GeminiProvider {
         if !self.config.api_key.trim().is_empty() {
             request = request.header("x-goog-api-key", self.config.api_key.as_str());
         }
-        let request = request.json(body);
+        for (name, value) in &self.config.extra_headers {
+            request = request.header(name, value);
+        }
+        request.json(body)
+    }
 
-        let response = match request.send().await {
+    async fn send_unary(&self, url: &str, body: &Value) -> Result<String, LLMError> {
+        let response = match self.unary_request(url, body).send().await {
             Ok(r) => r,
             Err(e) => return Err(llm_error_from_reqwest(e)),
         };
@@ -878,5 +903,32 @@ mod tests {
         let events = drain_complete_sse_events(&mut buf);
         assert_eq!(events, vec!["data: ok", "data: ok2"]);
         assert!(buf.is_empty());
+    }
+}
+
+
+#[cfg(test)]
+mod meeting_request_tests {
+    use super::*;
+
+    #[test]
+    fn meeting_uses_native_gemini_request_without_a_network_connection() {
+        let mut config = GeminiConfig::new(
+            "fixture-key", "gemini-test", "https://example.invalid/v1beta",
+        );
+        config.extra_headers.insert("x-gateway-route".into(), "meeting".into());
+        let provider = GeminiProvider::new(config);
+        let body = provider.meeting_request_body("Meeting instructions", "Transcript data");
+        let url = generate_content_url(&provider.config.base_url, &provider.config.model);
+        let request = provider.unary_request(&url, &body).build().unwrap();
+        assert_eq!(request.url().path(), "/v1beta/models/gemini-test:generateContent");
+        assert_eq!(request.headers()["x-goog-api-key"], "fixture-key");
+        assert_eq!(request.headers()["x-gateway-route"], "meeting");
+        assert!(request.headers().get("authorization").is_none());
+        let body: Value = serde_json::from_slice(request.body().unwrap().as_bytes().unwrap()).unwrap();
+        assert_eq!(body["systemInstruction"]["parts"][0]["text"], "Meeting instructions");
+        assert_eq!(body["contents"][0]["parts"][0]["text"], "Transcript data");
+        assert_eq!(body["generationConfig"]["responseMimeType"], "application/json");
+        assert!(body.get("messages").is_none());
     }
 }

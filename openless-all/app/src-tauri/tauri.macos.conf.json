@@ -20,9 +20,20 @@
           "x": 552,
           "y": 253
         }
-      }
+      },
+      "frameworks": [
+        "target/meeting-runtime-resources/libOpenLessMeetingAEC.dylib"
+      ]
     },
-    "externalBin": ["binaries/openless-native-capsule"]
+    "externalBin": [
+      "binaries/openless-native-capsule"
+    ],
+    "resources": {
+      "target/meeting-runtime-resources/swift-transformers_Hub.bundle": "swift-transformers_Hub.bundle",
+      "target/meeting-runtime-resources/swift-crypto_Crypto.bundle": "swift-crypto_Crypto.bundle",
+      "vendor/licenses/": "licenses/meeting-runtime/",
+      "vendor/webrtc-aec3/Notices/": "licenses/webrtc-aec3/"
+    }
   },
   "build": {
     "beforeBuildCommand": "npm run build:native-capsule && npm run build",

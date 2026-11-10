@@ -183,7 +183,7 @@ impl CapsuleLabels {
                 "{{count}} inseridos",
                 "Traduzir para",
                 "Traduzindo",
-                "Aprimorando...",
+                "Aprimorando…",
                 "Substituído",
                 "Nada selecionado",
                 "Falha ao aprimorar, tente novamente",
@@ -478,6 +478,7 @@ mod tests {
             ("es", "es"),
             ("fr", "fr"),
             ("de", "de"),
+            ("pt", "pt"),
         ] {
             let path = format!("{}/../../src/i18n/{file}.ts", env!("CARGO_MANIFEST_DIR"));
             let source = std::fs::read_to_string(&path).unwrap();

@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "O OpenLess usa o microfone para transcrever sua fala e gravar reuniões.";
+"NSSpeechRecognitionUsageDescription" = "O OpenLess usa o reconhecimento de fala da Apple para transcrever sua voz.";
+"NSAccessibilityUsageDescription" = "O OpenLess precisa de acesso à acessibilidade para usar atalhos globais e inserir o texto transcrito na posição do cursor.";
+"NSAppleEventsUsageDescription" = "O OpenLess envia eventos de teclado para colar o texto transcrito na posição do cursor.";
