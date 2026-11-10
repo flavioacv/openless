@@ -1,6 +1,6 @@
 # OpenLess 2.1.0 — notas propostas, ainda não publicado
 
-Tag proposta: `v2.1.0-tauri`. A versão ainda não foi alterada nos manifests; não existe nova tag ou release desta entrega.
+Tag preparada: `v2.1.0-tauri`. A versão 2.1.0 foi sincronizada localmente nos cinco arquivos de versão em 10/11, preservando a chave pública existente. Essa atualização ainda precisa de commit/push: não existe nova tag ou release desta entrega.
 
 - Reuniões online com áudio da aplicação selecionada + microfone e reuniões presenciais pelo microfone.
 - Importação de áudio/vídeo, blocos recuperáveis e preservação do arquivo de origem.

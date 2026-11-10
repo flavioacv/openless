@@ -6,8 +6,8 @@ labels: {core: blue, captura: orange, ia: purple, ui: green, validacao: red, pla
 
 ## A fazer
 
-- [ ] Liberar escrita Git e concluir revisão para publicação <!-- id: meet-13 labels: planejamento, validacao -->
-      Commit e PR autorizados em 09/11 após revisão. Staging falhou: .git/index.lock com Operation not permitted. Sem commit/push/PR/tag/merge/release. Textos de PR/notas preparados; falta aceite integrado e pacote de distribuição. Relatório: docs/meetings/revisao-publicacao-2026-11-09.md.
+- [ ] Abrir PR e publicar a versão após liberar GitHub/CI <!-- id: meet-13 labels: planejamento, validacao -->
+      Usuário commitou e publicou feat/meeting-recording em 00136d63. Versão 2.1.0 preparada localmente em 10/11, com chave existente preservada e testes de versão/atualizador aprovados. Esta sessão segue sem autenticação GitHub e sem escrita em .git para commitar a versão. CI remoto 42815157966 bloqueado por cobrança da conta antes dos testes. Nenhum PR/tag/merge/release criado. Notas: docs/releases/2.1.0-release-preparation.md.
 
 ## Em andamento
 

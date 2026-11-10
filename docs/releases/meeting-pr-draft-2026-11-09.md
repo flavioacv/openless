@@ -4,6 +4,8 @@ O OpenLess passa a oferecer reuniões com gravação de aplicação + microfone 
 
 A transcrição usa Parakeet v3/Nemotron locais pelo FluidAudio ou ElevenLabs. Resumos, decisões e tarefas usam um canal de IA independente, incluindo Gemini nativo, com referências à transcrição. Legendas locais aceitam português e inglês por caminhos próprios; AEC3 preserva a captura bruta. Inclui traduções portuguesas do aplicativo e dos instaladores e correções de importação AAC/vídeo, cancelamento e retomada de modelos.
 
+A preparação local da versão 2.1.0 sincroniza package.json, package-lock.json, Cargo.toml, Cargo.lock e tauri.conf.json sem trocar a chave de atualização. Essa alteração precisa ser incluída no commit da versão antes de criar `v2.1.0-tauri`.
+
 ## Validação
 
 - 64 arquivos de testes TypeScript e 90 contratos JavaScript aprovados, incluindo o novo contrato dos arquivos AEC3.
