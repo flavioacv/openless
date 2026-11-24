@@ -1820,6 +1820,7 @@ dependencies = [
  "md-5",
  "micyou-dsp",
  "once_cell",
+ "opus-pure",
  "parking_lot",
  "regex",
  "reqwest",
@@ -1837,6 +1838,12 @@ dependencies = [
  "zeroize",
  "zip",
 ]
+
+[[package]]
+name = "opus-pure"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4de7c2ad44427a636b27bf0b03eb29e713775ba1b45ff31a0618c19ee5adb215"
 
 [[package]]
 name = "p256"
