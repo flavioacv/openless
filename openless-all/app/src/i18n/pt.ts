@@ -9,6 +9,84 @@ import { uiRefinementPt as uiRefinement } from './uiRefinement';
 import { experimentalAsrPt as experimentalAsr } from './experimentalAsr';
 
 export const pt: typeof zhCN = {
+  desktopGuide: {
+    title: 'Olá, este é o OpenLess',
+    intro:
+      'Diga o que está pensando. O OpenLess transforma sua voz em texto, onde você estiver trabalhando.',
+    welcomeBody: 'Vamos configurar uma coisa por vez. Você pode deixar qualquer etapa para depois.',
+    name: 'Como podemos chamar você? (opcional)',
+    start: 'Vamos começar',
+    startReply: 'Vamos começar',
+    next: 'Continuar',
+    later: 'Configurar depois',
+    laterReply: 'Vou configurar depois',
+    back: 'Etapa anterior',
+    skipAll: 'Explorar primeiro',
+    step: 'Etapa {{current}} de {{total}}',
+    language: 'Idioma',
+    preview: 'Prévia no navegador. As permissões e configurações do aplicativo não são alteradas.',
+    previewGrant: 'Simular autorização',
+    microphoneTitle: 'Primeiro, permita que o OpenLess ouça você',
+    microphoneBody:
+      'O acesso ao microfone permite ditar. A gravação começa apenas quando você solicitar.',
+    microphoneHint: 'Você pode autorizar depois em Configurações → Permissões.',
+    windowsMicrophoneHint:
+      'Abra as configurações de microfone do Windows, permita o acesso ao microfone e aos aplicativos de desktop e volte para cá.',
+    accessibilityTitle: 'Coloque suas palavras onde você precisa',
+    accessibilityBody:
+      'No macOS, a permissão de Acessibilidade permite responder ao atalho e inserir texto no aplicativo em uso.',
+    accessibilityHint:
+      'Abra Ajustes do Sistema → Privacidade e Segurança → Acessibilidade, ative o OpenLess e volte para cá.',
+    authorize: 'Permitir acesso ao microfone',
+    openPermissions: 'Abrir Ajustes do Sistema',
+    allowed: 'Acesso autorizado',
+    pending: 'Ainda não ativado',
+    unavailable: 'Nenhum microfone encontrado. Conecte um ou continue e configure depois.',
+    recheck: 'Verificar novamente',
+    modeTitle: 'Escolha como sua voz vira texto',
+    modeBody:
+      'Use serviços separados para reconhecer a fala e melhorar a escrita ou um único modelo que entende áudio.',
+    traditional: 'Fala + escrita',
+    traditionalHint: 'Escolha um serviço de fala e, se quiser, um serviço de escrita.',
+    multimodal: 'Um modelo de áudio',
+    multimodalHint: 'Use um modelo que aceita áudio para transcrever e melhorar suas palavras.',
+    modeReply: 'Usar {{mode}}',
+    recognitionTitle: 'Conecte seu serviço de fala',
+    recognitionBody:
+      'Escolha um provedor ou modelo local compatível. As chaves de API usam o mesmo armazenamento seguro das Configurações.',
+    omniTitle: 'Conecte um modelo de áudio',
+    omniBody:
+      'Escolha um modelo que aceita áudio. Um teste de conexão por texto bem-sucedido não confirma o suporte a áudio.',
+    polishTitle: 'Dê um acabamento às suas palavras',
+    polishBody:
+      'Um modelo de escrita pode melhorar as frases e aplicar seu estilo preferido. Você pode configurar depois.',
+    configure: 'Configurar serviço',
+    configured: 'Configuração salva',
+    notConfigured: 'Nenhum serviço configurado',
+    checkConfig: 'Salvar e continuar',
+    configRequired: 'Conclua a configuração do serviço ou escolha “Configurar depois”.',
+    edit: 'Editar configuração',
+    shortcutTitle: 'Sua voz, a um atalho de distância',
+    shortcutBody: 'Escolha um atalho fácil de usar. Você pode alterá-lo nas Configurações.',
+    shortcutHint: 'Selecione as teclas abaixo para gravar um novo atalho. Escape cancela.',
+    windowsShortcutHint:
+      'No Windows, é possível distinguir Ctrl, Alt e Shift esquerdos e direitos e usar botões laterais do mouse (Mouse4 / Mouse5). Escape cancela.',
+    keepShortcut: 'Manter este atalho',
+    shortcutReply: 'Atalho confirmado',
+    finishTitle: 'Sinta-se em casa{{name}}',
+    finishBody:
+      'Suas escolhas foram salvas. Tudo o que ficou para depois continua disponível nas Configurações.',
+    finishPending:
+      'Algumas etapas ainda precisam ser configuradas. Você já pode explorar o OpenLess; para ditar, autorize o microfone e configure um serviço de fala.',
+    enter: 'Abrir OpenLess',
+    allSet: 'Configurado',
+    deferred: 'Depois',
+    storageError: 'Não foi possível salvar seu progresso. Tente novamente.',
+    saveError: 'Não foi possível salvar. Tente novamente.',
+    reopen: 'Abrir assistente de configuração',
+    reopenHint: 'Revise as permissões, os serviços e o atalho em um só lugar.',
+  },
+
   siwc,
   meetings,
   experimentalAsr,
@@ -307,6 +385,8 @@ export const pt: typeof zhCN = {
     tagline: 'Fale naturalmente, escreva com perfeição',
   },
   common: {
+    refreshed: 'Atualizado',
+
     presetProgrammer: 'Programação',
     presetChef: 'Culinária',
     presetCivilServant: 'Serviço público',
@@ -691,6 +771,7 @@ export const pt: typeof zhCN = {
       settings: 'Preferências: atalhos, provedores, privacidade e atualizações',
     },
     footer: {
+      usage: 'Uso',
       account: 'Conta',
       feedback: 'Enviar comentários',
       settings: 'Configurações',
@@ -1334,6 +1415,45 @@ export const pt: typeof zhCN = {
     cancelledTitle: 'Gravação cancelada',
   },
   settings: {
+    generalPages: {
+      recordingTitle: 'Microfone e gravação',
+      recordingDesc: 'Microfone, reconhecimento, monitoramento e avisos sonoros.',
+      capsuleTitle: 'Estilo da cápsula',
+      capsuleDesc:
+        'Exibição da cápsula, vários monitores, estilo e transcrição original em tempo real.',
+      textInputTitle: 'Inserção de texto',
+      textInputDesc: 'Assistente de seleção, inserção, área de transferência e inicialização.',
+      phoneTitle: 'Celular e entrada remota',
+      phoneDesc: 'Conecte um celular ou outro dispositivo para entrada remota.',
+    },
+    advancedPages: {
+      liveInputTitle: 'Inserção de texto',
+      experiments: 'Configure recursos experimentais e extensões.',
+      voiceEnhancementTitle: 'Melhoria de voz e supressão da reprodução',
+      cursorContextTitle: 'Contexto',
+      startupDiagnosticsTitle: 'Diagnóstico de inicialização',
+      cursorContextHint:
+        'O contexto do cursor fica ativado por padrão. Desative se não quiser enviar o texto próximo ao cursor nas solicitações de melhoria.',
+    },
+    advancedGroups: { recording: 'Gravação', text: 'Texto e contexto', diagnostics: 'Diagnóstico' },
+    expressionLearning: {
+      clearHint:
+        'Ao limpar, um ditado em andamento ainda pode usar as preferências capturadas quando começou.',
+      lineBreaksMore: 'Mais quebras de linha',
+      lineBreaksLess: 'Menos quebras de linha',
+      exclamationsMore: 'Mais exclamações',
+      exclamationsLess: 'Menos exclamações',
+      terminalPunctuationMore: 'Usar pontuação final',
+      terminalPunctuationLess: 'Usar menos pontuação final',
+      title: 'Hábitos de escrita',
+      enabled: 'Aprender hábitos de escrita',
+      description:
+        'Observa localmente alterações de formatação após o ditado e armazena estatísticas abstratas, sem guardar o texto observado. O histórico é gerenciado separadamente. Preferências consistentes de quebras de linha e pontuação viram instruções curtas enviadas ao modelo de texto selecionado. Desativar interrompe o aprendizado e sua aplicação a novos ditados imediatamente; um ditado em andamento ainda pode usar as preferências já capturadas.',
+      status: '{{count}} preferências estáveis',
+      clear: 'Limpar hábitos de escrita',
+      error: 'Não foi possível ler ou salvar os hábitos de escrita. Tente novamente.',
+    },
+
     kicker: 'CONFIGURAÇÕES',
     title: 'Configurações',
     desc: 'Gravação, provedores, atalhos e permissões.',
@@ -1345,6 +1465,12 @@ export const pt: typeof zhCN = {
       unavailable: 'Ainda não há recursos de teste disponíveis nesta plataforma.',
     },
     selectionWorkspace: {
+      extraControls: 'Mais controles',
+      extraControlsDesc: 'Ajuste estas opções apenas quando precisar.',
+      openExtraControls: 'Mais',
+      extraControlsSaveHint: 'As alterações são salvas automaticamente.',
+      extraControlsDone: 'Concluir',
+
       title: 'Assistente de seleção',
       hint: 'Com uma seleção, um único atalho refina o texto (edição por voz desativada) ou aceita uma instrução falada para perguntar ou editar. Sem seleção mas com foco em um campo de texto, fale para ajudar a redigir um rascunho ou fazer uma pergunta.',
       polishHotkey: 'Atalho do assistente de seleção',
@@ -1560,6 +1686,10 @@ export const pt: typeof zhCN = {
         'No teclado do OpenLess, mantenha pressionado o logotipo no canto superior esquerdo para abrir as configurações nativas do teclado.',
     },
     advanced: {
+      macosCompositionInputLabel: 'Transcrição ao vivo no campo de texto',
+      macosCompositionInputDesc:
+        'Exibe o reconhecimento no editor capturado e depois substitui pelo texto final melhorado ou traduzido. Exige Acessibilidade e um editor compatível. Mover o cursor ou editar o texto interrompe a substituição.',
+
       multimodalPipelineTitle: 'Pipeline de reconhecimento multimodal',
       multimodalPipelineTitleHint:
         'Reconhecimento de áudio em uma única etapa com modelo multimodal; configuração tradicional ASR + LLM é completamente isolada dele.',
@@ -1835,6 +1965,7 @@ export const pt: typeof zhCN = {
         'As alterações são salvas automaticamente. Depois de configurado, você pode verificar a conexão manualmente.',
       nameHint:
         'Este nome ajuda a distinguir canais do mesmo provedor. Ele não afeta o modelo nem a conexão.',
+      errThinking: 'ative o Thinking',
       errModel: 'Modelo',
       verify: 'Verificar',
       verifyHint: 'Faz uma chamada de API real para verificar se este canal funciona agora',
@@ -1865,6 +1996,11 @@ export const pt: typeof zhCN = {
         'Baixe e alterne modelos locais em Serviços e modelos de IA → Modelos locais.',
     },
     recording: {
+      captureGroupTitle: 'Microfone e reconhecimento',
+      capsuleGroupTitle: 'Estilo da cápsula',
+      recognitionGroupTitle: 'Monitoramento e avisos',
+      feedbackGroupTitle: 'Monitoramento e avisos',
+
       title: 'Gravação e entrada',
       desc: 'Atalho global de gravação e modo de ativação.',
       hotkeyLabel: 'Atalho de gravação',
@@ -1922,6 +2058,35 @@ export const pt: typeof zhCN = {
       lowLatencyDictationDesc:
         'Otimiza o fluxo de reconhecimento para reduzir a latência de ponta a ponta.',
       dsp: {
+        aec: 'Cancelamento de eco do sistema',
+        systemNoise: 'Supressão de ruído do sistema',
+        systemAgc: 'Ganho automático do sistema',
+        unavailable: 'Indisponível neste dispositivo',
+        androidEffectsHint:
+          'Os efeitos do Android são aplicados antes do processamento por software. Evite ativar o mesmo efeito duas vezes. Se o dispositivo não oferecer suporte, a captura normal será usada.',
+        effectsActive: 'Os efeitos do sistema estão ativos nesta gravação.',
+        spectrum: 'Espectro de entrada / processado',
+        spectrumHint:
+          'Exibe apenas a gravação atual com melhoria de voz. Não inicia o microfone, salva áudio nem envia dados. O monitoramento termina ao fechar o painel ou ir para segundo plano.',
+        spectrumLegend: 'Cinza: entrada · Cor: processado · 20 Hz–24 kHz',
+        spectrumWaiting: 'Inicie uma gravação com a melhoria de voz ativada para ver o espectro.',
+        presets: 'Predefinições do equalizador',
+        choosePreset: 'Escolha uma predefinição',
+        preset_normal: 'Neutro',
+        preset_brightVocal: 'Voz brilhante',
+        preset_deepVoice: 'Voz grave',
+        preset_podcast: 'Podcast',
+        preset_vocalClarity: 'Clareza vocal',
+        preset_warmVocal: 'Voz encorpada',
+        aecOff: 'Desativado',
+        aecLight: 'Leve (menor uso de CPU)',
+        aecModel: 'Modelo (mais intenso)',
+        aecModelHint:
+          'O modelo cancela mais eco, mas usa cerca de três vezes mais CPU. Prefira o modo leve em computadores antigos.',
+        aecHint:
+          'Reduz o retorno dos alto-falantes. Exige uma referência do áudio reproduzido; deixe desativado ao usar fones de ouvido.',
+        buffer: 'Buffer de saída',
+
         noise: 'Redução de ruído',
         dereverb: 'Filtro pente',
         equalizer: 'Equalizador',
@@ -1949,6 +2114,9 @@ export const pt: typeof zhCN = {
         down: 'Mover para baixo',
         reset: 'Redefinir configurações de aprimoramento',
       },
+      echoCancellationLabel: 'Cancelamento de eco da reprodução',
+      echoCancellationDesc:
+        'Usa uma referência local do áudio reproduzido sem silenciá-lo. No macOS, exige a versão 14.6 ou superior e permissão para gravar áudio do sistema. Dispositivos incompatíveis, conexões Bluetooth ou ALSA no Linux usam apenas o microfone. A alteração vale para a próxima gravação.',
       audioEnhancementLabel: 'Aprimoramento de áudio',
       audioEnhancementDesc: 'Aplica redução de ruído e normalização de volume ao áudio gravado.',
       muteDuringRecordingLabel: 'Silenciar outros sons durante a gravação',
@@ -2022,6 +2190,12 @@ export const pt: typeof zhCN = {
       polishContextWindowLabel: 'Janela de contexto do refinamento',
       polishContextWindowDesc:
         'Quantidade de texto anterior enviada como contexto para o modelo durante o refinamento.',
+      debugArchiveProcessedLabel: 'Manter áudio processado',
+      debugArchiveProcessedDesc:
+        'Versão após redução de ruído e ajuste de ganho, salva no arquivo de gravação existente.',
+      debugArchiveRawLabel: 'Manter também o áudio antes do processamento',
+      debugArchiveRawDesc:
+        'Salva <session>.raw.wav ao lado da gravação para comparação. Se apenas esta opção estiver ativa, o áudio bruto será salvo no arquivo principal.',
       recordAudioForDebugLabel: 'Manter gravação de áudio original (depuração)',
       recordAudioForDebugDesc:
         'Salva o áudio original do microfone em formato WAV para diagnosticar problemas de reconhecimento.',
@@ -2476,6 +2650,8 @@ export const pt: typeof zhCN = {
       llmResponseIncomplete: 'A resposta do modelo LLM foi interrompida antes da conclusão.',
       llmProtocolHeaderConflict:
         'Conflito entre os cabeçalhos personalizados e o protocolo selecionado.',
+      llmThinkingRequired:
+        'Este modelo exige o Thinking ativado. Ative o Thinking ao lado do modelo e verifique novamente.',
       llmStreamError:
         'O servidor retornou um erro de fluxo. Verifique o modelo e os parâmetros da requisição.',
       saveProtocol: 'Salvar protocolo',
@@ -2553,6 +2729,10 @@ export const pt: typeof zhCN = {
     details: 'Mostrar detalhes do erro',
   },
   modal: {
+    experimentsTitle: 'Experimentos e extensões',
+    experimentsDescription: 'Configure recursos experimentais e extensões.',
+    back: 'Voltar',
+
     serviceViews: {
       label: 'Configurações de serviços',
       llm: 'Modelos de linguagem',
@@ -2577,6 +2757,15 @@ export const pt: typeof zhCN = {
     backToAdvanced: 'Voltar para Experimentos e extensões',
     backToTestingFeatures: 'Voltar para recursos em teste',
     advancedPages: {
+      liveInput: 'Configure a transcrição ao vivo no campo de texto.',
+      experiments: 'Configure recursos experimentais e extensões.',
+      voiceEnhancement:
+        'Processamento avançado de áudio, redução de ruído e supressão do eco da reprodução.',
+      cursorContext:
+        'Configure o contexto próximo ao cursor para melhoria de texto e tratamento de entradas curtas.',
+      startupDiagnostics:
+        'Inspecione os tempos de inicialização, a comunicação com o backend e verificações demoradas.',
+
       customSyncServer:
         'Apenas para serviços auto-hospedados; a sincronização oficial não requer configuração.',
       localModels:
@@ -2590,6 +2779,9 @@ export const pt: typeof zhCN = {
       debug: 'Mantenha gravações de depuração, inspecione o contexto do cursor e exporte logs.',
     },
     descriptions: {
+      cloudServices:
+        'Gerencie o mercado de extensões, o acesso pelo GitHub e a sincronização criptografada.',
+
       general:
         'Escolha um microfone, ajuste a gravação e a inserção de texto ou conecte seu celular.',
       inputMethod:
@@ -2606,6 +2798,8 @@ export const pt: typeof zhCN = {
       about: 'Veja sua versão, canal de atualização e configurações de atualização automática.',
     },
     searchKeywords: {
+      cloudServices: 'nuvem sincronização criptografada mercado GitHub login oficial extensão',
+
       general:
         'microfone gravação entrada celular telefone remoto LAN PIN cápsula silenciar inicialização início automático',
       inputMethod: 'método de entrada IME teclado sobreposição Android',
@@ -2619,6 +2813,8 @@ export const pt: typeof zhCN = {
       about: 'versão Beta estável atualização atualizar upgrade',
     },
     sections: {
+      cloudServices: 'Serviços de nuvem',
+
       appearance: 'Aparência e idioma',
       shortcuts: 'Atalhos',
       general: 'Gravação e entrada',

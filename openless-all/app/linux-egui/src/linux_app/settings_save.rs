@@ -137,6 +137,12 @@ impl OpenLessEguiApp {
             self.snapshot = Some(backend.snapshot());
         }
         self.hydrate_text_fields = true;
+        // 设置写入是「用户改了东西但看起来没保存」类问题的分界线：
+        // 成功一条 debug，失败一条 warn（带字段数），不问就不知道卡在哪一段。
+        match &result {
+            Ok(()) => log::debug!("[settings] saved request={request}"),
+            Err(error) => log::warn!("[settings] save request={request} failed: {error}"),
+        }
         match result {
             Ok(()) => {
                 self.status = tr_l10n(self.lang, "status.settings_saved").to_string();
@@ -227,8 +233,25 @@ impl OpenLessEguiApp {
             frontend::view_model::SettingsField::AudioEnhancement => {
                 preferences.audio_enhancement_enabled = !preferences.audio_enhancement_enabled;
             }
+            frontend::view_model::SettingsField::EchoCancellation => {
+                preferences.echo_cancellation_enabled = !preferences.echo_cancellation_enabled;
+            }
             frontend::view_model::SettingsField::RecordAudioForDebug => {
                 preferences.record_audio_for_debug = !preferences.record_audio_for_debug;
+                // 打开主开关时默认选「处理后」，否则主开关打开了却什么都不落盘、
+                // 用户以为坏了；「处理前」保持用户上一次的选择。
+                if preferences.record_audio_for_debug
+                    && !preferences.debug_archive_processed
+                    && !preferences.debug_archive_raw
+                {
+                    preferences.debug_archive_processed = true;
+                }
+            }
+            frontend::view_model::SettingsField::DebugArchiveProcessed => {
+                preferences.debug_archive_processed = !preferences.debug_archive_processed;
+            }
+            frontend::view_model::SettingsField::DebugArchiveRaw => {
+                preferences.debug_archive_raw = !preferences.debug_archive_raw;
             }
             frontend::view_model::SettingsField::StreamingSaveClipboard => {
                 preferences.streaming_insert_save_clipboard =
@@ -247,10 +270,64 @@ impl OpenLessEguiApp {
         field: frontend::view_model::SettingsComboField,
         index: usize,
     ) {
+        // AEC 参考源是 Core 偏好里的字符串（空 = 自动，"off" = 不采集），
+        // 界面用下标表达，这里换算回去。
+        if matches!(field, frontend::view_model::SettingsComboField::AecReference) {
+            let value = match index {
+                0 => String::new(),
+                1 => "off".to_string(),
+                other => self
+                    .frontend_vm
+                    .settings
+                    .aec_reference_devices
+                    .get(other - 2)
+                    .cloned()
+                    .unwrap_or_default(),
+            };
+            self.frontend_vm.settings.aec_reference_index = index;
+            if let Some(preferences) = self.preferences.as_mut() {
+                preferences.aec_reference_device_name = value;
+                self.save_settings_if_dirty();
+            }
+            return;
+        }
+
+        // 日志级别是宿主本地设置（`<data_dir>/logs/level`），不经过 Core 偏好，
+        // 因此要放在下面 `self.preferences` 的守卫之前 —— 否则偏好还没加载时
+        // 连日志级别都改不了。
+        if matches!(field, frontend::view_model::SettingsComboField::LogLevel) {
+            let Some(backend) = self.backend() else {
+                return;
+            };
+            let level = ["info", "debug", "trace"]
+                .get(index)
+                .copied()
+                .unwrap_or("info");
+            let data_dir = backend.config().data_dir.clone();
+            match openless_linux_egui::write_log_level(&data_dir, level) {
+                Ok(parsed) => {
+                    self.frontend_vm.settings.log_level = index;
+                    log::info!(
+                        "[logging] level set to {} (takes effect on the next start)",
+                        openless_linux_egui::level_name(parsed)
+                    );
+                    self.status = tr_l10n(self.lang, "status.log_level_saved").to_string();
+                }
+                Err(error) => {
+                    log::warn!("[logging] failed to persist the level: {error}");
+                    self.status = error.to_string();
+                }
+            }
+            return;
+        }
         let Some(preferences) = self.preferences.as_mut() else {
             return;
         };
         match field {
+            // 已在函数开头处理（换算成偏好里的设备名字符串）。
+            frontend::view_model::SettingsComboField::AecReference => {}
+            // 已在函数开头处理（不走 Core 偏好）。
+            frontend::view_model::SettingsComboField::LogLevel => {}
             frontend::view_model::SettingsComboField::Theme => {
                 preferences.theme_mode = match index {
                     0 => openless_core::shared_types::ThemeMode::System,
@@ -673,13 +750,15 @@ impl OpenLessEguiApp {
             }
             frontend::view_model::SettingsActionField::ExportDiagnostics => {
                 if let Some(backend) = self.backend() {
-                    let source = openless_linux_egui::log_path(&backend.config().data_dir);
+                    let data_dir = backend.config().data_dir.clone();
                     let lang = self.lang;
                     self.spawn(async move {
                         let destination = tokio::task::spawn_blocking(|| {
                             rfd::FileDialog::new()
-                                .add_filter("Log", &["log"])
-                                .set_file_name("openless.log")
+                                // 导出的是「当前 + 全部轮转历史」，默认名字别再叫 openless.log，
+                                // 否则用户会以为是那个单文件。
+                                .add_filter("Log", &["log", "txt"])
+                                .set_file_name("openless-diagnostics.log")
                                 .save_file()
                         })
                         .await
@@ -696,7 +775,7 @@ impl OpenLessEguiApp {
                             )
                         })?;
                         tokio::task::spawn_blocking(move || {
-                            openless_linux_egui::export_error_log(&source, &destination)
+                            openless_linux_egui::export_error_logs(&data_dir, &destination)
                         })
                         .await
                         .map_err(|error| {

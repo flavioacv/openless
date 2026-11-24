@@ -2,3 +2,5 @@
 "NSSpeechRecognitionUsageDescription" = "O OpenLess usa o reconhecimento de fala da Apple para transcrever sua voz.";
 "NSAccessibilityUsageDescription" = "O OpenLess precisa de acesso à acessibilidade para usar atalhos globais e inserir o texto transcrito na posição do cursor.";
 "NSAppleEventsUsageDescription" = "O OpenLess envia eventos de teclado para colar o texto transcrito na posição do cursor.";
+
+"NSAudioCaptureUsageDescription" = "O OpenLess usa o áudio do sistema como referência local temporária para reduzir o eco do ditado. Essa referência não é salva nem enviada.";

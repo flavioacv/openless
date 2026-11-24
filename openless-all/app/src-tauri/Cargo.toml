@@ -77,7 +77,8 @@ bytes = "1"
 url = "2"
 raw-window-handle = "0.6"
 # Audio capture — shared across desktop and mobile.
-cpal = "0.15"
+# Keep Windows COM objects on their owning audio thread; see vendor/cpal/OPENLESS_PATCH.md.
+cpal = { version = "=0.15.3", path = "vendor/cpal" }
 
 [target.'cfg(any(target_os = "android", target_os = "ios"))'.dependencies]
 tauri-plugin-fs = "2.7.1"
@@ -187,6 +188,7 @@ window-vibrancy = "0.7"
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
+issue-1266-diagnostics = []
 
 [profile.release]
 # 之前没有 [profile.release] —— 发布版走 Cargo 默认（无 LTO、不 strip、
@@ -199,3 +201,7 @@ lto = "thin"
 codegen-units = 1
 # Xcode 27 beta 的 strip 会损坏 proc-macro dylib；本地构建加 CARGO_PROFILE_RELEASE_STRIP=none。
 strip = "symbols"
+
+# A1: Windows event-loop targets must not follow Send/Sync runtime handle clones.
+[patch.crates-io]
+tauri-runtime-wry = { path = "vendor/tauri-runtime-wry" }

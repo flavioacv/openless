@@ -6,6 +6,7 @@ export type AppTab =
   | 'overview'
   | 'history'
   | 'meetings'
+  | 'usage'
   | 'vocab'
   | 'style'
   | 'marketplace'

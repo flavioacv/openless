@@ -1,4 +1,5 @@
 import { meetingEn as meetings } from './meetings';
+import { desktopGuideKo as desktopGuide } from './desktopGuide';
 import { siwcKo as siwc } from './siwc';
 import type { zhCN } from './zh-CN';
 import { en } from './en';
@@ -11,6 +12,7 @@ import { experimentalAsrEn as experimentalAsr } from './experimentalAsr';
 
 export const ko: typeof zhCN = {
   ...en,
+  desktopGuide,
   siwc,
   meetings,
   experimentalAsr,
@@ -299,6 +301,7 @@ export const ko: typeof zhCN = {
     show: '표시',
     hide: '숨기기',
     saved: '저장됨',
+    refreshed: '새로고침했습니다',
     saving: '저장 중',
     experimental: '실험적',
     copied: '복사됨',
@@ -415,109 +418,6 @@ export const ko: typeof zhCN = {
     editRevertPrevious: '이전 버전 유지',
     editInstructionMode: '편집 지시',
   },
-  lessComputer: {
-    activity: {
-      process: '처리 과정',
-      count: '활동 {{count}}개',
-      count_one: '활동 {{count}}개',
-      count_other: '활동 {{count}}개',
-      finished: '완료',
-      stopped: '중지됨',
-      search: '검색',
-      searchRunning: '검색 중…',
-      read: '읽기',
-      readRunning: '읽는 중…',
-      command: '명령',
-      commandRunning: '명령 실행 중…',
-      edit: '편집',
-      editRunning: '편집 중…',
-      web: '웹',
-      webRunning: '웹페이지 확인 중…',
-      other: '도구',
-      otherRunning: '처리 중…',
-    },
-    desktop: {
-      approvedSubmitted: '허용을 제출했습니다',
-      deniedSubmitted: '거부를 제출했습니다',
-      agents: '내 에이전트',
-      configured: '현재 설정',
-      agentSettings: '설정에서 선택',
-      sessionUnavailable: '새 대화 · 아직 지원 안 함',
-      signedIn: '로그인됨',
-      signIn: '로그인',
-      currentSession: '현재 대화',
-      minimize: '최소화',
-      maximize: '최대화 / 복원',
-      windowError: '창 작업에 실패했습니다. 다시 시도하세요.',
-      idle: '지시 대기 중',
-      waitingApproval: '승인 대기 중',
-      submittingApproval: '제출 중…',
-      approvalError: '승인이 제출되지 않았습니다. 다시 시도하세요.',
-      approvalExpired: '이 차례는 종료되어 더 이상 승인할 수 없습니다.',
-      sendError: '전송하지 못했습니다. 입력 내용은 유지됩니다. 다시 시도하세요.',
-      browserUnavailable:
-        '브라우저 미리보기에서는 명령을 실행할 수 없습니다. 데스크톱 앱을 사용하세요.',
-      inputHint: 'Enter로 전송 · Shift + Enter로 줄 바꿈',
-      apiCost: '이번 API 비용',
-      emptyHint: '작업을 입력하거나, 마이크를 누르거나, 음성 단축키로 시작하세요.',
-      showInspector: '작업 패널 보기',
-      hideInspector: '작업 패널 숨기기',
-      inspectorTitle: '작업 공간',
-      inspectorStatus: '상태',
-      inspectorTurn: '이번 턴',
-      toolCalls: '도구 호출',
-      pendingApprovals: '확인 대기',
-      inspectorVoice: '음성 입력',
-      voiceShortcutOff: '음성 단축키가 설정되지 않았습니다. 설정에서 켤 수 있습니다.',
-      voiceModesHint:
-        '마이크: 말한 내용이 입력창에 들어가 수정한 뒤 보낼 수 있습니다. 음성 버튼: 말을 멈추면 바로 에이전트에 보냅니다.',
-      copy: '복사',
-      copied: '복사됨',
-      messagePlaceholder: '{{agent}}에게 메시지',
-    },
-    voice: {
-      dictate: '입력창에 받아쓰기',
-      voiceMode: '음성 모드(멈추면 전송)',
-      stopTask: '작업 중지',
-      cancel: '녹음 취소',
-      confirmDictation: '받아쓰기 완료',
-      stopAndSend: '멈추고 보내기',
-      listening: '듣는 중…',
-      starting: '마이크 준비 중…',
-      transcribing: '받아쓰는 중…',
-      empty: '들린 내용이 없습니다. 다시 말씀해 주세요.',
-      failed: '음성 인식에 실패했습니다. 다시 시도해 주세요.',
-      startFailed: '녹음을 시작할 수 없습니다: {{message}}',
-      taskCancelFailed: '작업이 중지되지 않았습니다. 다시 시도해 주세요.',
-      dictateCaption:
-        '다 말했으면 ✓를 누르세요. 텍스트가 입력창에 들어가 수정할 수 있습니다 · Esc로 취소',
-      submitCaption: '↑를 누르면 바로 에이전트에 보냅니다 · Esc로 취소',
-      stopHint: '작업 실행 중: ■를 눌러 중지',
-      holdHint: '{{key}}를 누른 채 말하기',
-      toggleHint: '{{key}}를 눌러 시작 또는 종료',
-      autoHint: '{{key}}를 길게 또는 짧게 눌러 말하기',
-    },
-    title: 'Less Computer',
-    subtitle: '컴퓨터로 무엇을 할까요?',
-    you: '나',
-    working: '조작 중…',
-    tool: '{{name}} 사용',
-    compaction: '컨텍스트가 압축되었습니다',
-    done: '완료',
-    cost: '${{cost}}',
-    error: '실패했습니다. 다시 시도하세요.',
-    closeTooltip: '닫기',
-    jumpToLatest: '최신으로 이동',
-    inputPlaceholder: '명령을 입력하고 Enter로 전송',
-    send: '전송',
-    approvalTitle: '차단된 명령을 실행할까요?',
-    approvalRerunWarning:
-      '주의: 승인하면 이미 수정된 작업 공간에서 다시 실행되어 멱등하지 않은 작업에 부작용이 생길 수 있습니다.',
-    approve: '허용',
-    deny: '거부',
-    approved: '허용됨',
-    denied: '거부됨',
-  },
   nav: {
     meetings: '회의',
     overview: '개요',
@@ -573,7 +473,7 @@ export const ko: typeof zhCN = {
     },
     sortLiked: '좋아요한 팩',
     likedEmpty: '아직 좋아요한 팩이 없습니다',
-    likedEmptyHint: '팩을 열고 별을 누르면 여기에 표시됩니다',
+    likedEmptyHint: '팩을 열고 하트를 누르면 여기에 표시됩니다',
     derivativeBadge: '@{{login}}에서 파생',
     detail: {
       withdrawBtn: '게시 취소',
@@ -659,6 +559,7 @@ export const ko: typeof zhCN = {
       settings: '환경설정: 단축키, 제공자, 개인정보 및 업데이트',
     },
     footer: {
+      usage: '사용량',
       account: '계정',
       feedback: '피드백',
       settings: '설정',
@@ -747,8 +648,8 @@ export const ko: typeof zhCN = {
     },
     actions: {
       refresh: '다시 불러오기',
-      services: 'AI 서비스 및 모델',
-      general: '녹음 및 입력',
+      services: 'AI와 모델',
+      general: '일반',
       shortcuts: '단축키',
       privacy: '권한 및 데이터',
     },
@@ -757,7 +658,7 @@ export const ko: typeof zhCN = {
       loadingTitle: '설정을 불러오고 있어요',
       loadingDesc: '잠시 후 현재 서비스와 다음 할 일을 보여 드릴게요.',
       unavailableTitle: '서비스 상태를 불러올 수 없어요',
-      unavailableDesc: '다시 불러오거나 AI 서비스에서 설정을 확인해 주세요.',
+      unavailableDesc: '다시 불러오거나 AI와 모델에서 설정을 확인해 주세요.',
       servicesTitle: '먼저 음성 서비스를 설정하세요',
       servicesDesc:
         '여기서 시작하는 것을 추천해요. 음성 인식과 텍스트 처리 서비스를 선택하세요. Omni 모드에서는 사용할 멀티모달 모델만 설정하면 됩니다.',
@@ -1198,9 +1099,9 @@ export const ko: typeof zhCN = {
     target: {
       title: '번역 대상 언어',
       desc: '녹음 중 Shift 로 번역 실행. "비활성화" 시 Shift 무효.',
-      disabled: '비활성화 (Shift 로 번역 발동 안 함)',
+      disabled: '비활성화 ({{shortcut}} 로 번역 발동 안 함)',
       sameAsWorking:
-        '대상 언어가 유일한 작업 언어와 같아 번역이 실행되지 않습니다. Shift 를 눌러도 일반 정리로 처리됩니다. 다른 대상 언어를 고르거나 위에서 작업 언어를 추가하세요.',
+        '대상 언어가 유일한 작업 언어와 같아 번역이 실행되지 않습니다. {{shortcut}} 를 눌러도 일반 정리로 처리됩니다. 다른 대상 언어를 고르거나 위에서 작업 언어를 추가하세요.',
     },
     style: {
       title: '번역 스타일',
@@ -1221,7 +1122,7 @@ export const ko: typeof zhCN = {
       step4: '다시 {{trigger}} 를 눌러 정지.',
       step5: '번역 결과가 커서 위치에 삽입됩니다.',
       indicatorTitle: '번역 모드 활성화 확인 방법',
-      indicatorDesc: 'Shift 를 누르면 화면 하단에 파란색 "번역 중" 표시가 나타납니다.',
+      indicatorDesc: '{{shortcut}} 를 누르면 화면 하단에 파란색 "번역 중" 표시가 나타납니다.',
       fallbackTitle: '안전 폴백',
       fallbackDesc: '번역 실패 시 원본 전사가 삽입됩니다.',
     },
@@ -1292,90 +1193,6 @@ export const ko: typeof zhCN = {
       description:
         '지원되는 플랫폼에서 Less Computer와 Claude 콘솔을 표시하고 설정 및 사용할 수 있습니다. 끄면 실행 중인 작업을 중지하고 항목을 숨기지만 설정은 유지됩니다. 이 기기에만 적용됩니다.',
       unavailable: '이 플랫폼에서는 아직 사용 가능한 테스트 기능이 없습니다.',
-    },
-    selectionWorkspace: {
-      title: '선택 영역 도우미',
-      hint: '텍스트 선택 후 같은 단축키: 음성 편집 끄면 바로 다듬기, 켜면 누른 채 말한 뒤 「질문」 또는 「편집」 선택.',
-      polishHotkey: '선택 영역 도우미 단축키',
-      polishHotkeyDesc:
-        '음성 편집 끄면 바로 다듬기, 켜면 누른 채 말하기(녹음 방식은 전역 설정 따름).',
-      polishDelivery: '결과 처리',
-      voiceDeliveryDesc:
-        '음성 편집 후: 선택 영역을 바로 교체하거나 Ask 패널에서 확인 후 교체합니다.',
-      voiceEnable: '음성 편집',
-      voiceEnableDesc:
-        '위와 같은 단축키 사용. 녹음 방식은 전역 설정을 따릅니다(현재: {{recordingLabel}}).',
-      autoIntent: '의도 자동 판별',
-      autoIntentDesc:
-        '켜면 설정된 모델이 질문/편집을 판별합니다. 모델 실패 시에만 의문사 휴리스틱으로 폴백합니다.',
-      editKeywords: '추가 의문 단서',
-      editKeywordsDesc: '자동 판별 끔일 때만. 한 줄에 하나면 질문. 없으면 ?/의문사 휴리스틱.',
-      editPlanFormat: '편집 계획 형식',
-      editPlanFormatDesc:
-        '모델이 선택한 형식으로 EditPlan을 우선 출력합니다. 파싱 실패 시 다른 형식을 시도합니다.',
-      editPlanFormatXml: 'XML',
-      editPlanFormatJson: 'JSON',
-      editSystemPrompt: '편집 계획 시스템 프롬프트',
-      editSystemPromptDesc:
-        '스타일 팩 / 내장 기본 EditPlan 시스템 프롬프트를 덮어씁니다. 비우면 사용자 지정 → 팩 → 내장 순으로 폴백합니다.',
-      editSystemPromptPlaceholder: '비움 = 스타일 팩 또는 내장 기본값',
-      editSystemPromptReset: '기본값으로 재설정',
-    },
-    selectionPolish: {
-      title: '선택 영역 다듬기',
-      hotkey: '실행 단축키',
-      hotkeyDesc: '녹화 후 즉시 적용됩니다. 녹음, 질문 등 다른 전역 단축키와 충돌하면 거부됩니다.',
-      delivery: '결과 처리 방식',
-      hint: '텍스트를 선택한 뒤 실행합니다. 마이크나 ASR이 필요 없으며 현재 스타일 팩과 전용 선택 프롬프트를 사용합니다.',
-      directReplace: '직접 교체',
-      directReplaceHint: '모델 완료 후 원래 선택 영역을 안전하게 교체합니다.',
-      previewConfirm: '미리보기 후 확인',
-      previewConfirmHint: '편집 가능한 창에서 결과를 확인한 뒤 원래 선택 영역을 교체합니다.',
-    },
-    kicker: '설정',
-    title: '설정',
-    desc: '녹음, 공급자, 단축키, 권한 설정.',
-    network: {
-      title: '네트워크',
-      useSystemProxyLabel: '시스템 프록시 사용',
-      useSystemProxyDesc:
-        '켜면 요청이 시스템 프록시를 따릅니다. 끄면 모든 요청이 직결됩니다(국내 서비스는 보통 더 빠름). GitHub 로그인·업데이트 등 해외 서비스는 연결되지 않을 수 있습니다. 실시간 음성 스트림과 Less Computer는 영향을 받지 않습니다.',
-    },
-    vocabularyLearning: {
-      title: '수정으로 단어 학습',
-      enabled: '수정 학습 사용',
-      observationSeconds: '관찰 시간',
-      observationSecondsHint: '음성 입력 후 현재 입력란을 관찰하는 최대 시간입니다(10~60초).',
-      suggestionSeconds: '제안 유지 시간',
-      suggestionSecondsHint: '확인하지 않은 제안은 5~60초 후 사전에 추가되지 않고 사라집니다.',
-      maxPhraseChars: '최대 글자 수',
-      maxPhraseCharsHint:
-        '자동 제안의 원문과 대체 문구를 2~32자로 제한합니다. 수동 추가에는 영향을 주지 않습니다.',
-      seconds: '{{count}}초',
-      characters: '{{count}}자',
-      changeHint:
-        '설정을 변경하면 현재 관찰을 중지하고 대기 중인 제안을 지웁니다. 다음 음성 입력부터 적용됩니다. 초기화해도 사용 스위치는 바뀌지 않습니다.',
-      reset: '매개변수 초기화',
-      saveError: '저장하지 못했습니다. 다시 시도하세요.',
-      description:
-        '입력 후 최대 60초 동안 기기에서 해당 입력란의 수정을 감지하고 확인 후 사전에 추가합니다. 관찰한 텍스트는 모델에 보내지 않습니다. 비밀번호 입력란과 알려진 민감한 앱은 제외됩니다. Windows 및 Android는 편집기에 따라 지원이 다르며 Android는 접근성 서비스가 필요합니다. 끄면 관찰을 중지합니다.',
-    },
-    dataStorage: {
-      title: '데이터 저장',
-      desc: '이 기기에 보관되는 대화 기록과 컨텍스트.',
-      cursorContextLabel: '커서 문맥 (실험적)',
-      cursorContextDesc:
-        '다듬기 요청 시 커서 주변의 짧은 텍스트를 참고 자료로 모델에 보내 고유명사, 동음이의어, 지시어 판단에 사용합니다(macOS / Windows / Android). 받아쓰기, 빠른 메모, 클라우드 메모 모두 참고하지만 컨텍스트 자체는 메모, 기록, 로그에 저장되지 않습니다. 클라우드 모델을 사용하면 다듬기 요청과 함께 해당 제공업체로 전송됩니다. 기기 내 단어 학습과 별도 설정입니다. 비밀번호 입력란, 터미널, 알려진 민감한 앱은 제외됩니다.',
-    },
-    localMigration: {
-      title: '로컬 구성 마이그레이션',
-      description:
-        '이식 가능한 모든 로컬 구성을 버전이 지정된 번들로 내보내거나 다른 Android 기기에 복원합니다. 공유 모드는 기본적으로 비식별화되며, 개인 마이그레이션에 자격 증명을 포함하려면 비밀번호 보호가 필요합니다. 병합 또는 교체 전에 네이티브 화면에서 출처, 버전, 범주와 변경 내용을 확인할 수 있습니다.',
-      safetyNote:
-        '시스템 권한, OAuth 세션, 기기 경로와 실행 상태는 마이그레이션되지 않습니다. 가져오기 전에 로컬 백업을 만듭니다.',
-      open: '로컬 마이그레이션 열기',
-      opening: '여는 중…',
-      openFailed: '로컬 마이그레이션을 열 수 없습니다. 설정에서 다시 시도하세요.',
     },
     codingConsole: {
       title: 'Claude 콘솔',
@@ -1469,6 +1286,138 @@ export const ko: typeof zhCN = {
       openPanelHint: 'Less Computer 패널을 열어 현재 Agent와 모델 설정을 텍스트로 확인합니다.',
       openPanelAction: 'Less Computer 열기',
     },
+
+    generalPages: {
+      recordingTitle: '마이크와 녹음',
+      recordingDesc: '마이크 모니터링과 인식, 그리고 모니터링과 알림입니다.',
+      capsuleTitle: '캡슐 스타일',
+      capsuleDesc: '캡슐 스위치, 여러 화면 표시, 스타일, 원문 스트리밍 표시.',
+      textInputTitle: '텍스트 삽입',
+      textInputDesc: '선택 도우미, 삽입과 클립보드, 시작.',
+      phoneTitle: '휴대폰과 원격 입력',
+      phoneDesc: '휴대폰이나 다른 기기를 연결해 원격으로 입력합니다.',
+    },
+    advancedPages: {
+      liveInputTitle: '텍스트 삽입',
+      experiments: '실험 기능과 확장 옵션을 설정합니다.',
+      voiceEnhancementTitle: '음성 향상과 재생 억제',
+      cursorContextTitle: '인식',
+      startupDiagnosticsTitle: '시작 진단',
+      cursorContextHint:
+        '커서 문맥은 기본적으로 켜져 있습니다. 주변 텍스트를 다듬기 요청에 포함하지 않으려면 여기서 끄세요.',
+    },
+    advancedGroups: {
+      recording: '녹음',
+      text: '텍스트와 문맥',
+      diagnostics: '진단',
+    },
+    selectionWorkspace: {
+      extraControls: '추가 설정',
+      extraControlsDesc:
+        '질문/편집 판단과 모델 출력 형식을 설정합니다. 일반적으로 변경할 필요가 없습니다.',
+      openExtraControls: '더보기',
+      extraControlsSaveHint: '변경 사항은 자동 저장됩니다.',
+      extraControlsDone: '완료',
+      title: '선택 영역 도우미',
+      hint: '텍스트 선택 후 같은 단축키: 음성 편집 끄면 바로 다듬기, 켜면 누른 채 말한 뒤 「질문」 또는 「편집」 선택.',
+      polishHotkey: '선택 영역 도우미 단축키',
+      polishHotkeyDesc:
+        '음성 편집 끄면 바로 다듬기, 켜면 누른 채 말하기(녹음 방식은 전역 설정 따름).',
+      polishDelivery: '결과 처리',
+      voiceDeliveryDesc:
+        '음성 편집 후: 선택 영역을 바로 교체하거나 Ask 패널에서 확인 후 교체합니다.',
+      voiceEnable: '음성 편집',
+      voiceEnableDesc:
+        '위와 같은 단축키 사용. 녹음 방식은 전역 설정을 따릅니다(현재: {{recordingLabel}}).',
+      autoIntent: '의도 자동 판별',
+      autoIntentDesc:
+        '켜면 설정된 모델이 질문/편집을 판별합니다. 모델 실패 시에만 의문사 휴리스틱으로 폴백합니다.',
+      editKeywords: '추가 의문 단서',
+      editKeywordsDesc: '자동 판별 끔일 때만. 한 줄에 하나면 질문. 없으면 ?/의문사 휴리스틱.',
+      editPlanFormat: '편집 계획 형식',
+      editPlanFormatDesc:
+        '모델이 선택한 형식으로 EditPlan을 우선 출력합니다. 파싱 실패 시 다른 형식을 시도합니다.',
+      editPlanFormatXml: 'XML',
+      editPlanFormatJson: 'JSON',
+      editSystemPrompt: '편집 계획 시스템 프롬프트',
+      editSystemPromptDesc:
+        '스타일 팩 / 내장 기본 EditPlan 시스템 프롬프트를 덮어씁니다. 비우면 사용자 지정 → 팩 → 내장 순으로 폴백합니다.',
+      editSystemPromptPlaceholder: '비움 = 스타일 팩 또는 내장 기본값',
+      editSystemPromptReset: '기본값으로 재설정',
+    },
+    selectionPolish: {
+      title: '선택 영역 다듬기',
+      hotkey: '실행 단축키',
+      hotkeyDesc: '녹화 후 즉시 적용됩니다. 녹음, 질문 등 다른 전역 단축키와 충돌하면 거부됩니다.',
+      delivery: '결과 처리 방식',
+      hint: '텍스트를 선택한 뒤 실행합니다. 마이크나 ASR이 필요 없으며 현재 스타일 팩과 전용 선택 프롬프트를 사용합니다.',
+      directReplace: '직접 교체',
+      directReplaceHint: '모델 완료 후 원래 선택 영역을 안전하게 교체합니다.',
+      previewConfirm: '미리보기 후 확인',
+      previewConfirmHint: '편집 가능한 창에서 결과를 확인한 뒤 원래 선택 영역을 교체합니다.',
+    },
+    kicker: '설정',
+    title: '설정',
+    desc: '녹음, 공급자, 단축키, 권한 설정.',
+    network: {
+      title: '네트워크',
+      useSystemProxyLabel: '시스템 프록시 사용',
+      useSystemProxyDesc:
+        '켜면 요청이 시스템 프록시를 따릅니다. 끄면 모든 요청이 직결됩니다(국내 서비스는 보통 더 빠름). GitHub 로그인·업데이트 등 해외 서비스는 연결되지 않을 수 있습니다. 실시간 음성 스트림과 Less Computer는 영향을 받지 않습니다.',
+    },
+    expressionLearning: {
+      clearHint: '삭제 후에도 진행 중인 받아쓰기에는 시작할 때 캡처한 선호가 사용될 수 있습니다.',
+      lineBreaksMore: '줄바꿈 늘리기',
+      lineBreaksLess: '줄바꿈 줄이기',
+      exclamationsMore: '느낌표 늘리기',
+      exclamationsLess: '느낌표 줄이기',
+      terminalPunctuationMore: '문장 끝 구두점 사용',
+      terminalPunctuationLess: '문장 끝 구두점 줄이기',
+
+      title: '표현 습관',
+      enabled: '표현 습관 학습',
+      description:
+        '받아쓰기 후 서식 수정을 기기에서만 관찰하며 표현 습관에는 추상적인 통계만 저장합니다. 기록은 별도로 관리됩니다. 반복되고 일관된 줄바꿈과 문장 부호 선호를 선택한 텍스트 모델에 짧은 지시로 전달합니다. 끄면 학습은 즉시 중단되고 다음 받아쓰기부터 적용되지 않습니다. 진행 중인 받아쓰기에는 이미 캡처한 선호가 사용될 수 있습니다.',
+      status: '안정된 선호 {{count}}개',
+      clear: '표현 습관 지우기',
+      error: '표현 습관을 읽거나 저장하지 못했습니다.',
+    },
+    vocabularyLearning: {
+      title: '수정으로 단어 학습',
+      enabled: '수정 학습 사용',
+      observationSeconds: '관찰 시간',
+      observationSecondsHint: '음성 입력 후 현재 입력란을 관찰하는 최대 시간입니다(10~60초).',
+      suggestionSeconds: '제안 유지 시간',
+      suggestionSecondsHint: '확인하지 않은 제안은 5~60초 후 사전에 추가되지 않고 사라집니다.',
+      maxPhraseChars: '최대 글자 수',
+      maxPhraseCharsHint:
+        '자동 제안의 원문과 대체 문구를 2~32자로 제한합니다. 수동 추가에는 영향을 주지 않습니다.',
+      seconds: '{{count}}초',
+      characters: '{{count}}자',
+      changeHint:
+        '설정을 변경하면 현재 관찰을 중지하고 대기 중인 제안을 지웁니다. 다음 음성 입력부터 적용됩니다. 초기화해도 사용 스위치는 바뀌지 않습니다.',
+      reset: '매개변수 초기화',
+      saveError: '저장하지 못했습니다. 다시 시도하세요.',
+      description:
+        '입력 후 최대 60초 동안 기기에서 해당 입력란의 수정을 감지하고 확인 후 사전에 추가합니다. 관찰한 텍스트는 모델에 보내지 않습니다. 비밀번호 입력란과 알려진 민감한 앱은 제외됩니다. Windows 및 Android는 편집기에 따라 지원이 다르며 Android는 접근성 서비스가 필요합니다. 끄면 관찰을 중지합니다.',
+    },
+    dataStorage: {
+      title: '데이터 저장',
+      desc: '이 기기에 보관되는 대화 기록과 컨텍스트.',
+      cursorContextLabel: '커서 문맥 (실험적)',
+      cursorContextDesc:
+        '다듬기 요청 시 커서 주변의 짧은 텍스트를 참고 자료로 모델에 보내 고유명사, 동음이의어, 지시어 판단에 사용합니다(macOS / Windows / Android). 받아쓰기, 빠른 메모, 클라우드 메모 모두 참고하지만 컨텍스트 자체는 메모, 기록, 로그에 저장되지 않습니다. 클라우드 모델을 사용하면 다듬기 요청과 함께 해당 제공업체로 전송됩니다. 기기 내 단어 학습과 별도 설정입니다. 비밀번호 입력란, 터미널, 알려진 민감한 앱은 제외됩니다.',
+    },
+    localMigration: {
+      title: '로컬 구성 마이그레이션',
+      description:
+        '이식 가능한 모든 로컬 구성을 버전이 지정된 번들로 내보내거나 다른 Android 기기에 복원합니다. 공유 모드는 기본적으로 비식별화되며, 개인 마이그레이션에 자격 증명을 포함하려면 비밀번호 보호가 필요합니다. 병합 또는 교체 전에 네이티브 화면에서 출처, 버전, 범주와 변경 내용을 확인할 수 있습니다.',
+      safetyNote:
+        '시스템 권한, OAuth 세션, 기기 경로와 실행 상태는 마이그레이션되지 않습니다. 가져오기 전에 로컬 백업을 만듭니다.',
+      open: '로컬 마이그레이션 열기',
+      opening: '여는 중…',
+      openFailed: '로컬 마이그레이션을 열 수 없습니다. 설정에서 다시 시도하세요.',
+    },
     debug: {
       cursorLabel: '커서',
       title: '디버그 도구',
@@ -1495,7 +1444,18 @@ export const ko: typeof zhCN = {
       },
     },
     recording: {
-      title: '녹음 및 입력',
+      lowMemoryBackgroundLabel: '저메모리 백그라운드 모드',
+      lowMemoryBackgroundDesc:
+        '재시작 후 적용됩니다. 메인 창을 닫으면 해제하고 녹음 시에만 네이티브 캡슐을 표시합니다. 대기 중 마이크 사전 실행을 끕니다. 로컬 모델 해제 설정은 유지됩니다.',
+      lowMemoryRestartLabel: '재시작 후 적용',
+      lowMemoryRestartDesc:
+        '저메모리 백그라운드 모드 설정이 저장되었습니다. 실행 모드는 앱을 재시작해야 전환됩니다.',
+      lowMemoryRestartNow: '지금 재시작',
+      lowMemoryCapsuleErrorLabel: '네이티브 캡슐을 사용할 수 없음',
+      lowMemoryCapsuleErrorDesc:
+        '받아쓰기는 계속 사용할 수 있지만 플로팅 캡슐이 표시되지 않습니다. 헬퍼가 없거나 차단되었을 수 있습니다. 앱을 다시 설치해 주세요.',
+
+      title: '일반',
       desc: '전역 녹음의 단축키와 트리거 방식을 정의합니다.',
       hotkeyLabel: '녹음 단축키',
       hotkeyDescAcc: '누르면 음성 캡처 시작(전역). 접근성 권한이 필요합니다.',
@@ -1544,7 +1504,7 @@ export const ko: typeof zhCN = {
         '모든 화면 표시에서 전환하려면 이전 캡슐 창을 정리하기 위해 다시 시작해야 합니다. 지금 다시 시작할까요?',
       capsuleStyleLabel: '캡슐 스타일',
       capsuleStyleSiri: '시리 광선 스타일',
-      capsuleStyleClassic: 'OpenLess 기본 스타일',
+      capsuleStyleClassic: '기본 스타일',
       stableTranscriptionLabel: '안정 모드 (녹음 후 전사)',
       stableTranscriptionDesc:
         '켜면 녹음 중에는 ASR에 연결하지 않고 중지한 뒤 전체 오디오를 전송합니다. 결과는 늦게 표시되지만 연결 지연이나 녹음 중 네트워크 불안정이 녹음에 영향을 주지 않습니다.',
@@ -1552,6 +1512,34 @@ export const ko: typeof zhCN = {
       lowLatencyDictationDesc:
         '마이크 스트림을 준비하고 최대 500ms를 메모리에 보관해 단축키 직후의 음성이 누락될 가능성을 줄입니다. 녹음을 확정하기 전에는 오디오를 저장하거나 업로드하지 않습니다. 전력 사용량이 늘고 마이크 표시가 계속 켜져 있습니다.',
       dsp: {
+        aec: 'System echo cancellation',
+        systemNoise: 'System noise suppression',
+        systemAgc: 'System automatic gain',
+        unavailable: 'Unavailable on this device',
+        androidEffectsHint:
+          'Android system effects apply before the software chain. Avoid enabling the same effect twice. Unsupported startup falls back to normal capture.',
+        effectsActive: 'System effects are active for this recording.',
+        spectrum: 'Input / processed spectrum',
+        spectrumHint:
+          'Shows the current enhanced recording only. This does not start a microphone, save audio, or upload it. Monitoring stops when this panel closes or goes to the background.',
+        spectrumLegend: 'Gray: input · Color: processed · 20 Hz–24 kHz',
+        spectrumWaiting: 'Start a recording with speech enhancement enabled to see the spectrum.',
+        presets: 'Equalizer presets',
+        choosePreset: 'Choose a preset',
+        preset_normal: 'Flat',
+        preset_brightVocal: 'Bright vocal',
+        preset_deepVoice: 'Deep voice',
+        preset_podcast: 'Podcast',
+        preset_vocalClarity: 'Vocal clarity',
+        preset_warmVocal: 'Warm vocal',
+
+        aecOff: '끄기',
+        aecLight: '경량(저 CPU)',
+        aecModel: '모델(강화)',
+        aecModelHint:
+          '모델 버전은 더 강하게 제거하지만 CPU를 약 3배 사용합니다. 오래된 기기에서는 경량을 권장합니다.',
+        aecHint: '스피커 사용 시 되먹임을 줄입니다. 참조 신호가 필요하므로 헤드폰이면 꺼 두세요.',
+        buffer: '출력 버퍼',
         noise: 'Noise reduction',
         dereverb: 'Comb filter',
         equalizer: 'Equalizer',
@@ -1579,6 +1567,9 @@ export const ko: typeof zhCN = {
         down: 'Move down',
         reset: 'Reset enhancement settings',
       },
+      echoCancellationLabel: '재생 에코 제거',
+      echoCancellationDesc:
+        '재생을 유지하면서 로컬 재생음을 참조합니다. macOS는 14.6 이상 및 시스템 오디오 녹음 권한이 필요합니다. 지원하지 않는 장치, Bluetooth 경로 또는 Linux ALSA에서는 일반 마이크 녹음으로 전환합니다. 다음 캡처부터 적용됩니다.',
       audioEnhancementLabel: '음성 향상',
       audioEnhancementDesc:
         'RNNoise 또는 PureVox 소음 억제, 자동 게인 및 리미터를 적용합니다. 기본값은 꺼짐이며 다음 녹음부터 적용됩니다.',
@@ -1589,6 +1580,10 @@ export const ko: typeof zhCN = {
       audioCueDesc:
         '단축키로 녹음을 시작할 때 합성된 짧은 알림음을 재생합니다. 캡슐이 숨겨져 있어도 재생됩니다.',
       audioCuePreview: '미리듣기',
+      captureGroupTitle: '마이크 모니터링 및 인식',
+      capsuleGroupTitle: '캡슐 스타일',
+      recognitionGroupTitle: '모니터링과 알림음',
+      feedbackGroupTitle: '모니터링과 알림음',
       insertGroupTitle: '삽입 및 클립보드',
       restoreClipboardLabel: '입력 후 클립보드 복원',
       restoreClipboardDesc:
@@ -1656,6 +1651,12 @@ export const ko: typeof zhCN = {
       polishContextWindowLabel: '대화 컨텍스트 윈도(분)',
       polishContextWindowDesc:
         '최근 N 분간 정리된 전사를 멀티턴 컨텍스트로 전달합니다. 0 = 비활성화.',
+      debugArchiveProcessedLabel: '처리된 오디오 저장',
+      debugArchiveProcessedDesc:
+        '노이즈 감소와 게인 적용 후의 오디오로, 기존 녹음 파일에 저장됩니다.',
+      debugArchiveRawLabel: '처리 전 오디오도 저장',
+      debugArchiveRawDesc:
+        '같은 폴더에 <session>.raw.wav를 함께 저장합니다. 이것만 켜면 원본이 기본 파일에 저장됩니다.',
       recordAudioForDebugLabel: '원본 녹음 보관(디버그)',
       recordAudioForDebugDesc: '원시 마이크 오디오를 wav 로 저장하여 인식 문제 진단.',
       audioRecordingMaxEntriesLabel: '원본 녹음 보관 개수',
@@ -1675,16 +1676,6 @@ export const ko: typeof zhCN = {
       voiceActivationTimeoutEnabled: '시간 초과 후 중지',
       voiceActivationTimeoutSeconds: '시간 초과(초)',
       startupGroupTitle: '시작',
-      lowMemoryBackgroundLabel: '저메모리 백그라운드 모드',
-      lowMemoryBackgroundDesc:
-        '재시작 후 적용됩니다. 메인 창을 닫으면 해제하고 녹음 시에만 네이티브 캡슐을 표시합니다. 대기 중 마이크 사전 실행을 끕니다. 로컬 모델 해제 설정은 유지됩니다.',
-      lowMemoryRestartLabel: '재시작 후 적용',
-      lowMemoryRestartDesc:
-        '저메모리 백그라운드 모드 설정이 저장되었습니다. 실행 모드는 앱을 재시작해야 전환됩니다.',
-      lowMemoryRestartNow: '지금 재시작',
-      lowMemoryCapsuleErrorLabel: '네이티브 캡슐을 사용할 수 없음',
-      lowMemoryCapsuleErrorDesc:
-        '받아쓰기는 계속 사용할 수 있지만 플로팅 캡슐이 표시되지 않습니다. 헬퍼가 없거나 차단되었을 수 있습니다. 앱을 다시 설치해 주세요.',
       startMinimizedLabel: '시작 시 메인 창 숨기기',
       startMinimizedDesc:
         '모든 시작 경로에서 메인 창을 열지 않고 메뉴 막대 / 트레이에서만 실행합니다.',
@@ -1736,6 +1727,7 @@ export const ko: typeof zhCN = {
       nameHint:
         '같은 제공업체의 여러 채널을 구분하는 이름입니다. 모델이나 연결에는 영향을 주지 않습니다.',
       errModel: '모델',
+      errThinking: '사고 켜기 필요',
       verify: '검증',
       verifyHint: '실제로 API를 한 번 호출해 이 채널이 지금 되는지 확인합니다',
       errTimeout: '시간 초과',
@@ -1761,7 +1753,7 @@ export const ko: typeof zhCN = {
       minutesAgo: '{{count}}분 전',
       hoursAgo: '{{count}}시간 전',
       daysAgo: '{{count}}일 전',
-      localEngineModelHint: 'AI 서비스 및 모델 → 로컬 모델에서 모델을 내려받고 전환할 수 있습니다.',
+      localEngineModelHint: 'AI와 모델 → 로컬 모델에서 모델을 내려받고 전환할 수 있습니다.',
     },
     providers: {
       localEngineNoCredentials: '로컬 엔진은 API 키나 엔드포인트가 필요 없습니다.',
@@ -1960,6 +1952,8 @@ export const ko: typeof zhCN = {
       llmProtocolHeaderConflict:
         'Messages 인증 및 버전 헤더는 자동 설정됩니다. 추가 헤더에서 x-api-key와 anthropic-version을 제거하세요.',
       llmStreamError: '서버가 스트림 오류를 반환했습니다. 모델과 요청 설정을 확인하세요.',
+      llmThinkingRequired:
+        '이 모델은 사고를 끌 수 없습니다. 모델 옆의 "사고"를 켠 뒤 다시 검증하세요.',
       saveProtocol: '프로토콜 설정 저장',
       thinkingModeHint:
         '선택한 요청 형식과 모델이 지원하는 매개변수로 사고를 켜거나 끄거나 줄입니다. 프롬프트에 제어 지시를 추가하지 않습니다.',
@@ -2269,7 +2263,10 @@ export const ko: typeof zhCN = {
       streamingInsertHintWindows: 'SendInput Unicode 로 TSF / IME 를 우회. 입력 소스 전환 불필요.',
       streamingInsertHintLinux:
         'fcitx5 플러그인으로 텍스트 전송. 스트리밍 입력은 enigo + XTest 키 합성 사용.',
-      windowsCompositionInputLabel: '실시간 원문을 입력창에 표시 (Windows)',
+      macosCompositionInputLabel: '입력란에 실시간 원문 표시',
+      macosCompositionInputDesc:
+        '녹음 중 인식한 원문을 원래 입력란에 표시하고 완료 후 정리하거나 번역한 결과로 바꿉니다. 손쉬운 사용 권한과 지원되는 편집기가 필요합니다. 커서를 이동하거나 직접 편집하면 실시간 교체를 중지합니다.',
+      windowsCompositionInputLabel: '실시간 원문을 입력창에 표시',
       windowsCompositionInputDesc:
         '녹음 중 인식된 텍스트를 밑줄이 그어진 조합 텍스트로 입력창에 표시하고, 완료되면 최종 결과로 바꿉니다. OpenLess TSF 입력 구성 요소와 TSF를 지원하는 앱이 필요합니다.',
       streamingInsertSaveClipboardLabel: '클립보드에 저장',
@@ -2456,6 +2453,10 @@ export const ko: typeof zhCN = {
     details: '오류 세부 정보',
   },
   modal: {
+    backToTestingFeatures: '테스트 중인 기능으로 돌아가기',
+
+    experimentsTitle: '실험 및 확장',
+    experimentsDescription: '실험 기능과 확장 옵션을 설정합니다.',
     serviceViews: {
       label: '서비스 설정',
       llm: '언어 모델',
@@ -2475,27 +2476,34 @@ export const ko: typeof zhCN = {
     searchCount: '관련 카테고리 {{count}}개',
     noResults: '일치하는 카테고리가 없습니다. “마이크”, “모델” 또는 “테마”를 검색해 보세요.',
     autoSaveHint: '변경 사항이 자동 저장됩니다',
-    backToAdvanced: '실험 및 확장으로 돌아가기',
-    backToTestingFeatures: '테스트 중인 기능으로 돌아가기',
+    backToAdvanced: '고급 기능으로 돌아가기',
+    back: '뒤로',
     advancedPages: {
-      customSyncServer: '자체 호스팅 서비스 전용입니다. 공식 동기화는 설정이 필요하지 않습니다.',
-      localModels: experimentalAsr.description,
       testingFeatures: '필요할 때 테스트 중인 기능을 활성화합니다.',
-      vocabularyLearning:
-        '음성 입력 후 수동 수정으로 학습하고 관찰 시간, 확인 시간, 글자 수를 설정합니다.',
       lessComputer: 'Agent를 선택하고 모델, 권한, 작업 디렉터리를 설정합니다.',
       claudeConsole: 'Claude Code를 감지하고 테스트 작업의 실행 출력을 확인합니다.',
+
+      liveInput: '입력란의 실시간 원문 표시를 설정합니다.',
+      experiments: '실험 기능과 확장 옵션을 설정합니다.',
+      customSyncServer: '자체 호스팅 서비스 전용입니다. 공식 동기화는 설정이 필요하지 않습니다.',
+      localModels: experimentalAsr.description,
+      vocabularyLearning:
+        '음성 입력 후 수동 수정으로 학습하고 관찰 시간, 확인 시간, 글자 수를 설정합니다.',
       multimodal: '실험적 멀티모달 인식 기능의 사용 여부를 설정합니다.',
       debug: '디버그 녹음을 보관하고 커서 문맥을 확인하며 로그를 내보냅니다.',
+      voiceEnhancement: '고급 오디오 처리, 소음 감소, 재생 에코 억제를 설정합니다.',
+      cursorContext: '다듬기 요청에 쓰는 커서 주변 문맥과 짧은 입력 처리를 설정합니다.',
+      startupDiagnostics: '시작 시간, 백엔드 연결, 지연 검사를 확인합니다.',
     },
     descriptions: {
-      general: '마이크, 녹음 방식, 텍스트 입력을 설정하고 휴대폰 입력을 연결합니다.',
+      general: '마이크 모니터링, 캡슐 스타일, 텍스트 삽입, 원격 입력.',
       inputMethod: 'Android 오버레이와 입력 방법을 설정합니다.',
       shortcuts: '기능별 단축키와 텍스트 선택 후 동작을 설정합니다.',
       services: '음성 인식과 텍스트 처리 서비스, 채널, 로컬 모델 및 연결을 관리합니다.',
+      cloudServices: '확장 마켓, GitHub 로그인, 암호화된 클라우드 동기화를 관리합니다.',
       appearance: '테마, 페이지 배치, 인터페이스 언어를 편하게 읽도록 조정합니다.',
       privacy: '시스템 권한과 연결을 확인하고 기록, 녹음 및 로컬 데이터를 관리합니다.',
-      advanced: '테스트 기능, 어휘 학습 및 디버깅 도구를 설정합니다.',
+      advanced: '실험 기능과 확장 옵션을 설정합니다.',
       about: '현재 버전, 업데이트 채널 및 자동 업데이트 설정을 확인합니다.',
     },
     searchKeywords: {
@@ -2504,21 +2512,23 @@ export const ko: typeof zhCN = {
       shortcuts: '단축키 핫키 키 조합 선택 다듬기 음성 편집',
       services:
         'ASR LLM API 채널 모델 클라우드 로컬 네트워크 프록시 마켓 멀티모달 인식 파이프라인 Omni',
+      cloudServices: '클라우드 동기화 암호화 마켓 GitHub 로그인 공식',
       appearance: '테마 다크 라이트 언어 글꼴 글자 크기 배치 레이아웃 히트맵',
       privacy: '권한 마이크 접근성 기록 녹음 저장 개인정보 내보내기',
       advanced:
-        'Less Computer Claude Agent 멀티모달 Omni 디버그 로그 실험 수정으로 단어 학습 vocabulary learning',
+        'Less Computer Claude Agent 멀티모달 Omni 디버그 로그 실험 수정으로 단어 학습 vocabulary learning manual edits vocabulary learning Beta ',
       about: '버전 Beta 안정 업데이트 업그레이드',
     },
 
     sections: {
       appearance: '모양 및 언어',
       shortcuts: '단축키 및 선택',
-      general: '녹음 및 입력',
+      general: '일반',
       inputMethod: '입력 방법',
-      services: 'AI 서비스 및 모델',
+      services: 'AI와 모델',
+      cloudServices: '클라우드 서비스',
       privacy: '권한 및 데이터',
-      advanced: '실험 기능 및 확장',
+      advanced: '고급 기능',
       personalize: '개인 설정',
       about: '정보 및 업데이트',
       helpCenter: '도움말 센터',
@@ -2806,5 +2816,108 @@ export const ko: typeof zhCN = {
     downloadProgressHint:
       '시작 후 모델 페이지에서 진행 상황을 확인하거나 다운로드를 취소할 수 있습니다.',
     errorDetails: '오류 세부 정보',
+  },
+  lessComputer: {
+    activity: {
+      process: '처리 과정',
+      count: '활동 {{count}}개',
+      count_one: '활동 {{count}}개',
+      count_other: '활동 {{count}}개',
+      finished: '완료',
+      stopped: '중지됨',
+      search: '검색',
+      searchRunning: '검색 중…',
+      read: '읽기',
+      readRunning: '읽는 중…',
+      command: '명령',
+      commandRunning: '명령 실행 중…',
+      edit: '편집',
+      editRunning: '편집 중…',
+      web: '웹',
+      webRunning: '웹페이지 확인 중…',
+      other: '도구',
+      otherRunning: '처리 중…',
+    },
+    desktop: {
+      approvedSubmitted: '허용을 제출했습니다',
+      deniedSubmitted: '거부를 제출했습니다',
+      agents: '내 에이전트',
+      configured: '현재 설정',
+      agentSettings: '설정에서 선택',
+      sessionUnavailable: '새 대화 · 아직 지원 안 함',
+      signedIn: '로그인됨',
+      signIn: '로그인',
+      currentSession: '현재 대화',
+      minimize: '최소화',
+      maximize: '최대화 / 복원',
+      windowError: '창 작업에 실패했습니다. 다시 시도하세요.',
+      idle: '지시 대기 중',
+      waitingApproval: '승인 대기 중',
+      submittingApproval: '제출 중…',
+      approvalError: '승인이 제출되지 않았습니다. 다시 시도하세요.',
+      approvalExpired: '이 차례는 종료되어 더 이상 승인할 수 없습니다.',
+      sendError: '전송하지 못했습니다. 입력 내용은 유지됩니다. 다시 시도하세요.',
+      browserUnavailable:
+        '브라우저 미리보기에서는 명령을 실행할 수 없습니다. 데스크톱 앱을 사용하세요.',
+      inputHint: 'Enter로 전송 · Shift + Enter로 줄 바꿈',
+      apiCost: '이번 API 비용',
+      emptyHint: '작업을 입력하거나, 마이크를 누르거나, 음성 단축키로 시작하세요.',
+      showInspector: '작업 패널 보기',
+      hideInspector: '작업 패널 숨기기',
+      inspectorTitle: '작업 공간',
+      inspectorStatus: '상태',
+      inspectorTurn: '이번 턴',
+      toolCalls: '도구 호출',
+      pendingApprovals: '확인 대기',
+      inspectorVoice: '음성 입력',
+      voiceShortcutOff: '음성 단축키가 설정되지 않았습니다. 설정에서 켤 수 있습니다.',
+      voiceModesHint:
+        '마이크: 말한 내용이 입력창에 들어가 수정한 뒤 보낼 수 있습니다. 음성 버튼: 말을 멈추면 바로 에이전트에 보냅니다.',
+      copy: '복사',
+      copied: '복사됨',
+      messagePlaceholder: '{{agent}}에게 메시지',
+    },
+    voice: {
+      dictate: '입력창에 받아쓰기',
+      voiceMode: '음성 모드(멈추면 전송)',
+      stopTask: '작업 중지',
+      cancel: '녹음 취소',
+      confirmDictation: '받아쓰기 완료',
+      stopAndSend: '멈추고 보내기',
+      listening: '듣는 중…',
+      starting: '마이크 준비 중…',
+      transcribing: '받아쓰는 중…',
+      empty: '들린 내용이 없습니다. 다시 말씀해 주세요.',
+      failed: '음성 인식에 실패했습니다. 다시 시도해 주세요.',
+      startFailed: '녹음을 시작할 수 없습니다: {{message}}',
+      taskCancelFailed: '작업이 중지되지 않았습니다. 다시 시도해 주세요.',
+      dictateCaption:
+        '다 말했으면 ✓를 누르세요. 텍스트가 입력창에 들어가 수정할 수 있습니다 · Esc로 취소',
+      submitCaption: '↑를 누르면 바로 에이전트에 보냅니다 · Esc로 취소',
+      stopHint: '작업 실행 중: ■를 눌러 중지',
+      holdHint: '{{key}}를 누른 채 말하기',
+      toggleHint: '{{key}}를 눌러 시작 또는 종료',
+      autoHint: '{{key}}를 길게 또는 짧게 눌러 말하기',
+    },
+    title: 'Less Computer',
+    subtitle: '컴퓨터로 무엇을 할까요?',
+    you: '나',
+    working: '조작 중…',
+    tool: '{{name}} 사용',
+    compaction: '컨텍스트가 압축되었습니다',
+    done: '완료',
+    cost: '${{cost}}',
+    error: '실패했습니다. 다시 시도하세요.',
+    closeTooltip: '닫기',
+    jumpToLatest: '최신으로 이동',
+    inputPlaceholder: '명령을 입력하고 Enter로 전송',
+    send: '전송',
+    approvalTitle: '차단된 명령을 실행할까요?',
+    approvalRerunWarning:
+      '주의: 승인하면 이미 수정된 작업 공간에서 다시 실행되어 멱등하지 않은 작업에 부작용이 생길 수 있습니다.',
+    approve: '허용',
+    deny: '거부',
+    approved: '허용됨',
+    denied: '거부됨',
   },
 };
