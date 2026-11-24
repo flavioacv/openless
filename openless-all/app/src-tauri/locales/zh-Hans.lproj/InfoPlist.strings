@@ -2,3 +2,5 @@
 "NSSpeechRecognitionUsageDescription" = "OpenLess 使用 Apple 语音识别来听写你的语音。";
 "NSAccessibilityUsageDescription" = "OpenLess 需要辅助功能权限来监听全局快捷键并把识别结果粘贴到当前光标位置。";
 "NSAppleEventsUsageDescription" = "OpenLess 需要发送按键事件，把识别结果粘贴到当前光标位置。";
+
+"NSAudioCaptureUsageDescription" = "OpenLess 使用系统播放声音作为临时参考来抑制听写回声，不会保存或上传播放参考。";

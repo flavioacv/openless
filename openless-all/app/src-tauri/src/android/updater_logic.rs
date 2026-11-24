@@ -21,15 +21,9 @@ pub fn map_abi_to_arch(abi: &str) -> &'static str {
     }
 }
 
-pub fn version_is_newer(remote: &str, current: &str) -> bool {
-    let (Ok(remote), Ok(current)) = (
-        semver::Version::parse(remote),
-        semver::Version::parse(current),
-    ) else {
-        return false;
-    };
-    remote > current
-}
+#[path = "update_version.rs"]
+mod update_version;
+pub use update_version::version_is_newer;
 
 pub fn stable_manifest_urls(arch: &str) -> Vec<String> {
     vec![

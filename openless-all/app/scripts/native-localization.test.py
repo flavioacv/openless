@@ -56,7 +56,8 @@ class NativeLocalizationTests(unittest.TestCase):
         config = json.loads((ROOT / 'src-tauri/tauri.conf.json').read_text())
         base = plistlib.loads((ROOT / 'src-tauri/Info.plist').read_bytes())
         keys = {key for key in base if key.endswith('UsageDescription')}
-        self.assertEqual(len(keys), 4)
+        self.assertEqual(len(keys), 5)
+        self.assertIn("NSAudioCaptureUsageDescription", keys)
         for locale in ['pt', 'pt-BR', 'en', 'zh-Hans', 'zh-Hant']:
             self.assertIn(locale, base['CFBundleLocalizations'])
             source = f'locales/{locale}.lproj/InfoPlist.strings'

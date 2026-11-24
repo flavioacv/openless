@@ -50,6 +50,8 @@ pub mod wgpu_device;
 pub mod siri_wgpu;
 
 pub use audio::LinuxCpalRecorder;
+#[cfg(target_os = "linux")]
+pub use audio::{list_loopback_devices, start_reference_capture, ReferenceCapture};
 pub use audio_cue::{play_cue_start, play_cue_stop, CueTone};
 pub use audio_mute::AudioMuteGuard;
 pub use audio_player::ClipPlayer;
@@ -90,12 +92,17 @@ pub fn apply_selection_voice_target(
     fcitx5::apply_selection_target(session_id, source, replacement)
 }
 pub use hotkeys::{Fcitx5HotkeyListener, LinuxHotkeyEvent};
-pub use i18n::{fmt_catalog as fmt_l10n, tr_catalog as tr_l10n, Lang, LocalePref, LANGS};
+pub use i18n::{
+    fmt_catalog as fmt_l10n, provider_error_text, tr_catalog as tr_l10n, Lang, LocalePref, LANGS,
+};
 pub use local_hotkeys::{
     next_local_press_id, plugin_event_hotkey, style_pack_raw, translation_hotkey_event,
     HotkeyDeduplicator, LocalHotkey, LocalHotkeyEdge, LocalHotkeyEdgeKind, HOTKEY_DEDUPE_WINDOW,
 };
-pub use logging::{export_error_log, init_file_logger, log_path};
+pub use logging::{
+    export_error_log, export_error_logs, init_file_logger, level_name, log_path, read_log_level,
+    write_log_level,
+};
 pub use popup::{
     force_x11_for, popup_command, read_jsonl, run_popup, write_jsonl,
     ApplyOutcome as PopupApplyOutcome, CapsulePopupState, CapsuleSuggestion, HostToPopup,

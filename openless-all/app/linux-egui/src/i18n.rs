@@ -149,11 +149,85 @@ const fn row(
 //     that the zh-CN column is fully populated and that every key actually
 //     referenced resolves.
 pub const CATALOG: &[Msg] = &[
+    Msg { key: "settings.audioDsp.eqPresets", text: row("均衡器预设", "均衡器預設", "Equalizer presets", "イコライザープリセット", "이퀄라이저 프리셋") },
+    Msg { key: "settings.audioDsp.eqNormal", text: row("平直", "平直", "Flat", "フラット", "플랫") },
+    Msg { key: "settings.audioDsp.eqBright", text: row("明亮人声", "明亮人聲", "Bright vocal", "明るい声", "밝은 음성") },
+    Msg { key: "settings.audioDsp.eqDeep", text: row("低沉人声", "低沉人聲", "Deep voice", "低い声", "낮은 음성") },
+    Msg { key: "settings.audioDsp.eqPodcast", text: row("播客", "播客", "Podcast", "ポッドキャスト", "팟캐스트") },
+    Msg { key: "settings.audioDsp.eqClarity", text: row("清晰人声", "清晰人聲", "Vocal clarity", "明瞭な声", "선명한 음성") },
+    Msg { key: "settings.audioDsp.eqWarm", text: row("温暖人声", "溫暖人聲", "Warm vocal", "温かい声", "따뜻한 음성") },
     Msg { key: "settings.audioDsp.disabledHint", text: row("开启上方语音增强开关后可调整，当前配置已保留。", "開啟上方語音增強開關後可調整，目前設定已保留。", "Enable speech enhancement above to adjust these settings. Your configuration is retained.", "上の音声強調を有効にすると調整できます。設定は保持されています。", "위에서 음성 향상을 켜면 조정할 수 있습니다. 설정은 유지됩니다.") },
     Msg { key: "settings.audioDsp.moveUp", text: row("上移处理阶段", "上移處理階段", "Move stage up", "処理を上へ移動", "처리 단계 위로 이동") },
     Msg { key: "settings.audioDsp.moveDown", text: row("下移处理阶段", "下移處理階段", "Move stage down", "処理を下へ移動", "처리 단계 아래로 이동") },
+    Msg {
+        key: "settings.audioDsp.aecStage",
+        text: row("回声消除", "回聲消除", "Echo cancellation", "エコーキャンセル", "에코 제거"),
+    },
+    Msg {
+        key: "settings.audioDsp.echoStage",
+        text: row("回声消除与缓冲", "回聲消除與緩衝", "Echo cancellation and buffering", "エコーキャンセルとバッファ", "에코 제거 및 버퍼"),
+    },
+    Msg {
+        key: "settings.audioDsp.aecOff",
+        text: row("关闭", "關閉", "Off", "オフ", "끄기"),
+    },
+    Msg {
+        key: "settings.audioDsp.aecLight",
+        text: row("轻量（省 CPU）", "輕量（省 CPU）", "Light (low CPU)", "軽量（低 CPU）", "경량(저 CPU)"),
+    },
+    Msg {
+        key: "settings.audioDsp.aecModel",
+        text: row("模型（更强）", "模型（更強）", "Model (stronger)", "モデル（高精度）", "모델(강화)"),
+    },
+    Msg {
+        key: "settings.audioDsp.aecModelCost",
+        text: row(
+            "模型版抑制更强，但约是轻量版的 3 倍 CPU；老机器建议用轻量。",
+            "模型版抑制更強，但約是輕量版的 3 倍 CPU；舊機器建議用輕量。",
+            "The model cancels more echo but costs about 3× the CPU; prefer Light on older machines.",
+            "モデル版はより強く抑圧しますが CPU は約 3 倍です。古い端末では軽量版を推奨します。",
+            "모델 버전은 더 강하게 제거하지만 CPU를 약 3배 사용합니다. 오래된 기기에서는 경량을 권장합니다.",
+        ),
+    },
+    Msg {
+        key: "settings.audioDsp.aecReferenceLabel",
+        text: row("扬声器参考源", "揚聲器參考源", "Speaker reference", "スピーカー参照", "스피커 참조"),
+    },
+    Msg {
+        key: "settings.audioDsp.aecReferenceDesc",
+        text: row(
+            "采集哪台扬声器的回环信号供回声消除使用；没有回环源时 AEC 只能在没有参考的情况下工作。",
+            "擷取哪台揚聲器的回環訊號供回聲消除使用；沒有回環源時 AEC 只能在沒有參考的情況下運作。",
+            "Which speaker loopback feeds echo cancellation; without a loopback source AEC runs without a reference.",
+            "どのスピーカーのループバックをエコーキャンセルに使うか。ループバック元がない場合、AEC は参照なしで動作します。",
+            "어떤 스피커의 루프백을 에코 제거에 사용할지 선택합니다. 루프백 소스가 없으면 AEC는 참조 없이 동작합니다.",
+        ),
+    },
+    Msg {
+        key: "settings.audioDsp.aecReferenceAuto",
+        text: row("自动（默认扬声器）", "自動（預設揚聲器）", "Automatic (default speaker)", "自動（既定のスピーカー）", "자동(기본 스피커)"),
+    },
+    Msg {
+        key: "settings.audioDsp.aecReferenceOff",
+        text: row("不采集参考", "不擷取參考", "Do not capture a reference", "参照を取得しない", "참조를 수집하지 않음"),
+    },
+    Msg {
+        key: "settings.audioDsp.acousticEchoCancellation",
+        text: row("声学回声消除（AEC）", "聲學回聲消除（AEC）", "Acoustic echo cancellation (AEC)", "音響エコーキャンセル（AEC）", "음향 에코 제거(AEC)"),
+    },
+    Msg {
+        key: "settings.audioDsp.AEC_needs_a_loudspeaker_reference",
+        text: row(
+            "外放时压掉扬声器回授；没有参考信号时不会起作用，戴耳机可以关掉。",
+            "外放時壓掉揚聲器回授；沒有參考訊號時不會起作用，戴耳機可以關掉。",
+            "Suppresses loudspeaker feedback while on speaker; it does nothing without a reference signal, so leave it off with headphones.",
+            "スピーカー使用時の回り込みを抑えます。参照信号がないと効果はないため、ヘッドホンならオフのままで構いません。",
+            "스피커 사용 시 되먹임을 줄입니다. 참조 신호가 없으면 효과가 없으므로 헤드폰이면 꺼 두세요.",
+        ),
+    },
     Msg { key: "settings.audioDsp.noiseStage", text: row("降噪", "降噪", "Noise reduction", "ノイズ低減", "잡음 감소") },
-    Msg { key: "settings.audioDsp.combStage", text: row("梳状滤波", "梳狀濾波", "Comb filter", "コムフィルター", "콤 필터") },
+    Msg { key: "settings.audioDsp.roomStage", text: row("音色与房间", "音色與房間", "Tone and room", "音色と残響", "음색과 잔향") },
+    Msg { key: "settings.audioDsp.combStage", text: row("梳状滤波（简易去混响）", "梳狀濾波（簡易去混響）", "Comb filter (simple dereverb)", "コムフィルター（簡易デリバーブ）", "콤 필터(간이 디버브)") },
     Msg { key: "settings.audioDsp.Speech_enhancement_settings", text: row("语音增强设置", "語音增強設置", "Speech enhancement settings", "音声強調設定", "음성 향상 설정") },
     Msg { key: "settings.audioDsp.RNNoise_is_lightweight_PureVox_uses_more_CPU_Changes_apply_to_the_next_recording", text: row("RNNoise 更轻量，PureVox 模型降噪耗时较高。设置在下一次录音生效。", "RNNoise 更輕量，PureVox 模型降噪耗時較高。設置在下一次錄音生效。", "RNNoise is lightweight; PureVox uses more CPU. Changes apply to the next recording.", "RNNoise は軽量、PureVox は CPU 使用量が多めです。設定は次の録音に適用されます。", "RNNoise는 가볍고 PureVox는 CPU를 더 사용합니다. 설정은 다음 녹음에 적용됩니다.") },
     Msg { key: "settings.audioDsp.Noise_reduction_off", text: row("关闭降噪", "關闭降噪", "Noise reduction off", "ノイズ低減オフ", "잡음 감소 끄기") },
@@ -165,18 +239,18 @@ pub const CATALOG: &[Msg] = &[
     Msg { key: "settings.audioDsp.Target_level", text: row("目标电平 %", "目標電平 %", "Target level %", "目標レベル %", "목표 레벨 %") },
     Msg { key: "settings.audioDsp.Attack_speed", text: row("启动速度", "啟動速度", "Attack speed", "アタック速度", "어택 속도") },
     Msg { key: "settings.audioDsp.Release_speed", text: row("释放速度", "釋放速度", "Release speed", "リリース速度", "릴리스 속도") },
-    Msg { key: "settings.audioDsp.Speech_gate_does_not_stop_recording", text: row("语音门限（不自动停止录音）", "語音門限（不自動停止錄音）", "Speech gate (does not stop recording)", "音声ゲート（録音は停止しません）", "음성 게이트 (녹음을 중지하지 않음)") },
+    Msg { key: "settings.audioDsp.Speech_gate_does_not_stop_recording", text: row("低于门限的片段被衰减，录音不会因此停止。", "低於門檻的片段被衰減，錄音不會因此停止。", "Passages below the threshold are attenuated; recording never stops for them.", "しきい値を下回る区間は減衰されますが、録音は停止しません。", "임계값 미만 구간은 감쇠되지만 녹음은 중단되지 않습니다.") },
     Msg { key: "settings.audioDsp.Threshold_dB", text: row("门限 dB", "門限 dB", "Threshold dB", "しきい値 dB", "임계값 dB") },
     Msg { key: "settings.audioDsp.A_high_threshold_can_remove_quiet_speech", text: row("门限过高可能丢失轻声。", "門限過高可能丟失輕聲。", "A high threshold can remove quiet speech.", "しきい値が高いと小さな声が失われる場合があります。", "임계값이 높으면 작은 목소리가 사라질 수 있습니다.") },
     Msg { key: "settings.audioDsp.Tone_and_room_adjustments", text: row("音色与房间调整", "音色與房間調整", "Tone and room adjustments", "音色と室内音響の調整", "음색 및 실내 음향 조정") },
-    Msg { key: "settings.audioDsp.The_MicYou_comb_filter_can_color_speech_Start_at_0", text: row("梳状滤波沿用 MicYou 的延迟相减方式，可能改变音色，建议从 0% 开始。", "梳狀濾波沿用 MicYou 的延遲相減方式，可能改變音色，建議從 0% 开始。", "The MicYou comb filter can color speech. Start at 0%.", "MicYou のコムフィルターは音色を変える場合があります。0% から始めてください。", "MicYou 콤 필터는 음색을 바꿀 수 있습니다. 0%부터 시작하세요.") },
+    Msg { key: "settings.audioDsp.The_MicYou_comb_filter_can_color_speech_Start_at_0", text: row("把 10 ms 前的信号按比例减掉，能压掉一点早期反射，但会给音色染上金属感；从 0 开始试。真正的去混响需要频谱或模型方法，这里没做。", "把 10 ms 前的訊號按比例減掉，能壓掉一點早期反射，但會讓音色帶金屬感；從 0 開始試。真正的去混響需要頻譜或模型方法，這裡沒做。", "Subtracts the signal from 10 ms ago, trimming some early reflections at the cost of a metallic color; start at 0. Real dereverberation needs spectral or model-based methods, which this is not.", "10 ms 前の信号を差し引いて初期反射を少し抑えますが、金属的な音色になります。0 から試してください。本格的なデリバーブは周波数領域かモデル方式が必要で、ここでは未実装です。", "10 ms 전 신호를 비율로 빼서 초기 반사를 조금 줄이지만 금속성 음색이 생깁니다. 0부터 시작하세요. 실제 디버브는 주파수 영역이나 모델 방식이 필요하며 여기서는 구현되지 않았습니다.") },
     Msg { key: "settings.audioDsp.Comb_filter", text: row("梳状滤波 %", "梳狀濾波 %", "Comb filter %", "コムフィルター %", "콤 필터 %") },
     Msg { key: "settings.audioDsp.10_band_equalizer", text: row("十段均衡器", "十段均衡器", "10-band equalizer", "10 バンドイコライザー", "10밴드 이퀄라이저") },
     Msg { key: "settings.audioDsp.Preamp_dB", text: row("前置增益 dB", "前置增益 dB", "Preamp dB", "プリアンプ dB", "프리앰프 dB") },
     Msg { key: "settings.audioDsp.Processing_order", text: row("处理顺序", "處理順序", "Processing order", "処理順序", "처리 순서") },
     Msg { key: "settings.audioDsp.Equalizer", text: row("均衡器", "均衡器", "Equalizer", "イコライザー", "이퀄라이저") },
     Msg { key: "settings.audioDsp.Input_gain", text: row("输入增益", "輸入增益", "Input gain", "入力ゲイン", "입력 게인") },
-    Msg { key: "settings.audioDsp.Speech_gate", text: row("语音门限", "語音門限", "Speech gate", "音声ゲート", "음성 게이트") },
+    Msg { key: "settings.audioDsp.Speech_gate", text: row("噪声门限（不是人声检测）", "雜訊門檻（不是人聲偵測）", "Noise gate (not speech detection)", "ノイズゲート（音声検出ではありません）", "노이즈 게이트(음성 검출 아님)") },
     Msg { key: "settings.audioDsp.Reset_enhancement_settings", text: row("恢复增强默认设置", "恢復增強默認設置", "Reset enhancement settings", "強調設定を初期化", "향상 설정 초기화") },
     Msg { key: "settings.providers.presets.chatgptSiwc", text: row("ChatGPT Plan", "ChatGPT Plan", "ChatGPT Plan", "ChatGPT Plan", "ChatGPT Plan") },
     Msg { key: "siwc.description", text: row("符合条件的文本润色和翻译使用你的 ChatGPT 计划或积分余额。ASR 仍使用原渠道；额度不足时不会自动切换到 API Key。", "符合條件的文字潤飾和翻譯使用你的 ChatGPT 方案或點數。ASR 仍使用原管道；額度不足時不會自動切換至 API Key。", "Eligible text polishing and translation use your ChatGPT plan or credits. ASR keeps its existing provider. Usage limits never switch you to an API key automatically.", "対象の文章校正と翻訳には ChatGPT プランまたはクレジットを使用します。音声認識は従来のプロバイダーを使い、上限到達時に API キーへ自動切り替えしません。", "지원되는 텍스트 다듬기와 번역에 ChatGPT 요금제 또는 크레딧을 사용합니다. 음성 인식은 기존 서비스를 사용하며 한도에 도달해도 API 키로 자동 전환하지 않습니다.") },
@@ -392,6 +466,16 @@ pub const CATALOG: &[Msg] = &[
             "Thinking budget must be at least 1024 and below the output limit in fixed-budget mode.",
             "思考予算は1024以上、固定予算では最大出力未満にしてください。",
             "사고 예산은 1024 이상이며 고정 예산 모드에서는 출력 한도보다 작아야 합니다.",
+        ),
+    },
+    Msg {
+        key: "settings.providers.llmThinkingRequired",
+        text: row(
+            "该模型不接受关闭思考。请打开模型旁的「思考」开关后重新验证。",
+            "此模型不接受關閉思考。請開啟模型旁的「思考」開關後重新驗證。",
+            "This model does not accept thinking turned off. Turn on Thinking next to the model, then verify again.",
+            "このモデルは思考をオフにできません。モデル欄の横の「思考」をオンにしてから、もう一度検証してください。",
+            "이 모델은 사고를 끌 수 없습니다. 모델 옆의 \"사고\"를 켠 뒤 다시 검증하세요.",
         ),
     },
     // ---- Shell / navigation ------------------------------------------------
@@ -1468,6 +1552,7 @@ pub const CATALOG: &[Msg] = &[
     Msg { key: "status.channel_saved", text: row("渠道配置已保存", "管道設定已儲存", "Channel configuration saved", "チャネル設定を保存しました", "채널 설정 저장됨") },
     Msg { key: "status.secret_cleared", text: row("渠道 Secret 已清除", "管道 Secret 已清除", "Channel Secret cleared", "チャネルの Secret を消去しました", "채널 Secret 지워짐") },
     Msg { key: "status.provider_validated", text: row("Provider 验证通过（{} ms）", "Provider 驗證通過（{} ms）", "Provider validated ({} ms)", "Provider 検証成功（{} ms）", "Provider 검증 통과({}ms)") },
+    Msg { key: "status.log_level_saved", text: row("日志级别已保存，重启 OpenLess 后生效", "日誌等級已儲存，重新啟動 OpenLess 後生效", "Log level saved; restart OpenLess to apply", "ログレベルを保存しました。OpenLess の再起動で反映されます", "로그 레벨을 저장했습니다. OpenLess를 다시 시작하면 적용됩니다") },
     Msg { key: "status.export_log_done", text: row("错误日志已导出", "錯誤日誌已匯出", "Error log exported", "エラーログをエクスポートしました", "오류 로그 내보냄") },
     Msg { key: "status.hotkey_handled", text: row("已处理快捷键", "已處理快速鍵", "Hotkey handled", "ホットキーを処理しました", "단축키 처리됨") },
     Msg { key: "status.launch_handled", text: row("已处理启动请求", "已處理啟動請求", "Launch request handled", "起動要求を処理しました", "시작 요청 처리됨") },
@@ -2606,6 +2691,16 @@ pub const CATALOG: &[Msg] = &[
         ),
     },
     Msg {
+        key: "settings.recording.echo_cancellation_label",
+        text: row(
+            "播放回声抑制",
+            "播放回聲抑制",
+            "Playback echo cancellation",
+            "再生エコーキャンセル",
+            "재생 에코 제거",
+        ),
+    },
+    Msg {
         key: "settings.recording.mute_during_recording_label",
         text: row(
             "录音时静音",
@@ -2615,7 +2710,7 @@ pub const CATALOG: &[Msg] = &[
             "녹음 중 음소거",
         ),
     },
-        Msg {
+    Msg {
         key: "settings.recording.paste_shortcut_label",
         text: row(
             "模拟粘贴快捷键",
@@ -3795,6 +3890,48 @@ pub const CATALOG: &[Msg] = &[
         ),
     },
     Msg {
+        key: "settings.recording.archive_processed_label",
+        text: row("保存处理后的音频", "儲存處理後的音訊", "Keep processed audio", "処理後の音声を保存", "처리된 오디오 저장"),
+    },
+    Msg {
+        key: "settings.recording.archive_processed_desc",
+        text: row(
+            "降噪与增益之后的版本，仍保存在原来的录制文件里（quick note 播放、本地模型回退都用它）。",
+            "降噪與增益之後的版本，仍存於原本的錄製檔案（quick note 播放、本機模型回退都用它）。",
+            "The version after noise reduction and gain, still stored in the existing recording file (used by quick-note playback and the local model fallback).",
+            "ノイズ低減とゲイン適用後の音声で、従来の録音ファイルに保存されます（クイックノート再生とローカルモデルのフォールバックが使います）。",
+            "노이즈 감소와 게인 적용 후의 오디오로, 기존 녹음 파일에 저장됩니다(퀵노트 재생과 로컬 모델 폴백이 사용).",
+        ),
+    },
+    Msg {
+        key: "settings.recording.archive_raw_label",
+        text: row("另存一份处理前的音频", "另存一份處理前的音訊", "Also keep pre-processing audio", "処理前の音声も保存", "처리 전 오디오도 저장"),
+    },
+    Msg {
+        key: "settings.recording.archive_raw_desc",
+        text: row(
+            "同一目录下另存 <会话>.raw.wav，可与上面那份逐段对照；只开这一项时，原始音频直接存进主档案。",
+            "同一目錄下另存 <session>.raw.wav，可與上面那份逐段對照；只開這一項時，原始音訊直接存進主檔案。",
+            "Writes <session>.raw.wav next to it so you can compare segment by segment; with only this enabled the raw audio goes into the main archive.",
+            "同じフォルダに <session>.raw.wav を追加保存し、上記と区間ごとに比較できます。これだけを有効にすると元音声がメインファイルに保存されます。",
+            "같은 폴더에 <session>.raw.wav를 함께 저장해 구간별로 비교할 수 있습니다. 이것만 켜면 원본 오디오가 기본 파일에 저장됩니다.",
+        ),
+    },
+    Msg {
+        key: "settings.debug.log_level_label",
+        text: row("日志级别", "日誌等級", "Log level", "ログレベル", "로그 레벨"),
+    },
+    Msg {
+        key: "settings.debug.log_level_desc",
+        text: row(
+            "debug 记录心跳与 IPC 细节，排查问题时更有用；选择后需重启 OpenLess 生效。",
+            "debug 記錄心跳與 IPC 細節，排查問題時更有用；選擇後需重新啟動 OpenLess 生效。",
+            "debug records heartbeats and IPC details, which is what support needs; restart OpenLess to apply.",
+            "debug はハートビートと IPC の詳細を記録します（調査向け）。OpenLess の再起動で反映されます。",
+            "debug는 하트비트와 IPC 세부 정보를 기록합니다(문제 해결용). OpenLess를 다시 시작해야 적용됩니다.",
+        ),
+    },
+    Msg {
         key: "settings.recording.record_audio_for_debug_label",
         text: row(
             "保留原始录音（调试）",
@@ -4717,6 +4854,16 @@ pub const CATALOG: &[Msg] = &[
         ),
     },
         Msg {
+        key: "settings.recording.echo_cancellation_desc",
+        text: row(
+            "保持系统播放声音，同时使用桌面音频输出作为参考抑制回声。部分设备、蓝牙路径或 Linux ALSA 环境可能不可用。",
+            "保持系統播放聲音，同時使用桌面音訊輸出作為參考抑制回聲。部分裝置、藍牙路徑或 Linux ALSA 環境可能不可用。",
+            "Use desktop output as a reference while keeping playback audible; some devices, Bluetooth routes, or Linux ALSA setups may be unavailable.",
+            "再生音を聞きながらデスクトップ出力を参照してエコーを抑制します。デバイス、Bluetooth、Linux ALSA では利用できない場合があります。",
+            "재생을 계속 들으면서 데스크톱 출력을 참조해 에코를 줄입니다. 일부 장치, Bluetooth 경로 또는 Linux ALSA에서는 사용할 수 없을 수 있습니다.",
+        ),
+    },
+    Msg {
         key: "settings.recording.paste_shortcut_desc",
         text: row(
             "插入时模拟按下的粘贴键，部分终端类应用需要 Ctrl+Shift+V（仅 Windows / Linux）。",
@@ -8246,6 +8393,15 @@ pub fn tr_catalog<L: IntoLang>(lang: L, key: &'static str) -> &'static str {
     tr(CATALOG, lang, key)
 }
 
+/// Localize provider guidance at display time; stored validation codes stay unchanged.
+pub fn provider_error_text(lang: Lang, message: &str) -> &str {
+    if message == "llmThinkingRequired" || message.ends_with(": llmThinkingRequired") {
+        tr_catalog(lang, "settings.providers.llmThinkingRequired")
+    } else {
+        message
+    }
+}
+
 /// Global formatted lookup against [`CATALOG`].
 pub fn fmt_catalog<L: IntoLang>(lang: L, key: &str, args: &[&dyn Display]) -> String {
     fmt(CATALOG, lang, key, args)
@@ -8297,6 +8453,24 @@ mod tests {
         assert_eq!(tr(TEST_CATALOG, Lang::ZhCn, "k.missing_en"), "来源");
         // Fully translated keys return their own locale.
         assert_eq!(tr(TEST_CATALOG, Lang::En, "k.full"), "Full");
+    }
+
+    #[test]
+    fn thinking_required_provider_errors_are_localized_without_changing_other_errors() {
+        for lang in LANGS {
+            let expected = tr_catalog(lang, "settings.providers.llmThinkingRequired");
+            assert_ne!(expected, "settings.providers.llmThinkingRequired");
+            for message in [
+                "llmThinkingRequired",
+                "Provider: llmThinkingRequired",
+                "LLM provider failed: parse error: llmThinkingRequired",
+            ] {
+                assert_eq!(provider_error_text(lang, message), expected);
+            }
+            for message in ["providerHttpStatus:401", "notllmThinkingRequired"] {
+                assert_eq!(provider_error_text(lang, message), message);
+            }
+        }
     }
 
     #[test]

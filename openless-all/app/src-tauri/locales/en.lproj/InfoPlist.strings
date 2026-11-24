@@ -2,3 +2,5 @@
 "NSSpeechRecognitionUsageDescription" = "OpenLess uses Apple Speech Recognition to transcribe your speech.";
 "NSAccessibilityUsageDescription" = "OpenLess uses accessibility access for global shortcuts and to insert transcribed text at the cursor.";
 "NSAppleEventsUsageDescription" = "OpenLess sends keyboard events to paste transcribed text at the cursor.";
+
+"NSAudioCaptureUsageDescription" = "OpenLess uses system audio as a temporary local reference to reduce dictation echo. Playback reference audio is never saved or uploaded.";
