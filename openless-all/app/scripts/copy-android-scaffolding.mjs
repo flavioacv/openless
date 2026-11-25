@@ -182,6 +182,26 @@ export const SHIZUKU_STRINGS_BY_LOCALE = {
       'Shizuku 권한이 거부되었습니다. Shizuku를 열어 OpenLess를 수동으로 허용하세요.',
     openless_shizuku_open_manager: 'Shizuku 열기',
   },
+  'values-pt': {
+    openless_accessibility_description:
+      'O OpenLess usa a acessibilidade para detectar o teclado e colar os resultados do ditado sem trocar seu teclado atual.',
+    openless_ime_label: 'OpenLess Voz',
+    openless_shizuku_permission_rationale:
+      'O OpenLess precisa da autorização do Shizuku para recuperar opcionalmente a acessibilidade quando o sistema bloqueia a ativação manual.',
+    openless_shizuku_permission_blocked:
+      'A autorização do Shizuku foi negada. Abra o Shizuku e permita o OpenLess manualmente.',
+    openless_shizuku_open_manager: 'Abrir Shizuku',
+  },
+  'values-pt-rBR': {
+    openless_accessibility_description:
+      'O OpenLess usa a acessibilidade para detectar o teclado e colar os resultados do ditado sem trocar seu teclado atual.',
+    openless_ime_label: 'OpenLess Voz',
+    openless_shizuku_permission_rationale:
+      'O OpenLess precisa da autorização do Shizuku para recuperar opcionalmente a acessibilidade quando o sistema bloqueia a ativação manual.',
+    openless_shizuku_permission_blocked:
+      'A autorização do Shizuku foi negada. Abra o Shizuku e permita o OpenLess manualmente.',
+    openless_shizuku_open_manager: 'Abrir Shizuku',
+  },
 };
 
 export function formatStringResource(name, value) {

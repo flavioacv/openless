@@ -174,6 +174,18 @@ class OpenLessAccessibilityService : AccessibilityService() {
         vocabularyCard = null
     }
 
+    private fun ui(zh: String, en: String, pt: String = en): String {
+        val raw = getSharedPreferences("openless_ime_ui", MODE_PRIVATE)
+            .getString("locale", null)
+            ?.takeUnless { it.equals("system", ignoreCase = true) || it.isBlank() }
+            ?: resources.configuration.locales[0].toLanguageTag()
+        return when {
+            raw.startsWith("pt", ignoreCase = true) -> pt
+            !raw.startsWith("zh", ignoreCase = true) -> en
+            else -> zh
+        }
+    }
+
     private fun showVocabularyCard(json: String) {
         hideVocabularyCard()
         if (!OpenLessAndroidPreferences.overlayDisplayAllowed(this)) return
@@ -185,7 +197,7 @@ class OpenLessAccessibilityService : AccessibilityService() {
             orientation = android.widget.LinearLayout.VERTICAL
             setPadding(16, 12, 16, 12)
             setBackgroundColor(android.graphics.Color.rgb(38, 38, 42))
-            addView(android.widget.TextView(context).apply { text = "记住这个词？"; setTextColor(android.graphics.Color.WHITE) })
+            addView(android.widget.TextView(context).apply { text = ui("记住这个词？", "Remember this word?", "Lembrar esta palavra?"); setTextColor(android.graphics.Color.WHITE) })
         }
         for (entry in pending) {
             val row = android.widget.LinearLayout(this)
@@ -197,7 +209,7 @@ class OpenLessAccessibilityService : AccessibilityService() {
             for (accept in listOf(true, false)) {
                 row.addView(android.widget.Button(this).apply {
                     text = if (accept) "✓" else "×"
-                    contentDescription = if (accept) "加入词典" else "忽略"
+                    contentDescription = if (accept) ui("加入词典", "Add to dictionary", "Adicionar ao dicionário") else ui("忽略", "Ignore", "Ignorar")
                     setOnClickListener {
                         isEnabled = false
                         requestVocabulary("resolve", Bundle().apply {
@@ -206,7 +218,7 @@ class OpenLessAccessibilityService : AccessibilityService() {
                         }) { ok, _ ->
                             isEnabled = true
                             if (ok) refreshVocabularyCard()
-                            else android.widget.Toast.makeText(this@OpenLessAccessibilityService, "保存失败，请重试", android.widget.Toast.LENGTH_SHORT).show()
+                            else android.widget.Toast.makeText(this@OpenLessAccessibilityService, ui("保存失败，请重试", "Save failed; please retry", "Falha ao salvar, tente novamente"), android.widget.Toast.LENGTH_SHORT).show()
                         }
                     }
                 }, android.widget.LinearLayout.LayoutParams((56 * resources.displayMetrics.density).toInt(), -2))

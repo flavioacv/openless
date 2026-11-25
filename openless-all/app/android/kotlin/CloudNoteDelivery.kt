@@ -39,3 +39,24 @@ internal fun cloudNoteFailureMessage(
         else -> zh to en
     }
 }
+
+internal fun cloudNoteFailureMessagePt(
+    failure: CloudNoteFailure,
+    httpCode: Int = 0,
+    retained: Boolean,
+    persisted: Boolean,
+): String {
+    val detailPt = when (failure) {
+        CloudNoteFailure.MissingDestination ->
+            "Preencha o URL e o Token de notas na nuvem nas configurações"
+        CloudNoteFailure.Http ->
+            "Falha ao enviar nota na nuvem ($httpCode)"
+        CloudNoteFailure.Network ->
+            "Falha ao enviar nota na nuvem. Verifique a conexão"
+    }
+    return when {
+        persisted -> "$detailPt. O texto foi salvo na área de transferência do teclado."
+        retained -> "$detailPt. O texto está apenas na memória da área de transferência do teclado. Copie-o antes de reiniciar o app."
+        else -> detailPt
+    }
+}

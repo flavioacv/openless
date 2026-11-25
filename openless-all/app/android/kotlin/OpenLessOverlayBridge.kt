@@ -37,9 +37,29 @@ object OpenLessOverlayBridge {
     fun showToast(message: String) {
         mainHandler.post {
             val service = OpenLessOverlayService.instance ?: return@post
+            val app = service.applicationContext
+            val raw = app.getSharedPreferences("openless_ime_ui", android.content.Context.MODE_PRIVATE)
+                .getString("locale", null)
+                ?.takeUnless { it.equals("system", ignoreCase = true) || it.isBlank() }
+                ?: app.resources.configuration.locales[0].toLanguageTag()
+            val isPt = raw.startsWith("pt", ignoreCase = true)
+            val isEn = !raw.startsWith("zh", ignoreCase = true)
+            val localized = when {
+                isPt -> when (message) {
+                    "已复制到剪贴板" -> "Copiado para a área de transferência"
+                    "无法启动语音编辑，请确认已启用该功能并聚焦外部输入框" -> "Não foi possível iniciar a edição por voz. Verifique se o recurso está ativado e se há um campo externo focado."
+                    else -> message
+                }
+                isEn -> when (message) {
+                    "已复制到剪贴板" -> "Copied to clipboard"
+                    "无法启动语音编辑，请确认已启用该功能并聚焦外部输入框" -> "Cannot start voice editing. Make sure the feature is enabled and an external input field is focused."
+                    else -> message
+                }
+                else -> message
+            }
             android.widget.Toast.makeText(
-                    service.applicationContext,
-                    message,
+                    app,
+                    localized,
                     android.widget.Toast.LENGTH_SHORT,
                 )
                 .show()

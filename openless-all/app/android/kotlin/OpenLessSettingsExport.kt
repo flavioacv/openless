@@ -22,12 +22,12 @@ internal object OpenLessSettingsExport {
     private const val PREFS_STORE = "openless_ime_ui"
 
     /** One category = one row in the export/import checkbox dialog. Order here is the order shown. */
-    enum class Category(val key: String, val labelZh: String, val labelEn: String) {
-        CLOUD_NOTES("cloudNotes", "云笔记地址 / Token", "Cloud notes URL / token"),
-        HAPTIC("haptic", "震动反馈", "Haptic feedback"),
-        STROKE_FREQUENCY("strokeFrequency", "笔画调频", "Stroke ranking"),
-        PROVIDER_SELECTION("providerSelection", "ASR / LLM / 风格包 选择", "ASR / LLM / style pack selection"),
-        CREDENTIALS("credentials", "ASR / LLM API Key（明文，敏感）", "ASR / LLM API keys (plaintext, sensitive)"),
+    enum class Category(val key: String, val labelZh: String, val labelEn: String, val labelPt: String) {
+        CLOUD_NOTES("cloudNotes", "云笔记地址 / Token", "Cloud notes URL / token", "URL / Token de notas na nuvem"),
+        HAPTIC("haptic", "震动反馈", "Haptic feedback", "Resposta tátil (vibração)"),
+        STROKE_FREQUENCY("strokeFrequency", "笔画调频", "Stroke ranking", "Frequência de traços"),
+        PROVIDER_SELECTION("providerSelection", "ASR / LLM / 风格包 选择", "ASR / LLM / style pack selection", "Seleção de ASR / LLM / pacote de estilo"),
+        CREDENTIALS("credentials", "ASR / LLM API Key（明文，敏感）", "ASR / LLM API keys (plaintext, sensitive)", "Chaves de API ASR / LLM (texto simples, sensível)"),
     }
 
     fun export(context: Context, selected: Set<Category>): String {
@@ -134,7 +134,7 @@ internal object OpenLessSettingsExport {
         for (key in listOf("locale", "themeMode")) if (values.has(key)) require(values.get(key) is String)
         for (key in listOf("hapticEnabled", "englishSuggestionsEnabled", "debugFeaturesEnabled")) if (values.has(key)) require(values.get(key) is Boolean)
         for (key in listOf("hapticAmplitude", "hapticDurationMs")) if (values.has(key)) require(values.get(key) is Int || values.get(key) is Long)
-        if (values.has("locale")) require(values.getString("locale") in setOf("system", "zh-CN", "zh-TW", "en", "ja", "ko", "es", "fr", "de"))
+        if (values.has("locale")) require(values.getString("locale") in setOf("system", "zh-CN", "zh-TW", "en", "ja", "ko", "es", "fr", "de", "pt"))
         if (values.has("themeMode")) require(values.getString("themeMode") in setOf("system", "light", "dark"))
         if (values.has("hapticAmplitude")) require(values.getInt("hapticAmplitude") in 1..255)
         if (values.has("hapticDurationMs")) require(values.getLong("hapticDurationMs") in 1L..1000L)

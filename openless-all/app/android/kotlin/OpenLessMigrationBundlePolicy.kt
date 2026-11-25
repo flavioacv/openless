@@ -28,7 +28,7 @@ object OpenLessMigrationBundlePolicy {
             } else {
                 "zh-CN"
             }
-            "en", "ja", "ko", "es", "fr", "de" -> locale.language.lowercase(java.util.Locale.ROOT)
+            "en", "ja", "ko", "es", "fr", "de", "pt" -> locale.language.lowercase(java.util.Locale.ROOT)
             else -> "system"
         }
     }

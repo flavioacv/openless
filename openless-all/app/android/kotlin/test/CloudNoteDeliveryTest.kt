@@ -5,6 +5,21 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CloudNoteDeliveryTest {
+    @Test fun portugueseFailureKeepsTheRecoveryInstructions() {
+        assertEquals(
+            "Falha ao enviar nota na nuvem (503). O texto foi salvo na área de transferência do teclado.",
+            cloudNoteFailureMessagePt(CloudNoteFailure.Http, 503, retained = true, persisted = true),
+        )
+        val temporary = cloudNoteFailureMessagePt(CloudNoteFailure.Network, retained = true, persisted = false)
+        assertTrue(temporary.contains("apenas na memória"))
+        assertTrue(temporary.contains("Copie-o antes de reiniciar"))
+        assertFalse(temporary.contains("foi salvo"))
+        assertEquals(
+            "Preencha o URL e o Token de notas na nuvem nas configurações",
+            cloudNoteFailureMessagePt(CloudNoteFailure.MissingDestination, retained = false, persisted = false),
+        )
+    }
+
     @Test fun blankTranscriptIsNotRetained() {
         assertFalse(cloudNoteShouldRetain(""))
         assertFalse(cloudNoteShouldRetain("   "))

@@ -22,6 +22,11 @@ export const usagePt: Record<string, string> = {
   ASR: 'Reconhecimento de fala',
   Translation: 'Tradução',
   'Dictation processing': 'Processamento de ditado',
+  Selection: 'Seleção',
+  Questions: 'Perguntas',
+  'Quick note': 'Nota rápida',
+  'Voice editing': 'Edição por voz',
+  'Cloud note': 'Nota na nuvem',
   'Clear recorded tokens': 'Limpar tokens registrados',
   Usage: 'Uso',
   'Review retained local records by service and purpose.':

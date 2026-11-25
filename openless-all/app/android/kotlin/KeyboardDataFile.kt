@@ -22,12 +22,12 @@ internal object KeyboardDataFile {
     private const val MAX_PICKS = 50_000
     private const val PREFS_STORE = "openless_ime_ui"
 
-    enum class Section(val key: String, val labelZh: String, val labelEn: String) {
-        SETTINGS("keyboardSettings", "键盘设置（高度、震动、开关）", "Keyboard settings (size, haptics, switches)"),
-        PINYIN("pinyinUserDictionary", "拼音用户词典", "Pinyin user dictionary"),
-        STROKE("strokeCodes", "笔画调频", "Stroke ranking"),
-        ASSOCIATION("associations", "联想学习", "Association learning"),
-        CLOUD_NOTES("cloudNotes", "云笔记地址 / Token（明文）", "Cloud notes URL / token (plaintext)"),
+    enum class Section(val key: String, val labelZh: String, val labelEn: String, val labelPt: String) {
+        SETTINGS("keyboardSettings", "键盘设置（高度、震动、开关）", "Keyboard settings (size, haptics, switches)", "Configurações do teclado (altura, vibração, opções)"),
+        PINYIN("pinyinUserDictionary", "拼音用户词典", "Pinyin user dictionary", "Dicionário de usuário Pinyin"),
+        STROKE("strokeCodes", "笔画调频", "Stroke ranking", "Frequência de traços"),
+        ASSOCIATION("associations", "联想学习", "Association learning", "Aprendizado de associações"),
+        CLOUD_NOTES("cloudNotes", "云笔记地址 / Token（明文）", "Cloud notes URL / token (plaintext)", "URL / Token de notas na nuvem (texto simples)"),
     }
 
     /** An export starts with everything checked, the plaintext token included (the checklist marks it). */

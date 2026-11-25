@@ -10,7 +10,7 @@ import android.content.SharedPreferences
  * spelling index.
  */
 internal object RimeFuzzyPinyin {
-    data class Group(val id: String, val labelZh: String, val labelEn: String, val rules: List<String>)
+    data class Group(val id: String, val labelZh: String, val labelEn: String, val rules: List<String>, val labelPt: String = labelEn)
 
     val groups = listOf(
         Group("zcs", "z c s = zh ch sh", "z c s = zh ch sh", listOf("derive/^([zcs])h/\$1/", "derive/^([zcs])([^h])/\$1h\$2/")),
@@ -18,7 +18,7 @@ internal object RimeFuzzyPinyin {
         Group("fh", "f = h", "f = h", listOf("derive/^f/h/", "derive/^h/f/")),
         Group("rl", "r = l", "r = l", listOf("derive/^r/l/", "derive/^l/r/")),
         // an$ also covers ian/uan, so this pair includes ian = iang and uan = uang.
-        Group("ang", "an = ang（含 ian、uan）", "an = ang (incl. ian, uan)", listOf("derive/ang\$/an/", "derive/an\$/ang/")),
+        Group("ang", "an = ang（含 ian、uan）", "an = ang (incl. ian, uan)", listOf("derive/ang\$/an/", "derive/an\$/ang/"), "an = ang (incl. ian, uan)"),
         Group("eng", "en = eng", "en = eng", listOf("derive/eng\$/en/", "derive/en\$/eng/")),
         Group("ing", "in = ing", "in = ing", listOf("derive/ing\$/in/", "derive/in\$/ing/")),
     )

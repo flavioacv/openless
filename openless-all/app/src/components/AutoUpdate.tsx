@@ -76,7 +76,7 @@ type AndroidUpdatePayload = {
 };
 
 export function useAutoUpdate(): UseAutoUpdate {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const updateRef = useRef<Update | null>(null);
   const androidUpdateRef = useRef<AndroidUpdatePayload | null>(null);
   const [status, setStatus] = useState<UpdateStatus>('idle');
@@ -138,6 +138,52 @@ export function useAutoUpdate(): UseAutoUpdate {
   const resetProgress = () => {
     setDownloaded(0);
     setContentLength(null);
+  };
+
+  const localizeUpdaterError = (rawMessage: string): string => {
+    const trimmed = rawMessage.trim();
+    const language = (i18n.resolvedLanguage ?? i18n.language).toLowerCase();
+    const isPt = language.startsWith('pt');
+    const isZh = language.startsWith('zh');
+    if (isZh) return trimmed;
+    if (trimmed === '尚未发布过 Beta 版本') {
+      return isPt ? 'Nenhuma versão Beta foi publicada ainda.' : 'No Beta release published yet.';
+    }
+    if (trimmed === '无法获取更新清单') {
+      return isPt
+        ? 'Não foi possível obter o manifesto de atualização.'
+        : 'Unable to fetch update manifest.';
+    }
+    if (trimmed.startsWith('无法打开系统安装器')) {
+      return isPt
+        ? 'Não foi possível abrir o instalador do sistema: permita que o OpenLess instale apps desconhecidos nas configurações do sistema e tente novamente.'
+        : 'Unable to open system installer: allow OpenLess to install unknown apps in system settings and try again.';
+    }
+    const notFoundMatch = trimmed.match(/^更新清单不存在 \(404\): (.+)$/);
+    if (notFoundMatch) {
+      return isPt
+        ? `Manifesto de atualização não encontrado (404): ${notFoundMatch[1]}`
+        : `Update manifest not found (404): ${notFoundMatch[1]}`;
+    }
+    const httpMatch = trimmed.match(/^无法获取更新清单 \(HTTP (\d+)\): (.+)$/);
+    if (httpMatch) {
+      return isPt
+        ? `Não foi possível obter o manifesto de atualização (HTTP ${httpMatch[1]}): ${httpMatch[2]}`
+        : `Unable to fetch update manifest (HTTP ${httpMatch[1]}): ${httpMatch[2]}`;
+    }
+    const declaredSizeMatch = trimmed.match(/^APK 声明大小 (\d+) 字节超过上限 (\d+)，拒绝下载$/);
+    if (declaredSizeMatch) {
+      return isPt
+        ? `O tamanho declarado do APK (${declaredSizeMatch[1]} bytes) excede o limite (${declaredSizeMatch[2]}), download recusado.`
+        : `Declared APK size (${declaredSizeMatch[1]} bytes) exceeds limit (${declaredSizeMatch[2]}), download refused.`;
+    }
+    const downloadedSizeMatch = trimmed.match(/^下载字节数 (\d+) 超过上限 (\d+)，已终止$/);
+    if (downloadedSizeMatch) {
+      return isPt
+        ? `Os bytes baixados (${downloadedSizeMatch[1]}) excederam o limite (${downloadedSizeMatch[2]}), abortado.`
+        : `Downloaded bytes (${downloadedSizeMatch[1]}) exceeded limit (${downloadedSizeMatch[2]}), aborted.`;
+    }
+    return trimmed;
   };
 
   const storeAndroidMetadata = (metadata: AppUpdateMetadata) => {
@@ -210,7 +256,7 @@ export function useAutoUpdate(): UseAutoUpdate {
       console.error('[updater] failed to check update', error);
       const msg = error instanceof Error ? error.message : String(error);
       void logClientError(`[updater] check failed: ${msg}`);
-      setErrorMessage(msg);
+      setErrorMessage(localizeUpdaterError(msg));
       setStatus('error');
     }
   };
@@ -235,7 +281,7 @@ export function useAutoUpdate(): UseAutoUpdate {
         console.error('[updater] failed to install android update', error);
         const msg = error instanceof Error ? error.message : String(error);
         void logClientError(`[updater] android install failed (v${payload.version}): ${msg}`);
-        setErrorMessage(msg);
+        setErrorMessage(localizeUpdaterError(msg));
         setStatus('installError');
       }
       return;
