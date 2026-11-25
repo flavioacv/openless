@@ -56,7 +56,9 @@ const [{ Onboarding }, { HotkeySettingsProvider }, { i18nReady }] = await Promis
 ]);
 await i18nReady;
 const { default: i18n } = await import('../../src/i18n');
-await i18n.changeLanguage('zh-CN');
+if (new URLSearchParams(location.search).get('locale') !== 'pt') {
+  await i18n.changeLanguage('zh-CN');
+}
 
 function Fixture() {
   const [completed, setCompleted] = useState(false);

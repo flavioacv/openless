@@ -67,18 +67,14 @@ function persistAndroidOverlayPrefs(patch: Partial<UserPreferences>): Promise<An
 }
 
 type AndroidPermissionsPanelMode =
-  | 'all'
-  | 'permissionsOnly'
-  | 'accessibility'
-  | 'overlayPermission'
-  | 'overlayConfig';
+  'all' | 'permissionsOnly' | 'accessibility' | 'overlayPermission' | 'overlayConfig';
 
 interface AndroidPermissionsPanelProps {
   mode?: AndroidPermissionsPanelMode;
 }
 
 export function AndroidPermissionsPanel({ mode = 'all' }: AndroidPermissionsPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const baseLayoutStack = useLayoutStack();
   const conservative = useConservativeLayout();
   const layoutStack = baseLayoutStack || conservative;
@@ -307,7 +303,10 @@ export function AndroidPermissionsPanel({ mode = 'all' }: AndroidPermissionsPane
       {showOverlayPermission && (
         <SettingRow label={t('settings.permissions.androidOverlayLabel')}>
           <div className="ol-flex-row" style={actionRowStyle}>
-            {androidOverlay?.message && (
+            {resolveOverlayMessage(
+              androidOverlay?.message,
+              i18n.resolvedLanguage ?? i18n.language,
+            ) && (
               <span
                 style={{
                   fontSize: 11.5,
@@ -316,7 +315,10 @@ export function AndroidPermissionsPanel({ mode = 'all' }: AndroidPermissionsPane
                   textAlign: hintAlign,
                 }}
               >
-                {androidOverlay.message}
+                {resolveOverlayMessage(
+                  androidOverlay?.message,
+                  i18n.resolvedLanguage ?? i18n.language,
+                )}
               </span>
             )}
             <AndroidOverlayStatusPill status={androidOverlay} />
@@ -675,13 +677,18 @@ export function AndroidPermissionsPanel({ mode = 'all' }: AndroidPermissionsPane
                     style={selectStyle}
                   >
                     {(
-                      ['none', 'quick_note', 'translation', 'style_pack', 'cancel', 'qa', 'voice_edit'] as const
+                      [
+                        'none',
+                        'quick_note',
+                        'translation',
+                        'style_pack',
+                        'cancel',
+                        'qa',
+                        'voice_edit',
+                      ] as const
                     ).map((action) => (
                       <option key={action} value={action}>
-                        {t(
-                          `settings.permissions.androidOverlayGestureAction.${action}`,
-                          action,
-                        )}
+                        {t(`settings.permissions.androidOverlayGestureAction.${action}`, action)}
                       </option>
                     ))}
                   </select>
@@ -789,6 +796,28 @@ function resolveShizukuMessage(t: TFunction, key: string | null | undefined): st
 function resolveAccessibilityMessage(t: TFunction, key: string | null | undefined): string {
   if (!key) return '';
   return t(`settings.permissions.androidAccessibilityMessages.${key}`, { defaultValue: '' });
+}
+
+function resolveOverlayMessage(message: string | null | undefined, language: string): string {
+  if (!message) return '';
+  const lang = language.toLowerCase();
+  const isPt = lang.startsWith('pt');
+  const isZh = lang.startsWith('zh');
+  if (isZh) return message;
+  if (message === '悬浮窗权限已授予') {
+    return isPt ? 'Permissão de janela flutuante concedida' : 'Floating window permission granted';
+  }
+  if (message === '请在系统设置中授予悬浮窗权限') {
+    return isPt
+      ? 'Conceda a permissão de sobreposição nas configurações do sistema'
+      : 'Grant floating window permission in system settings';
+  }
+  if (message === '已打开悬浮窗权限设置') {
+    return isPt
+      ? 'Configurações de janela flutuante abertas'
+      : 'Opened floating window permission settings';
+  }
+  return message;
 }
 
 function AndroidShizukuStatusPill({ status }: { status: AndroidShizukuStatus | null }) {

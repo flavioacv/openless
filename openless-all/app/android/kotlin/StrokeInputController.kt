@@ -179,7 +179,7 @@ internal class StrokeInputController(private val service: OpenLessImeService) {
             textSize = 13f
             gravity = Gravity.CENTER
             setTextColor(service.tone(Color.rgb(150, 150, 150), Color.rgb(130, 130, 135)))
-            contentDescription = service.ui("清除笔画编码", "Clear stroke code")
+            contentDescription = service.ui("清除笔画编码", "Clear stroke code", "Limpar código de traços")
             setOnClickListener { clearStrokes() }
         }
         strokeRow.addView(clearStrokeButton, LinearLayout.LayoutParams(service.dp(40), ViewGroup.LayoutParams.MATCH_PARENT))
@@ -218,7 +218,7 @@ internal class StrokeInputController(private val service: OpenLessImeService) {
             "triangle-down",
             iconColor = service.tone(Color.rgb(180, 180, 180), Color.rgb(130, 130, 135)),
         ).apply {
-            contentDescription = service.ui("展开更多候选", "Show more candidates")
+            contentDescription = service.ui("展开更多候选", "Show more candidates", "Mostrar mais sugestões")
         }
         expandCandidatesButton.visibility = View.GONE
         expandCandidatesButton.setOnClickListener { service.showCandidateOverlay(expandCandidatesButton) }
@@ -386,25 +386,29 @@ internal class StrokeInputController(private val service: OpenLessImeService) {
             marginEnd = service.dp(8)
         })
 
-        // Backspace/Enter/Voice/Return/Symbols stay in Chinese regardless of UI
-        // language: they're functional keys on the number/symbol panel, not
-        // content the user is composing.
+        // Functional key labels follow the UI language; composed symbols stay unchanged.
+        val backspaceLabel = service.ui("退格", "Del", "Apagar")
+        val enterLabel = service.ui("回车", "Enter", "Enter")
+        val voiceLabel = service.ui("语音", "Voice", "Voz")
+        val numLabel = service.ui("数字", "123", "123")
+        val symLabel = service.ui("符号", "Sym", "Símb.")
+        val backLabel = service.ui("返回", "Back", "Voltar")
         val rows = if (numberSymbolMode) {
             val page = numberPanelSymbolPages[symbolPageIndex.coerceIn(numberPanelSymbolPages.indices)]
             listOf(
-                page.subList(0, 4) + "退格",
-                page.subList(4, 8) + "回车",
-                page.subList(8, 12) + "语音",
-                listOf("▲", "${symbolPageIndex + 1}/${numberPanelSymbolPages.size}", "▼", "数字", "返回"),
+                page.subList(0, 4) + backspaceLabel,
+                page.subList(4, 8) + enterLabel,
+                page.subList(8, 12) + voiceLabel,
+                listOf("▲", "${symbolPageIndex + 1}/${numberPanelSymbolPages.size}", "▼", numLabel, backLabel),
             )
         } else {
             listOf(
-                listOf("@", "1", "2", "3", "退格"),
-                listOf(":", "4", "5", "6", "回车"),
-                listOf(",", "7", "8", "9", "语音"),
+                listOf("@", "1", "2", "3", backspaceLabel),
+                listOf(":", "4", "5", "6", enterLabel),
+                listOf(",", "7", "8", "9", voiceLabel),
                 // "0" sits directly under "8", flanked by +/. — the same
                 // layout convention as a phone dial pad's "* 0 #" row.
-                listOf("+", "0", ".", "符号", "返回"),
+                listOf("+", "0", ".", symLabel, backLabel),
             )
         }
         val body = LinearLayout(service).apply { orientation = LinearLayout.VERTICAL }

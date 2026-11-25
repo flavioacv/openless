@@ -681,6 +681,18 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
         }
     }
 
+    private fun ui(zh: String, en: String, pt: String = en): String {
+        val raw = getSharedPreferences("openless_ime_ui", MODE_PRIVATE)
+            .getString("locale", null)
+            ?.takeUnless { it.equals("system", ignoreCase = true) || it.isBlank() }
+            ?: resources.configuration.locales[0].toLanguageTag()
+        return when {
+            raw.startsWith("pt", ignoreCase = true) -> pt
+            !raw.startsWith("zh", ignoreCase = true) -> en
+            else -> zh
+        }
+    }
+
     private fun cancelRecordingFromOverlay(direction: SwipeDirection) {
         if (!recording || gestureAction(direction) != "cancel") {
             return
@@ -696,7 +708,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
         } catch (error: Throwable) {
             Log.w(TAG, "cancel dictation bridge unavailable", error)
             applyVisualState(OverlayVisualState.Error)
-            showToast("语音服务未就绪，请打开 OpenLess 后重试")
+            showToast(ui("语音服务未就绪，请打开 OpenLess 后重试", "Voice service not ready; open OpenLess and try again", "Serviço de voz não está pronto. Abra o OpenLess e tente novamente"))
         }
     }
 
@@ -707,7 +719,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
         } catch (error: Throwable) {
             Log.w(TAG, "switch style pack bridge unavailable", error)
             applyVisualState(OverlayVisualState.Error)
-            showToast("语音服务未就绪，请打开 OpenLess 后重试")
+            showToast(ui("语音服务未就绪，请打开 OpenLess 后重试", "Voice service not ready; open OpenLess and try again", "Serviço de voz não está pronto. Abra o OpenLess e tente novamente"))
         }
     }
 
@@ -723,7 +735,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             Log.w(TAG, "finalize QA bridge unavailable", error)
             processing = false
             applyVisualState(OverlayVisualState.Error)
-            showToast("问答服务未就绪，请打开 OpenLess 后重试")
+            showToast(ui("问答服务未就绪，请打开 OpenLess 后重试", "Q&A service not ready; open OpenLess and try again", "Serviço de perguntas não está pronto. Abra o OpenLess e tente novamente"))
         }
     }
 
@@ -739,7 +751,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             Log.w(TAG, "finalize voice edit bridge unavailable", error)
             processing = false
             applyVisualState(OverlayVisualState.Recording)
-            showToast("语音服务未就绪，请打开 OpenLess 后重试")
+            showToast(ui("语音服务未就绪，请打开 OpenLess 后重试", "Voice service not ready; open OpenLess and try again", "Serviço de voz não está pronto. Abra o OpenLess e tente novamente"))
         }
     }
 
@@ -777,7 +789,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             recording = false
             processing = false
             applyVisualState(OverlayVisualState.Error)
-            showToast("语音服务未就绪，请打开 OpenLess 后重试")
+            showToast(ui("语音服务未就绪，请打开 OpenLess 后重试", "Voice service not ready; open OpenLess and try again", "Serviço de voz não está pronto. Abra o OpenLess e tente novamente"))
         }
     }
 
@@ -807,7 +819,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             recording = false
             processing = false
             applyVisualState(OverlayVisualState.Error)
-            showToast("语音服务未就绪，请打开 OpenLess 后重试")
+            showToast(ui("语音服务未就绪，请打开 OpenLess 后重试", "Voice service not ready; open OpenLess and try again", "Serviço de voz não está pronto. Abra o OpenLess e tente novamente"))
         }
     }
 
@@ -831,7 +843,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             recording = false
             processing = false
             applyVisualState(OverlayVisualState.Error)
-            showToast("语音服务未就绪，请打开 OpenLess 后重试")
+            showToast(ui("语音服务未就绪，请打开 OpenLess 后重试", "Voice service not ready; open OpenLess and try again", "Serviço de voz não está pronto. Abra o OpenLess e tente novamente"))
         }
     }
 
@@ -840,10 +852,10 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             checkSelfPermission(Manifest.permission.RECORD_AUDIO) !=
                 PackageManager.PERMISSION_GRANTED
         ) {
-            showToast("请先授予麦克风权限")
+            showToast(ui("请先授予麦克风权限", "Please grant microphone permission first", "Conceda permissão de microfone primeiro"))
             return false
         }
-        val notification = buildNotification("录音中")
+        val notification = buildNotification(ui("录音中", "Recording", "Gravando"))
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(
@@ -857,7 +869,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             true
         } catch (error: SecurityException) {
             Log.w(TAG, "microphone foreground service not allowed from current state", error)
-            showToast("系统限制后台录音，请在 OpenLess 内开始")
+            showToast(ui("系统限制后台录音，请在 OpenLess 内开始", "Background recording restricted by system; start inside OpenLess", "O sistema restringe gravação em segundo plano. Inicie dentro do OpenLess"))
             false
         }
     }
@@ -869,7 +881,7 @@ class OpenLessOverlayService : Service(), OpenLessOverlayBridge.OverlayStateList
             nm.createNotificationChannel(
                 NotificationChannel(
                     channelId,
-                    "OpenLess Overlay",
+                    ui("OpenLess 悬浮窗", "OpenLess Overlay", "Janela flutuante do OpenLess"),
                     NotificationManager.IMPORTANCE_LOW,
                 )
             )

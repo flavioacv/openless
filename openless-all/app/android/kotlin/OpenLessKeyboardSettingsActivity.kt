@@ -32,12 +32,19 @@ import androidx.core.view.WindowInsetsCompat
 class OpenLessKeyboardSettingsActivity : Activity() {
     private val prefs by lazy { getSharedPreferences("openless_ime_ui", Context.MODE_PRIVATE) }
 
-    private val englishUi by lazy {
-        val locale = prefs.getString("locale", null) ?: resources.configuration.locales[0].toLanguageTag()
-        !locale.startsWith("zh", ignoreCase = true)
+    private val rawLocale by lazy {
+        prefs.getString("locale", null)
+            ?.takeUnless { it.equals("system", ignoreCase = true) || it.isBlank() }
+            ?: resources.configuration.locales[0].toLanguageTag()
     }
+    private val portugueseUi by lazy { rawLocale.startsWith("pt", ignoreCase = true) }
+    private val englishUi by lazy { !rawLocale.startsWith("zh", ignoreCase = true) }
 
-    private fun ui(zh: String, en: String) = if (englishUi) en else zh
+    private fun ui(zh: String, en: String, pt: String = en) = when {
+        portugueseUi -> pt
+        englishUi -> en
+        else -> zh
+    }
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     /** Same "which theme is the keyboard actually showing" logic as OpenLessImeService.isDarkTheme, so this screen matches whatever the user is looking at when they long-press the Logo to get here. */
@@ -75,7 +82,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
 
     private fun saveMigrationSetting(write: () -> Unit) {
         if (!OpenLessMigrationState.settings(write)) {
-            Toast.makeText(this, ui("正在恢复配置，请稍后重试", "Configuration restore is in progress; try again shortly"), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, ui("正在恢复配置，请稍后重试", "Configuration restore is in progress; try again shortly", "Restauração de configuração em andamento; tente novamente em instantes"), Toast.LENGTH_SHORT).show()
             setContentView(buildContent())
         }
     }
@@ -102,7 +109,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         )
         header.addView(
             TextView(this).apply {
-                text = ui("键盘设置", "Keyboard settings")
+                text = ui("键盘设置", "Keyboard settings", "Configurações do teclado")
                 textSize = 18f
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 setTextColor(tone(Color.WHITE, Color.rgb(30, 30, 34)))
@@ -123,7 +130,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // footprint is as tall as the keyboard itself, so keeping it on this
         // page permanently left everything above it only a sliver to scroll
         // in. This row just names the current values and opens the sheet.
-        content.addView(sectionLabel(ui("键盘外观", "Keyboard appearance")))
+        content.addView(sectionLabel(ui("键盘外观", "Keyboard appearance", "Aparência do teclado")))
         val sizeSummary = TextView(this).apply {
             text = keyboardSizeSummary()
             textSize = 14f
@@ -137,7 +144,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         }
         sizeRow.addView(
             TextView(this).apply {
-                text = ui("键盘高度", "Keyboard height")
+                text = ui("键盘高度", "Keyboard height", "Altura do teclado")
                 textSize = 15f
                 setTextColor(tone(Color.rgb(220, 220, 220), Color.rgb(40, 40, 44)))
             },
@@ -201,12 +208,12 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // here, up top, rather than re-reading prefs at the exact point it's
         // used, so this row and the section it controls can never disagree
         // within a single render of this page.
-        content.addView(sectionLabel(ui("主设置", "Main settings")))
+        content.addView(sectionLabel(ui("主设置", "Main settings", "Configurações principais")))
         val debugFeaturesEnabled = prefs.getBoolean("key_debug_features_enabled", false)
         val debugRow = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         debugRow.addView(
             TextView(this).apply {
-                text = ui("调试功能", "Debug features")
+                text = ui("调试功能", "Debug features", "Recursos de depuração")
                 textSize = 15f
                 setTextColor(tone(Color.rgb(220, 220, 220), Color.rgb(40, 40, 44)))
             },
@@ -232,12 +239,12 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             },
         )
 
-        content.addView(sectionLabel(ui("震动反馈", "Haptic feedback")))
+        content.addView(sectionLabel(ui("震动反馈", "Haptic feedback", "Resposta tátil (vibração)")))
 
         val enabledRow = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         enabledRow.addView(
             TextView(this).apply {
-                text = ui("按键震动", "Key vibration")
+                text = ui("按键震动", "Key vibration", "Vibração das teclas")
                 textSize = 15f
                 setTextColor(tone(Color.rgb(220, 220, 220), Color.rgb(40, 40, 44)))
             },
@@ -256,19 +263,19 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             },
         )
 
-        content.addView(sectionLabel(ui("拼音云候选", "Cloud Pinyin candidates")))
+        content.addView(sectionLabel(ui("拼音云候选", "Cloud Pinyin candidates", "Sugestões de Pinyin na nuvem")))
         content.addView(Switch(this).apply {
-            text = ui("Google 云候选（发送当前拼音；密码和隐私输入禁用）", "Google cloud candidates (sends Pinyin; disabled in private fields)")
+            text = ui("Google 云候选（发送当前拼音；密码和隐私输入禁用）", "Google cloud candidates (sends Pinyin; disabled in private fields)", "Sugestões na nuvem do Google (envia Pinyin; desativado em campos privados)")
             isChecked = prefs.getBoolean("cloud_pinyin_enabled", false)
             setOnCheckedChangeListener { _, checked -> prefs.edit().putBoolean("cloud_pinyin_enabled", checked).apply() }
         })
         content.addView(Switch(this).apply {
-            text = ui("每周更新公共词库（学习词仅保存在本机）", "Weekly public dictionaries (learned words stay on this device)")
+            text = ui("每周更新公共词库（学习词仅保存在本机）", "Weekly public dictionaries (learned words stay on this device)", "Atualização semanal do dicionário público (palavras aprendidas ficam no dispositivo)")
             isChecked = prefs.getBoolean("public_dictionary_updates", true)
             setOnCheckedChangeListener { _, checked -> prefs.edit().putBoolean("public_dictionary_updates", checked).apply() }
         })
         content.addView(
-            sectionLabel(ui("模糊音", "Fuzzy pinyin")),
+            sectionLabel(ui("模糊音", "Fuzzy pinyin", "Pinyin aproximado (Fuzzy)")),
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                 topMargin = dp(14)
             },
@@ -276,7 +283,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         val fuzzy = RimeFuzzyPinyin.selected(prefs).toMutableSet()
         for (group in RimeFuzzyPinyin.groups) {
             content.addView(Switch(this).apply {
-                text = ui(group.labelZh, group.labelEn)
+                text = ui(group.labelZh, group.labelEn, group.labelPt)
                 isChecked = group.id in fuzzy
                 setOnCheckedChangeListener { _, checked ->
                     if (checked) fuzzy += group.id else fuzzy -= group.id
@@ -286,11 +293,11 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             })
         }
         content.addView(View(this), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(14)))
-        content.addView(sectionLabel(ui("英文键盘", "English keyboard")))
+        content.addView(sectionLabel(ui("英文键盘", "English keyboard", "Teclado alfabético (QWERTY)")))
         val englishSuggestionsRow = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         englishSuggestionsRow.addView(
             TextView(this).apply {
-                text = ui("英文单词提示", "English word suggestions")
+                text = ui("英文单词提示", "English word suggestions", "Sugestões de palavras")
                 textSize = 15f
                 setTextColor(tone(Color.rgb(220, 220, 220), Color.rgb(40, 40, 44)))
             },
@@ -322,7 +329,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // feeling the result is a single motion.
         content.addView(
             sliderRow(
-                label = ui("震动强度（系统上限）", "Intensity (platform ceiling)"),
+                label = ui("震动强度（系统上限）", "Intensity (platform ceiling)", "Intensidade da vibração (limite do sistema)"),
                 min = 1,
                 max = 255,
                 current = currentAmplitude,
@@ -335,7 +342,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         )
         content.addView(
             sliderRow(
-                label = ui("震动时长", "Duration"),
+                label = ui("震动时长", "Duration", "Duração da vibração"),
                 min = 1,
                 max = 125,
                 current = currentDurationMs,
@@ -347,7 +354,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             ),
         )
 
-        content.addView(sectionLabel(ui("后台运行", "Background")))
+        content.addView(sectionLabel(ui("后台运行", "Background", "Execução em segundo plano")))
         // OEM background-task killers (observed on-device: this app's own
         // settings Activity gets reclaimed by the system 16+ times/day even
         // with a foreground service running) largely ignore that
@@ -361,7 +368,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
             content.addView(
                 TextView(this).apply {
-                    text = ui("已加入电池优化白名单", "Already exempt from battery optimization")
+                    text = ui("已加入电池优化白名单", "Already exempt from battery optimization", "Já isento de otimização de bateria")
                     textSize = 13f
                     setTextColor(tone(Color.rgb(134, 239, 172), Color.rgb(21, 128, 61)))
                 },
@@ -375,6 +382,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
                     text = ui(
                         "系统电量管理可能频繁回收键盘的后台进程，导致设置页偶尔黑屏或响应变慢。加入电池优化白名单可以减少这种情况——效果因系统而异。",
                         "The system's battery manager may repeatedly reclaim the keyboard's background process, occasionally causing a black settings screen or slow responses. Exempting it from battery optimization can reduce this — effectiveness varies by device.",
+                        "O gerenciador de bateria do sistema pode encerrar repetidamente o processo em segundo plano do teclado, causando tela preta ocasional ou lentidão. Isentá-lo da otimização de bateria reduz esse problema (varia conforme o aparelho).",
                     )
                     textSize = 13f
                     setTextColor(tone(Color.rgb(200, 200, 200), Color.rgb(70, 70, 75)))
@@ -385,7 +393,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             )
             content.addView(
                 TextView(this).apply {
-                    text = ui("去允许后台活动 →", "Allow background activity →")
+                    text = ui("去允许后台活动 →", "Allow background activity →", "Permitir atividade em segundo plano →")
                     textSize = 15f
                     setTypeface(typeface, android.graphics.Typeface.BOLD)
                     setTextColor(tone(Color.rgb(94, 234, 212), Color.rgb(15, 118, 110)))
@@ -418,7 +426,6 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // switch's own comment). These counters help debug a specific
         // problem; they're noise for everyday reading otherwise.
         if (debugFeaturesEnabled) {
-            content.addView(sectionLabel(ui("进程重启统计（今天）", "Process restarts (today)")))
             // Short, purposefully un-translated keys (not meant to be pretty —
             // meant to be pasted into a screenshot and read back verbatim).
             // All reset to 0 whenever OpenLessBuildInfo.VERSION changes (see
@@ -453,20 +460,21 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             //                  crash/force-stop signal, can't tell those apart)
             // Chinese gloss for each key — just enough to read at a glance
             // without cross-referencing the doc comment above.
+            content.addView(sectionLabel(ui("进程重启统计（今天）", "Process restarts (today)", "Reinícios de processo (hoje)")))
             val restartCategories = listOf(
-                Triple(OpenLessProcessRestartStats.MAIN, "main", "主进程"),
-                Triple(OpenLessProcessRestartStats.ACCESSIBILITY, "access", "无障碍进程"),
-                Triple("sticky", "sticky", "系统杀后恢复"),
-                Triple("warmup", "warmup", "后端唤醒"),
-                Triple("mictap", "mictap", "点击时未就绪"),
-                Triple("actkill", "actkill", "界面被回收(合计)"),
-                Triple("actkill_config", "  ├config", "· 配置变化(无害)"),
-                Triple("actkill_finishing", "  ├finish", "· isFinishing(异常)"),
-                Triple("actkill_os", "  └os", "· 真正被系统回收"),
-                Triple("rtexit", "rtexit", "后端异常退出"),
-                Triple("unclean", "unclean", "上次异常退出"),
-                Triple("heartbeat", "heartbeat", "心跳自愈"),
-                Triple("stuckwindow", "stuckwindow", "设置窗口卡死自重启"),
+                Triple(OpenLessProcessRestartStats.MAIN, "main", ui("主进程", "Main process", "Processo principal")),
+                Triple(OpenLessProcessRestartStats.ACCESSIBILITY, "access", ui("无障碍进程", "Accessibility process", "Processo de acessibilidade")),
+                Triple("sticky", "sticky", ui("系统杀后恢复", "Recovered after OS kill", "Recuperado após encerramento do sistema")),
+                Triple("warmup", "warmup", ui("后端唤醒", "Backend wakeup", "Despertar do backend")),
+                Triple("mictap", "mictap", ui("点击时未就绪", "Not ready on tap", "Não pronto ao tocar")),
+                Triple("actkill", "actkill", ui("界面被回收(合计)", "Activity reclaimed (total)", "Interface recolhida (total)")),
+                Triple("actkill_config", "  ├config", ui("· 配置变化(无害)", "· Config change (harmless)", "· Mudança de config (inofensivo)")),
+                Triple("actkill_finishing", "  ├finish", ui("· isFinishing(异常)", "· isFinishing (unexpected)", "· isFinishing (inesperado)")),
+                Triple("actkill_os", "  └os", ui("· 真正被系统回收", "· Reclaimed by OS", "· Recolhido pelo sistema")),
+                Triple("rtexit", "rtexit", ui("后端异常退出", "Backend unexpected exit", "Saída inesperada do backend")),
+                Triple("unclean", "unclean", ui("上次异常退出", "Previous unclean exit", "Saída abrupta anterior")),
+                Triple("heartbeat", "heartbeat", ui("心跳自愈", "Heartbeat self-heal", "Autorrecuperação por heartbeat")),
+                Triple("stuckwindow", "stuckwindow", ui("设置窗口卡死自重启", "Stuck settings window self-restart", "Autorreinício de janela travada")),
             )
             for ((key, label, gloss) in restartCategories) {
                 content.addView(
@@ -488,21 +496,23 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // here — matches this section's existing convention of pure
         // display; the underlying preferences (strokeUsageEnabled etc.)
         // live in the app's own WebView settings, not this native page.
-        content.addView(sectionLabel(ui("个人偏好数据", "Personal preference data")))
+        content.addView(sectionLabel(ui("个人偏好数据", "Personal preference data", "Dados de preferências pessoais")))
         // 笔画输入的个人调频数据：记录"这个笔画码你选过哪个字"，越用越靠前
         // 排序，不影响词库本身，也不会同步到云端。联想学习单独一个存储、单独
         // 计上限，两者不再互相挤占。
         val strokePicks = StrokeUserFrequency.strokeCodes(this)
         val associationPicks = StrokeUserFrequency.associations(this)
-        for ((labelZh, labelEn, store) in listOf(
-            Triple("笔画调频", "Stroke ranking", strokePicks),
-            Triple("联想学习", "Association learning", associationPicks),
+        for ((labelZh, labelEn, pairPtStore) in listOf(
+            Triple("笔画调频", "Stroke ranking", "Frequência de traços" to strokePicks),
+            Triple("联想学习", "Association learning", "Aprendizado de associações" to associationPicks),
         )) {
+            val (labelPt, store) = pairPtStore
             content.addView(
                 TextView(this).apply {
                     text = ui(
                         "$labelZh：已记录 ${store.size()} / ${store.capacity()} 条",
                         "$labelEn: ${store.size()} / ${store.capacity()} entries recorded",
+                        "$labelPt: ${store.size()} / ${store.capacity()} registros",
                     )
                     textSize = 14f
                     setTextColor(tone(Color.rgb(200, 200, 200), Color.rgb(70, 70, 75)))
@@ -511,7 +521,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         }
         // 拼音的选词调频和造词由 Rime 的用户词典完成；这里只读条数。
         pinyinDictionaryText = TextView(this).apply {
-            text = ui("拼音用户词典：读取中…", "Pinyin user dictionary: loading…")
+            text = ui("拼音用户词典：读取中…", "Pinyin user dictionary: loading…", "Dicionário de usuário Pinyin: carregando…")
             textSize = 14f
             setTextColor(tone(Color.rgb(200, 200, 200), Color.rgb(70, 70, 75)))
         }
@@ -520,14 +530,15 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // 键盘自己的学习数据（上面三项）单独导出 / 导入，和 App 设置无关：
         // 设置走云同步，这里不进迁移文件，也不参与加密同步。
         val dataActions = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        dataActions.addView(dictionaryAction(ui("导出键盘数据 →", "Export keyboard data →")) { showKeyboardDataExportChoices() })
-        dataActions.addView(dictionaryAction(ui("导入键盘数据 →", "Import keyboard data →")) { pickKeyboardDataImportSource() })
+        dataActions.addView(dictionaryAction(ui("导出键盘数据 →", "Export keyboard data →", "Exportar dados do teclado →")) { showKeyboardDataExportChoices() })
+        dataActions.addView(dictionaryAction(ui("导入键盘数据 →", "Import keyboard data →", "Importar dados do teclado →")) { pickKeyboardDataImportSource() })
         content.addView(dataActions)
         content.addView(
             TextView(this).apply {
                 text = ui(
                     "可选择导出本页的键盘设置（高度、震动等）、拼音用户词典、笔画调频、联想学习，以及云笔记地址 / Token（明文）。不含 App 设置（设置通过云同步）。文件里有你学过的词，请妥善保管。导入时可选择部分：设置会被覆盖，学习数据与本机合并（同一条取较高的次数），不会删除现有内容。",
                     "Choose what to export: this page's keyboard settings (size, haptics…), the pinyin user dictionary, stroke ranking, association learning, and the cloud notes URL / token (plaintext). App settings are not included; cloud sync carries them. The file holds words you have learned; keep it private. On import, pick the parts: settings are replaced, learning data merges into this device's (the higher count wins) and nothing is removed.",
+                    "Escolha o que exportar: configurações do teclado desta página (altura, vibração…), dicionário Pinyin, frequência de traços, aprendizado de associações e URL / Token de notas na nuvem (texto simples). As configurações do app não são incluídas (usam sincronização na nuvem). O arquivo contém palavras aprendidas; mantenha-o seguro. Na importação, selecione as partes: configurações são substituídas e dados de aprendizado são mesclados com os deste dispositivo sem remover itens existentes.",
                 )
                 textSize = 12f
                 setTextColor(tone(Color.rgb(150, 150, 150), Color.rgb(110, 110, 115)))
@@ -540,12 +551,13 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // JSON POST 到这里配置的地址，不插入任何输入框，也不在本机留存。
         // 两项都填了才会真的提交——留空时只会在状态栏提示去设置里补上，不会
         // 静默失败。
-        content.addView(sectionLabel(ui("云笔记提交", "Cloud notes webhook")))
+        content.addView(sectionLabel(ui("云笔记提交", "Cloud notes webhook", "Envio de notas na nuvem")))
         content.addView(
             TextView(this).apply {
                 text = ui(
                     "话筒右划进入「云笔记」模式：录音经过整理后的文字会提交到下面的地址，不插入输入框，也不保存在本机。",
                     "Swipe the mic right to enter Cloud notes mode: the polished transcript is POSTed to the address below instead of being inserted — nothing is kept on this device either.",
+                    "Deslize o microfone para a direita para entrar no modo Notas na nuvem: a transcrição refinada é enviada para o endereço abaixo em vez de ser inserida no campo, sem ficar salva no dispositivo.",
                 )
                 textSize = 12f
                 setTextColor(tone(Color.rgb(150, 150, 150), Color.rgb(110, 110, 115)))
@@ -554,7 +566,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         )
         content.addView(
             textFieldRow(
-                label = ui("提交地址", "Submit URL"),
+                label = ui("提交地址", "Submit URL", "URL de envio"),
                 hint = "https://example.com/capture_ingest.php",
                 initial = prefs.getString("key_cloud_note_webhook_url", "") ?: "",
                 onChange = { prefs.edit().putString("key_cloud_note_webhook_url", it).apply() },
@@ -563,7 +575,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         content.addView(
             textFieldRow(
                 label = "Token",
-                hint = ui("输入法专用 Token", "IME-only token"),
+                hint = ui("输入法专用 Token", "IME-only token", "Token exclusivo do teclado"),
                 initial = prefs.getString("key_cloud_note_webhook_token", "") ?: "",
                 isSecret = true,
                 onChange = { prefs.edit().putString("key_cloud_note_webhook_token", it).apply() },
@@ -573,9 +585,9 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         // "语音识别来源": how many dictations in history the cloud and the local
         // model each recognized (with the local standby racing the cloud
         // either can win), the latest one's kind highlighted.
-        content.addView(sectionLabel(ui("语音识别来源", "Speech recognition source")))
+        content.addView(sectionLabel(ui("语音识别来源", "Speech recognition source", "Fonte de reconhecimento de voz")))
         val asrUsageText = TextView(this).apply {
-            text = ui("读取中…", "Loading…")
+            text = ui("读取中…", "Loading…", "Carregando…")
             textSize = 14f
             setTextColor(tone(Color.rgb(220, 220, 220), Color.rgb(50, 50, 55)))
         }
@@ -599,7 +611,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         }
         content.addView(
             TextView(this).apply {
-                text = "${ui("构建版本", "Build")} ${OpenLessBuildInfo.VERSION}  ${ui("安装于", "installed")} $installedAtText"
+                text = "${ui("构建版本", "Build", "Versão")} ${OpenLessBuildInfo.VERSION}  ${ui("安装于", "installed", "instalada em")} $installedAtText"
                 textSize = 11f
                 typeface = monospace
                 setTextColor(tone(Color.rgb(120, 120, 120), Color.rgb(150, 150, 155)))
@@ -624,21 +636,21 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         setOnClickListener { onClick() }
     }
 
-    private fun toast(zh: String, en: String) {
-        Toast.makeText(applicationContext, ui(zh, en), Toast.LENGTH_LONG).show()
+    private fun toast(zh: String, en: String, pt: String = en) {
+        Toast.makeText(applicationContext, ui(zh, en, pt), Toast.LENGTH_LONG).show()
     }
 
     /** Applies the saved fuzzy-pinyin groups; toggles made while one redeploy runs are folded into the next. */
     private fun scheduleFuzzyRedeploy() {
         if (!fuzzyRedeployPending.compareAndSet(false, true)) return
-        toast("正在更新拼音方案…", "Updating the pinyin schema…")
+        toast("正在更新拼音方案…", "Updating the pinyin schema…", "Atualizando esquema Pinyin…")
         val app = applicationContext
         rimeWorker.execute {
             fuzzyRedeployPending.set(false)
             val result = runCatching { OpenLessRime.applyFuzzyPinyin(app, RimeFuzzyPinyin.selected(prefs)) }
             runOnUiThread {
-                if (result.isSuccess) toast("模糊音已更新", "Fuzzy pinyin updated")
-                else toast("模糊音更新失败：${result.exceptionOrNull()?.message}", "Fuzzy pinyin update failed: ${result.exceptionOrNull()?.message}")
+                if (result.isSuccess) toast("模糊音已更新", "Fuzzy pinyin updated", "Pinyin aproximado atualizado")
+                else toast("模糊音更新失败：${result.exceptionOrNull()?.message}", "Fuzzy pinyin update failed: ${result.exceptionOrNull()?.message}", "Falha ao atualizar Pinyin aproximado: ${result.exceptionOrNull()?.message}")
             }
         }
     }
@@ -654,8 +666,8 @@ class OpenLessKeyboardSettingsActivity : Activity() {
                 } finally { scratch.delete() }
             }.getOrNull()
             runOnUiThread {
-                pinyinDictionaryText?.text = if (count == null) ui("拼音用户词典：读取失败", "Pinyin user dictionary: unavailable")
-                else ui("拼音用户词典：$count 条", "Pinyin user dictionary: $count entries")
+                pinyinDictionaryText?.text = if (count == null) ui("拼音用户词典：读取失败", "Pinyin user dictionary: unavailable", "Dicionário de usuário Pinyin: indisponível")
+                else ui("拼音用户词典：$count 条", "Pinyin user dictionary: $count entries", "Dicionário de usuário Pinyin: $count registros")
             }
         }
     }
@@ -680,17 +692,17 @@ class OpenLessKeyboardSettingsActivity : Activity() {
                 val chosen = sections.filterIndexed { index, _ -> checked[index] }.toSet()
                 if (chosen.isNotEmpty()) onConfirm(chosen)
             }
-            .setNegativeButton(ui("取消", "Cancel"), null)
+            .setNegativeButton(ui("取消", "Cancel", "Cancelar"), null)
             .show()
     }
 
     private fun showKeyboardDataExportChoices() {
         chooseSections(
-            ui("选择要导出的内容", "Choose what to export"),
+            ui("选择要导出的内容", "Choose what to export", "Escolher o que exportar"),
             KeyboardDataFile.Section.entries,
             KeyboardDataFile.defaultExport,
-            { ui(it.labelZh, it.labelEn) },
-            ui("下一步", "Next"),
+            { ui(it.labelZh, it.labelEn, it.labelPt) },
+            ui("下一步", "Next", "Avançar"),
         ) { pendingExport = it; pickKeyboardDataExportTarget() }
     }
 
@@ -702,7 +714,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             putExtra(android.content.Intent.EXTRA_TITLE, "openless-keyboard-data-$timestamp.json")
         }
         runCatching { startActivityForResult(intent, REQUEST_KEYBOARD_DATA_EXPORT) }
-            .onFailure { toast("找不到文件管理器", "No file manager available") }
+            .onFailure { toast("找不到文件管理器", "No file manager available", "Nenhum gerenciador de arquivos disponível") }
     }
 
     private fun pickKeyboardDataImportSource() {
@@ -712,29 +724,29 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             type = "*/*"
         }
         runCatching { startActivityForResult(intent, REQUEST_KEYBOARD_DATA_IMPORT) }
-            .onFailure { toast("找不到文件管理器", "No file manager available") }
+            .onFailure { toast("找不到文件管理器", "No file manager available", "Nenhum gerenciador de arquivos disponível") }
     }
 
     /** Lists the parts [contents] actually holds, with counts, all but the token checked. */
     private fun showKeyboardDataImportChoices(contents: KeyboardDataFile.Contents) {
         val sections = contents.present()
         if (sections.isEmpty()) {
-            toast("文件里没有可导入的数据", "The file holds nothing to import")
+            toast("文件里没有可导入的数据", "The file holds nothing to import", "O arquivo não contém dados para importar")
             return
         }
         chooseSections(
-            ui("选择要导入的内容", "Choose what to import"),
+            ui("选择要导入的内容", "Choose what to import", "Escolher o que importar"),
             sections,
             KeyboardDataFile.defaultImport,
-            { ui("${it.labelZh}（${contents.count(it)} 项）", "${it.labelEn} (${contents.count(it)})") },
-            ui("导入", "Import"),
+            { ui("${it.labelZh}（${contents.count(it)} 项）", "${it.labelEn} (${contents.count(it)})", "${it.labelPt} (${contents.count(it)})") },
+            ui("导入", "Import", "Importar"),
         ) { chosen ->
             val app = applicationContext
             rimeWorker.execute {
                 val result = runCatching { KeyboardDataFile.import(app, contents, chosen) }
                 runOnUiThread {
-                    result.onSuccess { toast("已导入：${chosen.joinToString("、") { it.labelZh }}", "Imported: ${chosen.joinToString(", ") { it.labelEn }}") }
-                        .onFailure { toast("导入失败：${it.message}", "Import failed: ${it.message}") }
+                    result.onSuccess { toast("已导入：${chosen.joinToString("、") { it.labelZh }}", "Imported: ${chosen.joinToString(", ") { it.labelEn }}", "Importado: ${chosen.joinToString(", ") { it.labelPt }}") }
+                        .onFailure { toast("导入失败：${it.message}", "Import failed: ${it.message}", "Falha ao importar: ${it.message}") }
                     if (!isFinishing && !isDestroyed) setContentView(buildContent())
                 }
             }
@@ -754,7 +766,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
                 val sections = pendingExport
                 pendingExport = emptySet()
                 if (sections.isEmpty()) {
-                    toast("请重新选择要导出的内容", "Choose what to export again")
+                    toast("请重新选择要导出的内容", "Choose what to export again", "Escolha novamente o que exportar")
                     return
                 }
                 rimeWorker.execute {
@@ -763,8 +775,8 @@ class OpenLessKeyboardSettingsActivity : Activity() {
                         check(OpenLessContentWriter.writeBytes(app, uri, json.toByteArray(Charsets.UTF_8))) { "write failed" }
                     }
                     runOnUiThread {
-                        result.onSuccess { toast("键盘数据已导出", "Keyboard data exported") }
-                            .onFailure { toast("导出失败：${it.message}", "Export failed: ${it.message}") }
+                        result.onSuccess { toast("键盘数据已导出", "Keyboard data exported", "Dados do teclado exportados") }
+                            .onFailure { toast("导出失败：${it.message}", "Export failed: ${it.message}", "Falha ao exportar: ${it.message}") }
                         refreshPinyinDictionaryCount()
                     }
                 }
@@ -772,13 +784,13 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             REQUEST_KEYBOARD_DATA_IMPORT -> rimeWorker.execute {
                 val result = runCatching {
                     val bytes = OpenLessContentReader.readBytes(app, uri, KeyboardDataFile.MAX_BYTES)
-                        ?: error(ui("读取失败或文件超过 48 MiB", "Read failed or file exceeds 48 MiB"))
+                        ?: error(ui("读取失败或文件超过 48 MiB", "Read failed or file exceeds 48 MiB", "Falha na leitura ou arquivo excede 48 MiB"))
                     runCatching { KeyboardDataFile.read(String(bytes, Charsets.UTF_8)) }
-                        .getOrElse { error(ui("不是 OpenLess 键盘数据文件", "Not an OpenLess keyboard data file")) }
+                        .getOrElse { error(ui("不是 OpenLess 键盘数据文件", "Not an OpenLess keyboard data file", "Não é um arquivo de dados do teclado OpenLess")) }
                 }
                 runOnUiThread {
                     result.onSuccess { if (!isFinishing && !isDestroyed) showKeyboardDataImportChoices(it) }
-                        .onFailure { toast("导入失败：${it.message}", "Import failed: ${it.message}") }
+                        .onFailure { toast("导入失败：${it.message}", "Import failed: ${it.message}", "Falha ao importar: ${it.message}") }
                 }
             }
         }
@@ -814,12 +826,12 @@ class OpenLessKeyboardSettingsActivity : Activity() {
 
     /** "云 N · 本 M" from nativeAsrUsage()'s "<local>,<cloud>,<latest>", the latest kind bold and colored. */
     private fun asrUsageSummary(usage: String?): CharSequence {
-        val parts = usage?.split(',') ?: return ui("后台服务未就绪", "Backend not ready")
+        val parts = usage?.split(',') ?: return ui("后台服务未就绪", "Backend not ready", "Serviço em segundo plano não está pronto")
         val local = parts.getOrNull(0)?.toIntOrNull() ?: 0
         val cloud = parts.getOrNull(1)?.toIntOrNull() ?: 0
-        if (local + cloud == 0) return ui("暂无听写记录", "No dictations yet")
-        val cloudText = ui("云 $cloud", "Cloud $cloud")
-        val localText = ui("本 $local", "Local $local")
+        if (local + cloud == 0) return ui("暂无听写记录", "No dictations yet", "Nenhum ditado registrado ainda")
+        val cloudText = ui("云 $cloud", "Cloud $cloud", "Nuvem $cloud")
+        val localText = ui("本 $local", "Local $local", "Local $local")
         val text = android.text.SpannableString("$cloudText · $localText")
         val (start, end, color) = when (parts.getOrNull(2)) {
             "cloud" -> Triple(0, cloudText.length, tone(Color.rgb(96, 165, 250), Color.rgb(37, 99, 235)))
@@ -841,7 +853,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
     private fun keyboardSizeSummary(): String {
         val heightDp = OpenLessImeService.panelHeightDp(this)
         val raiseDp = OpenLessImeService.raiseHeightDp(this)
-        return ui("按键区 ${heightDp}dp · 抬高 ${raiseDp}dp", "Keys ${heightDp}dp · raise ${raiseDp}dp")
+        return ui("按键区 ${heightDp}dp · 抬高 ${raiseDp}dp", "Keys ${heightDp}dp · raise ${raiseDp}dp", "Teclas ${heightDp}dp · elevação ${raiseDp}dp")
     }
 
     /**
@@ -863,7 +875,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             footprint.setSizes(heightDp, raiseDp)
         }
         val heightSlider = steppedSliderRow(
-            label = ui("按键区高度", "Key area height"),
+            label = ui("按键区高度", "Key area height", "Altura da área de teclas"),
             min = OpenLessImeService.MIN_KEYBOARD_HEIGHT_DP,
             max = OpenLessImeService.MAX_KEYBOARD_HEIGHT_DP,
             current = heightDp,
@@ -873,7 +885,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             },
         )
         val raiseSlider = steppedSliderRow(
-            label = ui("底部抬高", "Raise from bottom"),
+            label = ui("底部抬高", "Raise from bottom", "Elevação inferior"),
             min = OpenLessImeService.MIN_KEYBOARD_RAISE_DP,
             max = OpenLessImeService.MAX_KEYBOARD_RAISE_DP,
             current = raiseDp,
@@ -891,7 +903,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         }
         titleRow.addView(
             TextView(this).apply {
-                text = ui("键盘高度", "Keyboard height")
+                text = ui("键盘高度", "Keyboard height", "Altura do teclado")
                 textSize = 17f
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 setTextColor(tone(Color.WHITE, Color.rgb(30, 30, 34)))
@@ -900,7 +912,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         )
         titleRow.addView(
             TextView(this).apply {
-                text = ui("恢复默认", "Reset")
+                text = ui("恢复默认", "Reset", "Restaurar padrão")
                 textSize = 14f
                 setTextColor(linkColor)
                 setPadding(dp(10), dp(6), dp(10), dp(6))
@@ -913,7 +925,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
         )
         titleRow.addView(
             TextView(this).apply {
-                text = ui("完成", "Done")
+                text = ui("完成", "Done", "Concluído")
                 textSize = 14f
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 setTextColor(linkColor)
@@ -1088,7 +1100,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             setBackgroundColor(tone(Color.rgb(36, 36, 36), Color.rgb(220, 220, 224)))
             addView(
                 TextView(this@OpenLessKeyboardSettingsActivity).apply {
-                    text = ui("抬高", "Raise")
+                    text = ui("抬高", "Raise", "Elevação")
                     textSize = 11f
                     gravity = Gravity.CENTER
                     setTextColor(tone(Color.rgb(140, 140, 140), Color.rgb(120, 120, 125)))
@@ -1128,6 +1140,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             caption.text = ui(
                 "1:1 预览 · 键盘共占屏幕底部 ${heightDp + raiseDp}dp",
                 "1:1 preview · keyboard takes the bottom ${heightDp + raiseDp}dp",
+                "Prévia 1:1 · o teclado ocupa ${heightDp + raiseDp}dp na parte inferior",
             )
             root.requestLayout()
         }
@@ -1148,7 +1161,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
             }
         }
         val labelView = TextView(this).apply {
-            text = "$label · Max $max Set:$current"
+            text = ui("$label · 最大 $max 当前 $current", "$label · Max $max Set: $current", "$label · Máximo $max Atual: $current")
             textSize = 14f
             setTextColor(tone(Color.rgb(200, 200, 200), Color.rgb(70, 70, 75)))
         }
@@ -1161,7 +1174,7 @@ class OpenLessKeyboardSettingsActivity : Activity() {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                         if (fromUser) {
                             val value = progress + min
-                            labelView.text = "$label · Max $max Set:$value"
+                            labelView.text = ui("$label · 最大 $max 当前 $value", "$label · Max $max Set: $value", "$label · Máximo $max Atual: $value")
                             onChange(value)
                         }
                     }

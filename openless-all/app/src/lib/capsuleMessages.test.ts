@@ -1,4 +1,6 @@
 import { translateCapsuleMessage } from './capsuleMessages';
+import { createInstance } from 'i18next';
+import { pt } from '../i18n/pt';
 
 function assertEqual<T>(actual: T, expected: T, message?: string) {
   if (actual !== expected) {
@@ -113,4 +115,35 @@ assertEqual(
   'Falha no processamento, tente novamente',
 );
 
+// 7. New Stable selection polish / voice edit / style switch messages
+assertEqual(
+  translateCapsuleMessage('已打开预览，等待确认', t, 'done'),
+  'Prévia aberta, aguardando confirmação',
+);
+assertEqual(
+  translateCapsuleMessage('编辑方案解析失败，请重试', t, 'error'),
+  'Falha ao analisar o plano de edição, tente novamente',
+);
+assertEqual(
+  translateCapsuleMessage('录音启动失败: device busy', t, 'error'),
+  'Falha na gravação ou entrada de texto, tente novamente',
+);
+
 console.log('All capsule translation unit tests passed successfully!');
+
+const localized = createInstance();
+await localized.init({ lng: 'pt', resources: { pt: { translation: pt } }, fallbackLng: false });
+const portuguese = localized.getFixedT('pt');
+assertEqual(
+  translateCapsuleMessage('已切换：轻度润色', portuguese, 'done'),
+  'Estilo: Aprimoramento leve',
+);
+assertEqual(
+  translateCapsuleMessage('已切换：Meu estilo', portuguese, 'done'),
+  'Estilo: Meu estilo',
+);
+assertEqual(
+  translateCapsuleMessage('已切换：我的风格', portuguese, 'done'),
+  'Estilo: 我的风格',
+  'custom user names must be preserved',
+);

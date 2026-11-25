@@ -24,8 +24,11 @@
 static NSPanel *guidePanel;
 static NSTimer *guideTimer;
 
-static NSString *OLGuideText(NSString *zh, NSString *en) {
-    return [[[NSLocale preferredLanguages] firstObject] hasPrefix:@"zh"] ? zh : en;
+static NSString *OLGuideText(NSString *zh, NSString *en, NSString *pt) {
+    NSString *lang = [[NSLocale preferredLanguages] firstObject];
+    if ([lang hasPrefix:@"zh"]) return zh;
+    if ([lang hasPrefix:@"pt"]) return pt;
+    return en;
 }
 
 static void OLCloseAccessibilityGuide(void) {
@@ -65,12 +68,12 @@ void openless_show_accessibility_guide(void) {
         content.layer.backgroundColor = NSColor.windowBackgroundColor.CGColor;
         content.layer.cornerRadius = 14;
         content.layer.masksToBounds = YES;
-        NSButton *close = [NSButton buttonWithImage:[NSImage imageWithSystemSymbolName:@"xmark" accessibilityDescription:OLGuideText(@"关闭", @"Close")]
+        NSButton *close = [NSButton buttonWithImage:[NSImage imageWithSystemSymbolName:@"xmark" accessibilityDescription:OLGuideText(@"关闭", @"Close", @"Fechar")]
             target:guidePanel action:@selector(close)];
         close.frame = NSMakeRect(382, 104, 24, 24);
         close.bordered = NO;
         [content addSubview:close];
-        NSTextField *hint = [NSTextField wrappingLabelWithString:OLGuideText(@"将 OpenLess 拖入辅助功能列表，然后打开开关。", @"Drag OpenLess into the Accessibility list, then turn on its switch.")];
+        NSTextField *hint = [NSTextField wrappingLabelWithString:OLGuideText(@"将 OpenLess 拖入辅助功能列表，然后打开开关。", @"Drag OpenLess into the Accessibility list, then turn on its switch.", @"Arraste o OpenLess para a lista de Acessibilidade e ative a chave.")];
         hint.frame = NSMakeRect(18, 88, 352, 36);
         hint.font = [NSFont systemFontOfSize:13 weight:NSFontWeightMedium];
         [content addSubview:hint];

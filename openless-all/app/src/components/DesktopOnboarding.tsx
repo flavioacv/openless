@@ -54,6 +54,7 @@ const localeLabels = [
   'Español',
   'Français',
   'Deutsch',
+  'Português',
 ];
 const granted = (status: PermissionStatus | null) =>
   status === 'granted' || status === 'notApplicable';

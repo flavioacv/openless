@@ -114,6 +114,18 @@ class OpenLessRuntimeService : Service() {
         return if (authorizationActive() && !imeRequested) START_NOT_STICKY else START_STICKY
     }
 
+    private fun ui(zh: String, en: String, pt: String = en): String {
+        val raw = getSharedPreferences("openless_ime_ui", MODE_PRIVATE)
+            .getString("locale", null)
+            ?.takeUnless { it.equals("system", ignoreCase = true) || it.isBlank() }
+            ?: resources.configuration.locales[0].toLanguageTag()
+        return when {
+            raw.startsWith("pt", ignoreCase = true) -> pt
+            !raw.startsWith("zh", ignoreCase = true) -> en
+            else -> zh
+        }
+    }
+
     private fun buildNotification(): Notification {
         // Renamed from "openless_ime_runtime" (not just lowered the same
         // channel's importance): once a channel is created, its importance
@@ -122,27 +134,34 @@ class OpenLessRuntimeService : Service() {
         // no-op, so an already-installed app would never actually see this
         // get quieter without a fresh channel id forcing a fresh channel.
         val channelId = "openless_ime_runtime_v2"
+        val channelName = ui("OpenLess 输入法服务", "OpenLess IME Service", "Serviço de Teclado OpenLess")
+        val title = if (imeRequested) ui("OpenLess 输入法", "OpenLess Keyboard", "Teclado OpenLess") else "OpenLess"
+        val contentText = if (imeRequested) {
+            ui("输入法面板已就绪", "Keyboard panel ready", "Painel do teclado pronto")
+        } else {
+            ui("等待 ChatGPT 授权", "Waiting for ChatGPT authorization", "Aguardando autorização do ChatGPT")
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getSystemService(NotificationManager::class.java).createNotificationChannel(
                 NotificationChannel(
                     channelId,
-                    "OpenLess 输入法服务",
+                    channelName,
                     NotificationManager.IMPORTANCE_MIN,
                 )
             )
         }
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(this, channelId)
-                .setContentTitle(if (imeRequested) "OpenLess 输入法" else "OpenLess")
-                .setContentText(if (imeRequested) "输入法面板已就绪" else "等待 ChatGPT 授权")
+                .setContentTitle(title)
+                .setContentText(contentText)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setOngoing(true)
                 .build()
         } else {
             @Suppress("DEPRECATION")
             Notification.Builder(this)
-                .setContentTitle(if (imeRequested) "OpenLess 输入法" else "OpenLess")
-                .setContentText(if (imeRequested) "输入法面板已就绪" else "等待 ChatGPT 授权")
+                .setContentTitle(title)
+                .setContentText(contentText)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setOngoing(true)
                 .build()

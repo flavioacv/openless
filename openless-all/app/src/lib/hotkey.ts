@@ -182,7 +182,22 @@ export function getHotkeyCodeLabel(code: string): string {
     Period: '.',
     Slash: '/',
   };
-  if (labels[code]) return labels[code];
+  if (labels[code]) {
+    if (i18n.language.toLowerCase().startsWith('pt')) {
+      const portuguese: Record<string, string> = {
+        Space: 'Espaço',
+        ArrowUp: 'Cima',
+        ArrowDown: 'Baixo',
+        ArrowLeft: 'Esquerda',
+        ArrowRight: 'Direita',
+      };
+      return (
+        portuguese[code] ??
+        labels[code].replace(/^Left /, 'Esquerda ').replace(/^Right /, 'Direita ')
+      );
+    }
+    return labels[code];
+  }
   const letter = code.match(/^Key([A-Z])$/);
   if (letter) return letter[1];
   const digit = code.match(/^Digit([0-9])$/);
@@ -380,7 +395,12 @@ function sideModifierDisplayName(
         'super-left': platform.isWindows ? '左 Win' : '左 Super',
         'super-right': platform.isWindows ? '右 Win' : '右 Super',
       };
-  if (sideLabels[tag]) return sideLabels[tag];
+  if (sideLabels[tag]) {
+    const label = sideLabels[tag];
+    return i18n.language.toLowerCase().startsWith('pt')
+      ? label.replace(/^左/, 'Esquerda').replace(/^右/, 'Direita')
+      : label;
+  }
   if (platform.isMac) {
     switch (tag) {
       case 'cmd':
@@ -454,8 +474,9 @@ function formatPrimary(primary: string): string {
     }
   }
   const zh = i18n.language.toLowerCase().startsWith('zh');
-  const left = zh ? '左' : 'Left';
-  const right = zh ? '右' : 'Right';
+  const portuguese = i18n.language.toLowerCase().startsWith('pt');
+  const left = zh ? '左' : portuguese ? 'Esquerda' : 'Left';
+  const right = zh ? '右' : portuguese ? 'Direita' : 'Right';
   switch (trimmed.toLowerCase()) {
     case 'rightalt':
     case 'rightoption':

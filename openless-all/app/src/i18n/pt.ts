@@ -385,6 +385,10 @@ export const pt: typeof zhCN = {
     tagline: 'Fale naturalmente, escreva com perfeição',
   },
   common: {
+    ...{
+      cancelled: 'Cancelado',
+      networkError: 'Falha de conexão. Verifique a rede e tente novamente.',
+    },
     refreshed: 'Atualizado',
 
     presetProgrammer: 'Programação',
@@ -730,6 +734,7 @@ export const pt: typeof zhCN = {
       unknown: 'Desconhecido',
     },
     oauth: {
+      ...{ expiredError: 'A autorização do GitHub expirou. Inicie novamente.' },
       title: 'Entrar com o GitHub',
       generating: 'Gerando código do dispositivo…',
       browserHint: 'Abra {{uri}} no navegador e insira este código:',
@@ -1320,9 +1325,9 @@ export const pt: typeof zhCN = {
     target: {
       title: 'Idioma de destino da tradução',
       desc: 'Pressione Shift durante a gravação para acionar a tradução. "Desativado" faz com que Shift não execute nenhuma ação.',
-      disabled: 'Desativado (Shift não faz nada)',
+      disabled: 'Desativado ({{shortcut}} não inicia a tradução)',
       sameAsWorking:
-        'O destino coincide com o seu único idioma de trabalho, logo a tradução não terá efeito — o Shift executará apenas um aprimoramento normal. Escolha um destino diferente ou adicione outro idioma de trabalho acima.',
+        'O destino coincide com o seu único idioma de trabalho, logo a tradução não terá efeito — {{shortcut}} executará apenas um aprimoramento normal. Escolha um destino diferente ou adicione outro idioma de trabalho acima.',
     },
     style: {
       title: 'Estilo de tradução',
@@ -1344,7 +1349,7 @@ export const pt: typeof zhCN = {
       step5: 'O texto traduzido é inserido no cursor.',
       indicatorTitle: 'Como confirmar se o modo de tradução está ativado',
       indicatorDesc:
-        'Um indicador azul "Traduzindo" aparece na parte inferior da tela após pressionar Shift.',
+        'Um indicador azul "Traduzindo" aparece na parte inferior da tela após pressionar {{shortcut}}.',
       fallbackTitle: 'Mecanismos de segurança',
       fallbackDesc: 'Se a tradução falhar, a transcrição original é inserida em seu lugar.',
     },
@@ -2869,6 +2874,12 @@ export const pt: typeof zhCN = {
     close: 'Fechar',
   },
   hotkey: {
+    ...{
+      unset: 'Não configurado',
+      modeDoubleClickSuffix: ' (toque duplo)',
+      usageDoubleClick:
+        'Toque duas vezes em {{trigger}} para iniciar e pressione novamente para parar.',
+    },
     triggers: {
       rightOption: 'Option direita',
       leftOption: 'Option esquerda',

@@ -79,7 +79,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         check(response.optBoolean("ok")) { response.optString("error", "IME command failed") }
         true
     } catch (_: Throwable) {
-        setState("error", ui("语音操作失败，请重试", "Voice operation failed; please retry"))
+        setState("error", ui("语音操作失败，请重试", "Voice operation failed; please retry", "Falha na operação de voz; tente novamente"))
         false
     }
 
@@ -117,7 +117,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         val event = runCatching { org.json.JSONObject(json) }.getOrNull() ?: return
         if (event.optLong("requestId") != imeRequestId || imeRequestId == 0L) {
             if (event.optLong("requestId") == lastCancelledImeRequest && event.optString("error") == "Persistence") {
-                Toast.makeText(this, ui("录音清理失败，重新打开应用后重试", "Recording cleanup failed; reopen the app to retry"), Toast.LENGTH_LONG).show()
+                Toast.makeText(this, ui("录音清理失败，重新打开应用后重试", "Recording cleanup failed; reopen the app to retry", "Falha na limpeza da gravação; reabra o app para tentar novamente"), Toast.LENGTH_LONG).show()
             }
             return
         }
@@ -140,7 +140,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                     if (reviewCloudNote) openCloudNoteDraft(event.optString("text"), destination)
                     else submitCloudNoteText(event.optString("text"), destination, imeRequestId)
                 }
-                else if (event.optBoolean("quickNote")) setState("done", ui("笔记已记录", "Note saved"))
+                else if (event.optBoolean("quickNote")) setState("done", ui("笔记已记录", "Note saved", "Nota salva"))
                 else commitImeText(event.optString("text"))
             }
             "error" -> {
@@ -149,7 +149,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                 imeSessionId = null
                 pendingImeStop = false
                 pendingCloudArm = false
-                setState("error", ui("听写失败，请重试", "Dictation failed; please retry"))
+                setState("error", ui("听写失败，请重试", "Dictation failed; please retry", "Falha no ditado; tente novamente"))
             }
         }
     }
@@ -200,7 +200,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             }
             if (value && imeRequestId != 0L && imeSessionId == null) {
                 pendingCloudArm = true
-                updateStatus(ui("正在准备云笔记", "Preparing cloud note"))
+                updateStatus(ui("正在准备云笔记", "Preparing cloud note", "Preparando nota na nuvem"))
                 return
             }
             if (field == value) return
@@ -386,6 +386,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
     // state == "done"), directly above the @/backspace footer row.
     private var dictationResultRow: LinearLayout? = null
     private var englishUi = false
+    private var portugueseUi = false
     private val simplifiedToTraditional by lazy { Transliterator.getInstance("Hans-Hant") }
     // Packaged as an asset (not a drawable resource) so it survives the
     // gen/android scaffolding copy step the same way the stroke dictionaries do.
@@ -439,7 +440,11 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
     // stroke-match vs. association branching logic.
     internal var candidateOverlayEntries: List<Pair<String, () -> Unit>> = emptyList()
 
-    internal fun ui(zh: String, en: String) = if (englishUi) en else zh
+    internal fun ui(zh: String, en: String, pt: String = en) = when {
+        portugueseUi -> pt
+        englishUi -> en
+        else -> zh
+    }
 
     internal fun outputScript(text: String): String {
         if (!traditionalOutput) return text
@@ -601,7 +606,10 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
 
     internal fun refreshLanguage() {
         val locale = getSharedPreferences("openless_ime_ui", MODE_PRIVATE)
-            .getString("locale", null) ?: resources.configuration.locales[0].toLanguageTag()
+            .getString("locale", null)
+            ?.takeUnless { it.equals("system", ignoreCase = true) || it.isBlank() }
+            ?: resources.configuration.locales[0].toLanguageTag()
+        portugueseUi = locale.startsWith("pt", ignoreCase = true)
         englishUi = !locale.startsWith("zh", ignoreCase = true)
     }
 
@@ -755,7 +763,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         voiceButton = VoiceButton(this, isDarkTheme).apply {
             isClickable = true
             setOnClickListener { toggleDictation() }
-            contentDescription = ui("OpenLess 语音听写", "OpenLess dictation")
+            contentDescription = ui("OpenLess 语音听写", "OpenLess dictation", "Ditado por voz OpenLess")
             // All four swipe gestures follow the same pattern: a LIVE
             // boolean re-evaluated every ACTION_MOVE (not a one-way latch),
             // a matching live visual on VoiceButton (idle capsule orange for
@@ -942,7 +950,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         // an ordinary (non-Raw) dictation — see rawModeHintVisible() —
         // since at that point it's neither teaching a still-relevant
         // gesture nor confirming anything, just noise.
-        val rawModeTooltip = ui("Raw模式，语音原样转写，不做AI润色整理", "Raw mode, verbatim transcription without AI polishing")
+        val rawModeTooltip = ui("Raw模式，语音原样转写，不做AI润色整理", "Raw mode, verbatim transcription without AI polishing", "Modo Raw: transcrição literal sem refinamento por IA")
         voiceRawHint = TextView(this).apply {
             text = rawModeHintText()
             textSize = 11f
@@ -968,7 +976,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             },
         )
         voiceLinkWarning = TextView(this).apply {
-            text = ui("检测到麦克风无声音，点击重启应用", "No mic audio detected — tap to restart the app")
+            text = ui("检测到麦克风无声音，点击重启应用", "No mic audio detected — tap to restart the app", "Nenhum áudio detectado no microfone — toque para reiniciar o app")
             textSize = 16f
             if (englishUi) {
                 typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
@@ -1057,7 +1065,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         }
         val atButton = keyboardKey("@", 1f, action = { currentInputConnection?.commitText("@", 1) }).apply {
             textSize = 20f
-            contentDescription = ui("输入 @", "Insert at sign")
+            contentDescription = ui("输入 @", "Insert at sign", "Inserir @")
             layoutParams = LinearLayout.LayoutParams(dp(84), footerButtonHeight)
             flattenFooterButton(this, footerButtonHeight)
         }
@@ -1065,7 +1073,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         // "Return" — a real Chinese label reads better here than the
         // borrowed English term, so it gets its own larger, bold treatment
         // rather than reusing "Return"'s smaller size.
-        val returnLabel = if (englishUi) "Return" else "换行"
+        val returnLabel = ui("换行", "Return", "Enter")
         val returnButton = keyboardKey(returnLabel, 1f, action = { sendEnterKey() }).apply {
             textSize = if (englishUi) 18f else 20f
             if (englishUi) {
@@ -1073,7 +1081,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             } else {
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
             }
-            contentDescription = ui("回车", "Return")
+            contentDescription = ui("回车", "Return", "Enter")
             layoutParams = LinearLayout.LayoutParams(dp(120), footerButtonHeight)
             flattenFooterButton(this, footerButtonHeight)
         }
@@ -1085,7 +1093,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             repeatAction = { deleteBackward() },
         ).apply {
             textSize = 22f
-            contentDescription = ui("退格", "Backspace")
+            contentDescription = ui("退格", "Backspace", "Apagar")
             layoutParams = LinearLayout.LayoutParams(dp(84), footerButtonHeight)
             flattenFooterButton(this, footerButtonHeight)
         }
@@ -1111,13 +1119,13 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         val footerButtonHeight = dp(48)
         undoRedoButton = keyboardKey("✕", 1f, action = { toggleUndoRedoDictation() }).apply {
             textSize = 20f
-            contentDescription = ui("撤销本次听写结果", "Undo this dictation")
+            contentDescription = ui("撤销本次听写结果", "Undo this dictation", "Desfazer este ditado")
             layoutParams = LinearLayout.LayoutParams(dp(84), footerButtonHeight)
             flattenFooterButton(this, footerButtonHeight)
         }
         editResultButton = keyboardKey("✎", 1f, action = { openDictationEditDraft(requireSelection = false) }).apply {
             textSize = 20f
-            contentDescription = ui("编辑听写结果", "Edit dictation result")
+            contentDescription = ui("编辑听写结果", "Edit dictation result", "Editar resultado do ditado")
             layoutParams = LinearLayout.LayoutParams(dp(84), footerButtonHeight)
             flattenFooterButton(this, footerButtonHeight)
         }
@@ -1205,7 +1213,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             orientation = LinearLayout.HORIZONTAL
             gravity = android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
             isClickable = true
-            contentDescription = ui("打开 OpenLess 设置", "Open OpenLess settings")
+            contentDescription = ui("打开 OpenLess 设置", "Open OpenLess settings", "Abrir configurações do OpenLess")
             setOnClickListener { openSettings() }
             // Long-press opens a full-screen native settings window for
             // keyboard-only preferences (starting with vibration) that don't
@@ -1438,7 +1446,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         // approaches tried first (a single two-line SpannableString label,
         // and before that a padding-pushed overlay), both of which fought
         // this row's actual (tighter than assumed) real height.
-        val spaceButton = keyboardKey("Space", 5f, action = {
+        val spaceButton = keyboardKey(ui("Space", "Space", "Espaço"), 5f, action = {
             if (latinInputMode == LatinInputMode.PINYIN) {
                 rimePinyinController.space { renderPinyinCandidates(it) }
                 return@keyboardKey
@@ -1461,8 +1469,8 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         // other gray, so long-press's effect is legible at a glance either
         // way.
         val spaceHint = TextView(this).apply {
-            val pinyinLabel = ui("拼音", "PINYIN")
-            val englishLabel = ui("英文", "ENGLISH")
+            val pinyinLabel = ui("拼音", "PINYIN", "PINYIN")
+            val englishLabel = ui("英文", "ENGLISH", "ABC")
             val hintText = "$pinyinLabel\n$englishLabel"
             val englishStart = hintText.length - englishLabel.length
             val activeColor = if (isDarkTheme) Color.rgb(190, 45, 60) else Color.rgb(153, 26, 40)
@@ -1482,7 +1490,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             isClickable = true
             isFocusable = true
-            contentDescription = ui("切换拼音和英文", "Switch between Pinyin and English")
+            contentDescription = ui("切换拼音和英文", "Switch between Pinyin and English", "Alternar entre Pinyin e ABC")
             setOnClickListener { toggleLatinInputMode() }
             // Keep the hint above the raised space key so its tap target is
             // the visible mode label rather than the key underneath it.
@@ -1563,10 +1571,11 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             )
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 5f)
         }
-        val returnButton = keyboardKey("Return", 1.7f, action = {
+        val returnButton = keyboardKey(ui("Return", "Return", "Enter"), 1.7f, action = {
             if (latinInputMode != LatinInputMode.PINYIN) finalizeEnglishComposingWord()
             sendEnterKey()
         }).apply {
+            textSize = 17f
             typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
             // Same cherry red as the stroke panel's own right-side action
             // rail (Color.rgb(153, 26, 40)), per product request; fixed
@@ -2108,12 +2117,12 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
 
         val grid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val row1 = LinearLayout(this).apply { gravity = android.view.Gravity.CENTER }
-        val selectKey = quickActionLabel(ui("选择", "Range"), {
+        val selectKey = quickActionLabel(ui("选择", "Range", "Selec."), {
             clipboardSelectionMode = !clipboardSelectionMode
             clipboardSelectionAnchor = -1
             clipboardSelectionActive = -1
             refreshInputView()
-        }, 20f, highlighted = clipboardSelectionMode)
+        }, if (portugueseUi) 17f else 20f, highlighted = clipboardSelectionMode)
         val leftKey = quickActionIcon("dir-up", { sendClipboardCursorKey(android.view.KeyEvent.KEYCODE_DPAD_LEFT) }, clipboardSelectionMode, rotationDegrees = 270f)
         val rightKey = quickActionIcon("dir-up", { sendClipboardCursorKey(android.view.KeyEvent.KEYCODE_DPAD_RIGHT) }, clipboardSelectionMode, rotationDegrees = 90f)
         val upKey = quickActionIcon("dir-up", { sendClipboardCursorKey(android.view.KeyEvent.KEYCODE_DPAD_UP) }, clipboardSelectionMode, rotationDegrees = 0f)
@@ -2127,13 +2136,13 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         })
 
         val row2 = LinearLayout(this).apply { gravity = android.view.Gravity.CENTER }
-        val selectAllKey = quickActionLabel(ui("全选", "Select"), {
+        val selectAllKey = quickActionLabel(ui("全选", "Select", "Tudo"), {
             currentInputConnection?.performContextMenuAction(android.R.id.selectAll)
         }, 20f)
-        val copyKey = quickActionLabel(ui("复制", "Copy"), {
+        val copyKey = quickActionLabel(ui("复制", "Copy", "Copiar"), {
             currentInputConnection?.performContextMenuAction(android.R.id.copy)
-        }, 20f)
-        val pasteKey = quickActionLabel(ui("粘贴", "Paste"), {
+        }, if (portugueseUi) 18f else 20f)
+        val pasteKey = quickActionLabel(ui("粘贴", "Paste", "Colar"), {
             currentInputConnection?.performContextMenuAction(android.R.id.paste)
         }, 20f)
         // Two lines ("History" / "Edit") since this button opens both the
@@ -2147,11 +2156,11 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         // Same cherry red as the stroke panel's own right-side action rail
         // (Color.rgb(153, 26, 40)) — per product request, so these two keys
         // read as the equivalent "action" keys on this panel.
-        val clipboardKey = quickActionLabel(ui("历史\n编辑", "History\nEdit"), {
+        val clipboardKey = quickActionLabel(ui("历史\n编辑", "History\nEdit", "Hist.\nEditar"), {
             clipboardHistoryMode = true
             refreshInputView()
         }, 17f, midDivider = true).apply {
-            text = ui("历史\n编辑", "History\nEdit")
+            text = ui("历史\n编辑", "History\nEdit", "Hist.\nEditar")
             background = roundedButton(Color.rgb(153, 26, 40), dp(5))
             // quickActionLabel()'s own softWhite text color reads fine on a
             // normal/rose key but not on this now-red one (dark gray in
@@ -2226,11 +2235,11 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
 
         val tabsRow = LinearLayout(this).apply { gravity = android.view.Gravity.CENTER_VERTICAL }
         val tabs = listOf(
-            OpenLessClipboardHistory.Category.ALL to ui("全部", "All"),
-            OpenLessClipboardHistory.Category.RECENT to ui("最近", "Recent"),
-            OpenLessClipboardHistory.Category.TEXT to ui("文本", "Text"),
-            OpenLessClipboardHistory.Category.NUMBER to ui("数字", "Number"),
-            OpenLessClipboardHistory.Category.LINK to ui("链接", "Link"),
+            OpenLessClipboardHistory.Category.ALL to ui("全部", "All", "Tudo"),
+            OpenLessClipboardHistory.Category.RECENT to ui("最近", "Recent", "Recentes"),
+            OpenLessClipboardHistory.Category.TEXT to ui("文本", "Text", "Texto"),
+            OpenLessClipboardHistory.Category.NUMBER to ui("数字", "Number", "Núm."),
+            OpenLessClipboardHistory.Category.LINK to ui("链接", "Link", "Links"),
         )
         tabs.forEach { (category, label) ->
             val selected = category == clipboardHistoryCategory
@@ -2257,7 +2266,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         // the request as given; only this app's own local history is
         // affected, not anything external.
         tabsRow.addView(TextView(this).apply {
-            text = ui("清空", "Clear")
+            text = ui("清空", "Clear", "Limpar")
             textSize = 14f
             gravity = android.view.Gravity.CENTER
             setTextColor(tone(Color.rgb(190, 190, 190), Color.rgb(140, 140, 145)))
@@ -2269,7 +2278,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                 refreshInputView()
             }
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
-        tabsRow.addView(flatCircleButton("✕", 26, ui("关闭粘贴板", "Close clipboard")) {
+        tabsRow.addView(flatCircleButton("✕", 26, ui("关闭粘贴板", "Close clipboard", "Fechar área de transferência")) {
             clipboardHistoryMode = false
             refreshInputView()
         }, LinearLayout.LayoutParams(dp(30), dp(30)))
@@ -2303,7 +2312,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         }
         if (entries.isEmpty()) {
             listContainer.addView(TextView(this).apply {
-                text = ui("暂无粘贴板记录", "No clipboard history yet")
+                text = ui("暂无粘贴板记录", "No clipboard history yet", "Nenhum histórico na área de transferência")
                 textSize = 14f
                 if (englishUi) typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
                 gravity = android.view.Gravity.CENTER
@@ -2328,7 +2337,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                     setPadding(dp(6), 0, dp(6), 0)
                 }
                 val deleteZone = TextView(this).apply {
-                    text = ui("删除", "Delete")
+                    text = ui("删除", "Delete", "Excluir")
                     textSize = 13f
                     setTypeface(typeface, android.graphics.Typeface.BOLD)
                     gravity = android.view.Gravity.CENTER
@@ -2407,10 +2416,10 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                     correctionZone = correctionZone,
                     isFavorite = { entry.favorite },
                     hasCorrectionRule = { vocabularyPhrases.contains(entry.text) },
-                    addLabel = ui("加入收藏", "Add"),
-                    removeLabel = ui("取消收藏", "Remove"),
-                    addCorrectionLabel = ui("加入词典", "Add to dictionary"),
-                    removeCorrectionLabel = ui("移出词典", "Remove from dictionary"),
+                    addLabel = ui("加入收藏", "Add", "Favoritar"),
+                    removeLabel = ui("取消收藏", "Remove", "Remover"),
+                    addCorrectionLabel = ui("加入词典", "Add to dictionary", "Adicionar ao dicionário"),
+                    removeCorrectionLabel = ui("移出词典", "Remove from dictionary", "Remover do dicionário"),
                     onSuppressClick = { suppressRowClick = true },
                     onToggleFavorite = {
                         OpenLessClipboardHistory.toggleFavorite(this, entry.text)
@@ -2421,7 +2430,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                         refreshInputView()
                     },
                     onAddCorrection = {
-                        runNativeAction("加入词典") { OpenLessNative.nativeAddVocabularyWord(entry.text) }
+                        runNativeAction(ui("加入词典", "Add to dictionary", "Adicionar ao dicionário")) { OpenLessNative.nativeAddVocabularyWord(entry.text) }
                         refreshInputView()
                     },
                     onRemoveCorrection = {
@@ -2628,7 +2637,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             // Keep the existing palette and geometry, but give each key a subtle raised surface.
             elevation = dp(5).toFloat()
             translationZ = dp(1).toFloat()
-            contentDescription = label.ifBlank { ui("空格", "Space") }
+            contentDescription = label.ifBlank { ui("空格", "Space", "Espaço") }
             // Retargetable like buildEnglishCharKey()'s tap preview: any
             // sibling key built with its own swipeUpAction/swipePreview
             // carries that pair here as its tag, so a swipe-up gesture that
@@ -3266,7 +3275,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             "triangle-down",
             iconColor = tone(Color.rgb(180, 180, 180), Color.rgb(130, 130, 135)),
         ).apply {
-            contentDescription = ui("展开更多候选", "Show more candidates")
+            contentDescription = ui("展开更多候选", "Show more candidates", "Mostrar mais sugestões")
             visibility = View.GONE
             setOnClickListener { showCandidateOverlay(this) }
         }
@@ -3356,7 +3365,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         if (!englishCandidateProvider.isCustomWord(word)) return
         englishCandidateProvider.forgetCustomWord(word)
         performKeyHaptic()
-        Toast.makeText(this, ui("已移除“$word”", "Removed \"$word\""), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, ui("已移除“$word”", "Removed \"$word\"", "Removido \"$word\""), Toast.LENGTH_SHORT).show()
         updateEnglishCandidates()
     }
 
@@ -3680,8 +3689,8 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                     android.util.Log.w("OpenLessImeService", "backend not ready at mic tap; starting recovery watch")
                     OpenLessProcessRestartStats(this, "mictap").recordStart()
                 }
-                setState("error", ui("服务尚未就绪", "Service not ready yet"))
-                voiceLinkWarning?.text = ui("服务尚未就绪，点击重启应用", "Service not ready — tap to restart the app")
+                setState("error", ui("服务尚未就绪", "Service not ready yet", "Serviço ainda não está pronto"))
+                voiceLinkWarning?.text = ui("服务尚未就绪，点击重启应用", "Service not ready — tap to restart the app", "Serviço não está pronto — toque para reiniciar o app")
                 voiceLinkWarning?.visibility = View.VISIBLE
                 ensureBackendReady()
                 scheduleBackendReadyRecheck()
@@ -3692,7 +3701,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                 // previous Cloud Notes request is still in flight. Its
                 // completion must not disable or close this newer draft.
                 draftSubmitting = false
-                showDraftMessage(ui("新的听写已开始", "New dictation started"), isError = false)
+                showDraftMessage(ui("新的听写已开始", "New dictation started", "Novo ditado iniciado"), isError = false)
             }
             recording = true
             processing = false
@@ -3739,7 +3748,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
     private fun quickNoteDictation() {
         recording = false
         processing = true
-        setState("thinking", ui("正在保存笔记", "Saving note"))
+        setState("thinking", ui("正在保存笔记", "Saving note", "Salvando nota"))
         stopImeSession()
     }
 
@@ -3882,7 +3891,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             val elapsedMs = android.os.SystemClock.elapsedRealtime() - backendRecheckStartedAtMs
             android.util.Log.i("OpenLessImeService", "backend recovered after ${elapsedMs}ms (attempt=$attempt)")
             voiceLinkWarning?.visibility = View.GONE
-            setState("idle", ui("点击开始说话", "Tap to speak"))
+            setState("idle", ui("点击开始说话", "Tap to speak", "Toque para falar"))
             return
         }
         if (attempt >= 60) {
@@ -3902,7 +3911,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         } catch (error: Throwable) {
             recording = false
             processing = false
-            updateStatus("${action}失败，请打开 OpenLess 后重试")
+            updateStatus(ui("${action}失败，请打开 OpenLess 后重试", "$action failed; open OpenLess and try again", "Falha em $action; abra o OpenLess e tente novamente"))
             android.util.Log.w("OpenLessImeService", "$action native bridge unavailable", error)
         }
     }
@@ -3944,7 +3953,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                     // before a session ever starts) — but set this widget's
                     // own text explicitly anyway rather than trusting
                     // whatever the other case last left it as.
-                    voiceLinkWarning?.text = ui("检测到麦克风无声音，点击重启应用", "No mic audio detected — tap to restart the app")
+                    voiceLinkWarning?.text = ui("检测到麦克风无声音，点击重启应用", "No mic audio detected — tap to restart the app", "Nenhum áudio detectado no microfone — toque para reiniciar o app")
                     voiceLinkWarning?.visibility = View.VISIBLE
                 }
                 setState("speaking", "再次点击结束 · 下划取消")
@@ -4035,12 +4044,12 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
      */
     private fun rawModeHintText(): String {
         return when {
-            dictationInProgress() && rawModeArmed -> ui("原样转写", "Raw Mode")
-            dictationInProgress() && quickNoteArmed -> ui("速记模式", "Quick notes")
-            dictationInProgress() && cloudNoteArmed && cloudNoteReviewArmed -> ui("云笔记 · 发送前编辑", "Cloud notes · edit before sending")
-            state == "speaking" && cloudNoteArmed -> ui("云笔记 · 上划编辑后发送", "Cloud notes · swipe up to edit first")
-            dictationInProgress() && (cloudNoteArmed || cloudNoteSubmitting) -> ui("云笔记", "Cloud notes")
-            else -> ui("上划RAW · 左划速记 · 右划云笔记", "Up: Raw · Left: Quick notes · Right: Cloud notes")
+            dictationInProgress() && rawModeArmed -> ui("原样转写", "Raw Mode", "Modo Raw")
+            dictationInProgress() && quickNoteArmed -> ui("速记模式", "Quick notes", "Nota rápida")
+            dictationInProgress() && cloudNoteArmed && cloudNoteReviewArmed -> ui("云笔记 · 发送前编辑", "Cloud notes · edit before sending", "Nota na nuvem · editar antes de enviar")
+            state == "speaking" && cloudNoteArmed -> ui("云笔记 · 上划编辑后发送", "Cloud notes · swipe up to edit first", "Nota na nuvem · deslize p/ cima para editar")
+            dictationInProgress() && (cloudNoteArmed || cloudNoteSubmitting) -> ui("云笔记", "Cloud notes", "Nota na nuvem")
+            else -> ui("上划RAW · 左划速记 · 右划云笔记", "Up: Raw · Left: Quick notes · Right: Cloud notes", "Cima: Raw · Esq: Nota rápida · Dir: Nota na nuvem")
         }
     }
 
@@ -4145,7 +4154,8 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             retained,
             persisted,
         )
-        val message = ui(messageZh, messageEn)
+        val messagePt = cloudNoteFailureMessagePt(failure, httpCode, retained, persisted)
+        val message = ui(messageZh, messageEn, messagePt)
         if (requestId == imeRequestId) {
             setState("error", message)
         } else {
@@ -4289,7 +4299,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             draftCloudDestination = destination
         }
         if (draftPurpose == DraftPurpose.CLOUD_NOTE) {
-            setState("done", ui("请确认云笔记草稿", "Review the cloud note draft"))
+            setState("done", ui("请确认云笔记草稿", "Review the cloud note draft", "Revise o rascunho da nota na nuvem"))
         } else {
             setState("done", "已上屏")
         }
@@ -4300,13 +4310,13 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         val edit = draftEdit ?: return
         if (draftSubmitting) return
         if (recording || processing) {
-            showDraftMessage(ui("请先结束当前听写", "Finish the current dictation first"), isError = true)
+            showDraftMessage(ui("请先结束当前听写", "Finish the current dictation first", "Conclua o ditado atual primeiro"), isError = true)
             return
         }
         currentInputConnection?.finishComposingText()
         val text = edit.text.toString()
         if (text.isBlank()) {
-            showDraftMessage(ui("内容为空，无法确认", "Nothing to confirm"), isError = true)
+            showDraftMessage(ui("内容为空，无法确认", "Nothing to confirm", "Nada para confirmar"), isError = true)
             return
         }
         when (draftPurpose) {
@@ -4335,7 +4345,9 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
                 }
             } else {
                 showDraftMessage(
-                    if (englishUi && message.startsWith("云笔记提交失败")) "Cloud notes submit failed" else displayStatus(message),
+                    if (englishUi && message.startsWith("云笔记提交失败")) {
+                        ui("云笔记提交失败", "Cloud notes submit failed", "Falha ao enviar nota na nuvem")
+                    } else displayStatus(message),
                     isError = true,
                 )
             }
@@ -4388,7 +4400,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         }
         val replacesWhole = draftReplacesWholeResult
         if (!replaceInHost(host, original, text, draftOriginalHostStart)) {
-            showDraftMessage(ui("找不到原文，无法替换", "The original text is gone"), isError = true)
+            showDraftMessage(ui("找不到原文，无法替换", "The original text is gone", "O texto original não foi encontrado"), isError = true)
             return
         }
         closeDraft()
@@ -4412,7 +4424,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         if (recording || processing) cancelDictation()
         closeDraft()
         if (purpose == DraftPurpose.CLOUD_NOTE) {
-            setState("done", ui("已丢弃云笔记草稿", "Cloud note draft discarded"))
+            setState("done", ui("已丢弃云笔记草稿", "Cloud note draft discarded", "Rascunho da nota na nuvem descartado"))
             return
         }
         lastDictationText = restoreText
@@ -4455,8 +4467,8 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
     private fun updateDraftControls() {
         draftStatusView?.apply {
             text = draftMessage ?: when (draftPurpose) {
-                DraftPurpose.CLOUD_NOTE -> ui("云笔记草稿", "Cloud note draft")
-                DraftPurpose.DICTATION_EDIT -> ui("编辑后替换原文", "Edit, then replace")
+                DraftPurpose.CLOUD_NOTE -> ui("云笔记草稿", "Cloud note draft", "Rascunho de nota na nuvem")
+                DraftPurpose.DICTATION_EDIT -> ui("编辑后替换原文", "Edit, then replace", "Edite para substituir")
             }
             setTextColor(
                 if (draftMessage != null && draftMessageIsError) LINK_COLOR_CLOUD_NOTE
@@ -4508,12 +4520,12 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
             }
         }
         val cancel = barButton(
-            ui("取消", "Cancel"),
+            ui("取消", "Cancel", "Cancelar"),
             tone(Color.rgb(60, 60, 60), Color.rgb(225, 225, 228)),
             tone(Color.WHITE, Color.rgb(40, 40, 44)),
         ) { discardDraft() }
         val confirmFill = if (draftPurpose == DraftPurpose.CLOUD_NOTE) LINK_COLOR_CLOUD_NOTE else strokeEncodeAccentColor
-        val confirm = barButton(ui("确认", "Confirm"), confirmFill, Color.WHITE) { confirmDraft() }
+        val confirm = barButton(ui("确认", "Confirm", "Confirmar"), confirmFill, Color.WHITE) { confirmDraft() }
         val statusView = TextView(this).apply {
             textSize = 13f
             gravity = android.view.Gravity.CENTER
@@ -4608,9 +4620,9 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         editResultButton?.visibility = if (draftEdit == null) View.VISIBLE else View.INVISIBLE
         undoRedoButton?.text = if (dictationTextUndone) "↻" else "✕"
         undoRedoButton?.contentDescription = if (dictationTextUndone) {
-            ui("重做本次听写结果", "Redo this dictation")
+            ui("重做本次听写结果", "Redo this dictation", "Refazer este ditado")
         } else {
-            ui("撤销本次听写结果", "Undo this dictation")
+            ui("撤销本次听写结果", "Undo this dictation", "Desfazer este ditado")
         }
     }
 
@@ -4621,7 +4633,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         val extracted = connection.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
         val length = extracted?.text?.length ?: -1
         if (extracted == null || extracted.selectionStart !in 0..length || extracted.selectionEnd !in 0..length) {
-            setState("error", ui("无法确认光标位置，未修改文字", "Cannot verify cursor position; text unchanged"))
+            setState("error", ui("无法确认光标位置，未修改文字", "Cannot verify cursor position; text unchanged", "Não foi possível verificar a posição do cursor; texto inalterado"))
             return false
         }
         if (extracted.selectionStart != extracted.selectionEnd) {
@@ -4636,14 +4648,14 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         val text = lastDictationText ?: return
         if (sessionEpoch != lastDictationEpoch) return
         val connection = currentInputConnection ?: return
-        if (!requireCollapsedDictationCursor(connection, ui("请先取消选区，再撤销/重做", "Clear the selection before undo/redo"))) return
+        if (!requireCollapsedDictationCursor(connection, ui("请先取消选区，再撤销/重做", "Clear the selection before undo/redo", "Desfaça a seleção antes de desfazer/refazer"))) return
         if (!dictationTextUndone) {
             // deleteSurroundingText is length-based. If the utterance is no
             // longer exactly before the cursor (backspaced away, or the caret
             // sits inside it), deleting would erase neighboring text.
             val beforeCursor = connection.getTextBeforeCursor(text.length, 0)
             if (beforeCursor == null) {
-                setState("error", ui("无法读取原文，未撤销", "Cannot read original text; undo cancelled"))
+                setState("error", ui("无法读取原文，未撤销", "Cannot read original text; undo cancelled", "Não foi possível ler o texto original; ação cancelada"))
                 return
             }
             if (!DictationSpan.matchesBeforeCursor(beforeCursor, text)) {
@@ -4686,7 +4698,7 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         val original = when {
             selected != null -> selected
             requireSelection -> {
-                Toast.makeText(this, ui("请先选中字词", "Please select word"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, ui("请先选中字词", "Please select word", "Selecione um texto primeiro"), Toast.LENGTH_SHORT).show()
                 return
             }
             else -> lastDictationText?.takeIf { resultIntact } ?: return
@@ -4745,18 +4757,47 @@ class OpenLessImeService : InputMethodService(), OpenLessOverlayBridge.OverlaySt
         val token = ++statusRevertToken
         android.os.Handler(Looper.getMainLooper()).postDelayed({
             if (sessionEpoch == epoch && statusRevertToken == token) {
-                setState("idle", ui("点击开始说话", "Tap to speak"))
+                setState("idle", ui("点击开始说话", "Tap to speak", "Toque para falar"))
             }
         }, delayMs)
     }
 
     private fun displayStatus(message: String): String {
         if (!englishUi) return message
+        if (portugueseUi) {
+            return when (message) {
+                "点击开始说话" -> "Toque para falar"
+                "再次点击结束 · 下划取消" -> "Toque para concluir · Deslize para baixo para cancelar"
+                "正在思考" -> "Pensando"
+                "已完成", "已上屏" -> "Concluído"
+                "已撤销" -> "Desfeito"
+                "笔记已记录" -> "Nota salva"
+                "正在提交云笔记" -> "Enviando nota"
+                "已提交云笔记" -> "Nota enviada para a nuvem"
+                "请先在设置中填写云笔记的地址/Token" -> "Preencha o URL e o Token de notas na nuvem nas configurações"
+                "已取消" -> "Cancelado"
+                "敏感字段，已禁用听写", "敏感字段，禁止听写", "敏感字段，禁止上屏" -> "Ditado desativado neste campo"
+                "请先授予麦克风权限" -> "Permissão de microfone necessária"
+                "输入目标已失效", "输入连接已失效", "没有有效输入连接" -> "Toque em um campo de texto para continuar"
+                "没有识别到文字" -> "Nenhuma fala reconhecida"
+                "识别失败" -> "Falha no reconhecimento. Tente novamente."
+                else -> if (message.any { it in '\u4e00'..'\u9fff' }) {
+                    when {
+                        message.contains("失败") || state == "error" -> "Falha no ditado. Tente novamente."
+                        state == "thinking" -> "Pensando"
+                        state == "speaking" -> "Toque novamente para concluir"
+                        state == "done" -> "Concluído"
+                        else -> "Toque para falar"
+                    }
+                } else message
+            }
+        }
         return when (message) {
             "点击开始说话" -> "Tap to speak"
             "再次点击结束 · 下划取消" -> "Tap again to finish · Swipe down to cancel"
             "正在思考" -> "Thinking"
             "已完成", "已上屏" -> "Done"
+            "已撤销" -> "Undone"
             "笔记已记录" -> "Note saved"
             "正在提交云笔记" -> "Submitting"
             "已提交云笔记" -> "Cloud notes submitted"
